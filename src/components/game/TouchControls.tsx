@@ -45,10 +45,10 @@ export function TouchControls({ disabled, send, onMenu }: TouchControlsProps) {
         <button
           className="touch-button"
           type="button"
-          aria-label="Abrir menú de pisos"
+          aria-label="Abrir elevador"
           onClick={onMenu}
         >
-          ☰
+          Q
         </button>
         <button
           className="touch-button touch-button--interact"

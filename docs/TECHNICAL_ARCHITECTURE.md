@@ -1,19 +1,20 @@
 # Arquitectura técnica — JORGE.EXE
 
-**Estado:** contrato objetivo del MVP
+**Estado:** arquitectura vigente del rediseño
 
 **Arquitectura:** React + TypeScript + Vite/vinext + Phaser
 
 **Principio:** React presenta y coordina; Phaser simula el mundo; los datos tipados son la fuente de verdad.
 
-## Estado del repositorio al definir esta arquitectura
+## Estado actual del repositorio
 
 - Starter vinext `0.0.50` sobre Vite `8.0.13`.
 - React/React DOM `19.2.6` y TypeScript `5.9.3` en modo estricto.
 - Node.js requerido: `>=22.13.0`.
 - Estructura App Router en `app/`; el proyecto no parte de un `src/` convencional.
-- Phaser todavía debe añadirse como dependencia de producción.
-- Build y desarrollo usan los scripts vinext existentes.
+- Phaser `3.90` está integrado como dependencia de producción y se carga dinámicamente en cliente.
+- Build y desarrollo usan los scripts vinext existentes; la ruta Next nativa se conserva para Vercel.
+- `app/api/chess/route.ts` consulta datos públicos de Chess.com para `jorcolito` con caché y fallback.
 
 Por esta razón, el MVP conserva `app/` en la raíz y agrega módulos hermanos. Mover todo a `src/` no aporta valor y aumentaría el riesgo del starter.
 
@@ -23,10 +24,11 @@ Por esta razón, el MVP conserva `app/` en la raíz y agrega módulos hermanos. 
 2. **Una instancia de juego por montaje.** Abrir diálogos, modales, Quick View o preferencias no recrea Phaser.
 3. **Puente tipado por instancia.** React y Phaser se comunican mediante un bridge sin dependencias de React ni Phaser, no mediante eventos globales de `window`.
 4. **Estado con propietario único.** React no guarda posición o velocidad; Phaser no guarda el modal abierto ni el avance del diálogo.
-5. **Contenido estático compartido.** El juego y Quick View resuelven IDs contra los mismos objetos `readonly` tipados.
-6. **Superposiciones exclusivas.** Solo una de `dialogue`, `project`, `elevator`, `contact`, `quick-view` o `settings` está activa a la vez.
-7. **HTML para información profesional.** Canvas dibuja el mundo; diálogos, fichas, navegación de ascensor y Quick View son DOM semántico.
+5. **Contenido profesional compartido.** El juego y Quick View resuelven IDs contra los mismos objetos `readonly` tipados. Chess.com es una fuente externa aislada y opcional.
+6. **Superposiciones exclusivas.** Solo una de `dialogue`, `project`, `library`, `elevator`, `chess`, `contact`, `quick-view` o `settings` está activa a la vez.
+7. **HTML para información profesional.** Canvas dibuja el mundo; diálogos, fichas, navegación del elevador y Quick View son DOM semántico.
 8. **Degradación segura.** Quick View y contacto siguen utilizables si falla la carga del juego.
+9. **Datos externos detrás del servidor.** El navegador consume `/api/chess`; no conoce detalles de la PubAPI ni dispara varias solicitudes externas.
 
 ## Vista por capas
 
@@ -44,82 +46,47 @@ flowchart TB
   D["Typed content data"] --> O
   D --> Q
   D --> S
+  X["Chess.com PubAPI"] --> CH["Server route + cache"]
+  CH --> M["Chess modal opened by board"]
   A["Preferences adapter"] --> O
   A --> B
 ```
 
 Las flechas desde datos son de solo lectura. Phaser emite intenciones con IDs; React resuelve y presenta el contenido.
 
-## Estructura objetivo
+## Estructura actual relevante
 
 ```text
 app/
+  api/chess/route.ts          # caché y fallback de Chess.com
+  JorgeExeExperience.tsx     # raíz de cliente y estado UI
   layout.tsx
   page.tsx                    # shell de servidor mínimo
   globals.css
-components/
-  PortfolioExperience.tsx    # raíz de cliente y estado UI
-  accessibility/
-    SkipLinks.tsx
-    VisuallyHiddenStatus.tsx
-  game-ui/
+src/
+  components/game/
     GameCanvas.tsx
-    InteractionPrompt.tsx
     TouchControls.tsx
-    SoundToggle.tsx
-  modals/
-    AccessibleDialog.tsx
-    DialoguePanel.tsx
+  components/ui/
+    DialogueBox.tsx
     ProjectModal.tsx
-    ElevatorMenu.tsx
+    LibraryBookModal.tsx
+    ChessModal.tsx
     ContactModal.tsx
-  quick-view/
     QuickView.tsx
-    QuickViewNav.tsx
-data/
-  projects.ts
-  education.ts
-  about.ts
-  contact.ts
-  dialogues.ts
-  selectors.ts
-game/
-  config/
-    createGameConfig.ts
-  entities/
-    Player.ts
-  events/
-    gameBridge.ts
-    eventTypes.ts
-  scenes/
-    BootScene.ts
-    ElevatorScene.ts
-    LobbyScene.ts
-    ProjectsScene.ts
-    EducationScene.ts
-    AboutScene.ts
-    ContactScene.ts
-  systems/
-    InteractionSystem.ts
-    PlayerLockSystem.ts
-    TextureFactory.ts
-  types/
-    game.ts
-hooks/
-  useGameBridge.ts
-  useInputController.ts
-  useMediaPreferences.ts
-styles/
-  tokens.css
-  overlays.css
-types/
-  content.ts
-utils/
-  assertNever.ts
+  data/                       # proyectos, biblioteca, perfil y diálogos
+  game/
+    config/
+    entities/
+    events/GameBridge.ts
+    scenes/                   # dioramas de Lobby, Proyectos e InfoFloor
+    types/
+  lib/chess-com.ts            # normalizador server-side
+  types/                      # uniones y snapshots tipados
 docs/
 ```
 
-Si la implementación agrupa componentes pequeños, debe conservar las fronteras de responsabilidad anteriores aunque cambie el nombre de un archivo.
+Las fronteras se mantienen por responsabilidad: React presenta, Phaser simula, `src/data` conserva hechos editoriales y `src/lib/chess-com.ts` normaliza una fuente pública no canónica.
 
 ## Frontera SSR/cliente
 
@@ -127,26 +94,28 @@ Si la implementación agrupa componentes pequeños, debe conservar las fronteras
 
 ```ts
 useEffect(() => {
-  let disposed = false;
-  let game: Phaser.Game | undefined;
+  let cancelled = false;
+  let instance: PortfolioGameController | null = null;
 
-  void import("phaser").then(({ default: Phaser }) => {
-    if (disposed || !hostRef.current) return;
-    game = createPortfolioGame(Phaser, hostRef.current, bridge);
+  void import("../../game").then(({ createPortfolioGame }) => {
+    if (cancelled || !hostRef.current) return;
+    instance = createPortfolioGame({
+      parent: hostRef.current,
+      onEvent: (event) => eventHandlerRef.current?.(event),
+    });
   });
 
   return () => {
-    disposed = true;
-    game?.destroy(true);
-    bridge.dispose();
+    cancelled = true;
+    instance?.destroy();
   };
-}, [bridge]);
+}, []);
 ```
 
 Requisitos:
 
-- `bridge` se crea una sola vez con inicialización diferida de estado o `useRef`.
-- `createPortfolioGame` y las escenas no se importan en un componente de servidor.
+- El controlador se conserva en `useRef` y no se recrea cuando cambian props de UI.
+- `createPortfolioGame` y las escenas se importan dinámicamente desde un componente cliente.
 - La promesa comprueba desmontaje antes de crear el juego.
 - El cleanup destruye canvas, texturas, listeners y bridge; debe ser seguro si la carga no terminó.
 - Fast Refresh no puede dejar dos canvas ni dos listeners de teclado.
@@ -156,11 +125,18 @@ Requisitos:
 ```ts
 export type ProjectId = "cardrive" | "shiko" | "comernova";
 
-export type ExternalLink = {
-  label: string;
-  href: string | null;
-  status: "available" | "placeholder";
-};
+export type ResourceLink =
+  | {
+      availability: "available";
+      href: string;
+      label: string;
+    }
+  | {
+      availability: "placeholder";
+      href: null;
+      label: string;
+      placeholderMessage: string;
+    };
 
 export type Project = {
   id: ProjectId;
@@ -171,73 +147,69 @@ export type Project = {
   technologies: readonly string[];
   status: string;
   visual: { alt: string; placeholderLabel: string };
-  links: { demo: ExternalLink; github: ExternalLink };
+  links: { demo: ResourceLink; repository: ResourceLink };
 };
 ```
 
-Los arreglos se declaran con `as const satisfies readonly Project[]`. Las escenas guardan `projectId`, nunca una copia del proyecto. `selectors.ts` construye las secciones de Quick View a partir de los mismos módulos.
+Los arreglos se declaran con `as const satisfies readonly Project[]`. Las escenas guardan `projectId`, nunca una copia del proyecto. Quick View construye sus secciones a partir de los mismos módulos.
 
 Reglas de datos:
 
 - Los IDs son estables, minúsculos y no dependen del texto visible.
 - Los campos obligatorios no usan cadenas vacías.
-- Un placeholder usa `href: null` y `status: "placeholder"`; no usa `#`.
+- Un placeholder usa `href: null` y `availability: "placeholder"`; no usa `#`.
 - Los datos no contienen JSX ni instancias Phaser.
 - Las imágenes tienen texto alternativo o se marcan decorativas en el componente, no en la escena.
 - Las listas se tratan como inmutables.
+
+### Biblioteca académica
+
+`EducationLibraryItem` distingue grado, resultado de idioma y credencial cloud. La colección canónica contiene UEES, Cambridge C1 y AWS. El Statement of Results de Cambridge usa un `ResourceLink` disponible y conserva su denominación documental exacta; AWS usa `availability: "placeholder"` y `href: null` hasta recibir evidencia. La animación de libro y Quick View no mantienen inventarios separados.
+
+### Chess.com
+
+`app/api/chess/route.ts` llama en serie a estadísticas, lista de archivos y último archivo mensual para respetar los límites de la PubAPI. La respuesta se normaliza como `ChessSnapshot`:
+
+- Rapid actual y récord solo cuando `chess_rapid` existe;
+- máximo histórico de Tactics con esa etiqueta explícita;
+- mejor Puzzle Rush como puntuación, no como rating;
+- hasta cinco partidas recientes con campos opcionales saneados;
+- estado `live`, `partial` o `unavailable`.
+
+La ruta aplica caché de una hora, timeout por solicitud y siempre puede devolver un objeto de fallback sin cifras. No requiere API key, cookie ni secreto.
 
 ## Contrato explícito React–Phaser
 
 ### Transporte
 
-`GameBridge` es un emisor tipado, síncrono y por instancia. Puede implementarse con un pequeño mapa de listeners o un `EventTarget` envuelto. No añade una dependencia de estado global.
+`createPortfolioGame` devuelve un controlador por instancia. React envía una unión discriminada de comandos y Phaser responde mediante un callback de eventos; no existe un bus global ni una referencia en `window`.
 
 ```ts
-export interface EventMap {
-  "ui:start-experience": { skipIntro: boolean };
-  "ui:input": {
-    action: "left" | "right" | "up" | "down" | "jump" | "interact";
-    pressed: boolean;
-    source: "keyboard" | "touch";
-  };
-  "ui:overlay-changed": {
-    mode: "none" | "dialogue" | "project" | "elevator" | "contact" | "quick-view" | "settings";
-  };
-  "ui:travel-requested": {
-    sceneId: "lobby" | "projects" | "education" | "about" | "contact";
-    spawnId: "elevator" | "default";
-  };
-  "ui:preferences-changed": {
-    soundEnabled: boolean;
-    reducedMotion: boolean;
-    skipTransitions: boolean;
-  };
-  "ui:destroy": undefined;
+export type ReactToGameCommand =
+  | { type: "set-active"; active: boolean }
+  | { type: "set-ui-blocked"; blocked: boolean }
+  | { type: "set-reduced-motion"; reduced: boolean }
+  | { type: "set-muted"; muted: boolean }
+  | { type: "move"; direction: "left" | "right"; pressed: boolean }
+  | { type: "jump" }
+  | { type: "interact" }
+  | { type: "select-floor"; floor: 0 | -1 | -2 | -3 | -4 };
 
-  "game:ready": { sceneId: string };
-  "game:scene-changed": { sceneId: string; floor: 0 | -1 | -2 | -3 | -4 };
-  "game:focus-changed": {
-    target: null | { id: string; label: string };
-  };
-  "game:interaction-requested": {
-    targetId: string;
-    action:
-      | { kind: "dialogue"; dialogueId: string }
-      | { kind: "project"; projectId: ProjectId; preludeDialogueId?: string }
-      | { kind: "elevator" }
-      | { kind: "contact"; dialogueId: string };
-  };
-  "game:transition-changed": { active: boolean; label?: string };
-  "game:error": { code: string; message: string; recoverable: boolean };
-}
+export type GameToReactEvent =
+  | { type: "ready"; floor: number }
+  | { type: "floor-changed"; floor: number; label: string }
+  | { type: "prompt-changed"; prompt: InteractionPrompt | null }
+  | { type: "dialogue-requested"; dialogue: GameDialogue; after?: DialogueFollowUp }
+  | { type: "elevator-requested"; currentFloor: number; floors: readonly FloorOption[] }
+  | { type: "project-requested"; projectId: ProjectId }
+  | { type: "quick-view-requested" }
+  | { type: "chess-requested" }
+  | { type: "contact-requested" };
 
-export interface GameBridge {
-  emit<K extends keyof EventMap>(type: K, payload: EventMap[K]): void;
-  on<K extends keyof EventMap>(
-    type: K,
-    listener: (payload: EventMap[K]) => void,
-  ): () => void;
-  dispose(): void;
+export interface PortfolioGameController {
+  send(command: ReactToGameCommand): void;
+  focus(): void;
+  destroy(): void;
 }
 ```
 
@@ -245,18 +217,17 @@ export interface GameBridge {
 
 | Evento | Emisor → receptor | Efecto permitido |
 | --- | --- | --- |
-| `ui:start-experience` | React → Phaser | Iniciar Boot/intro o ir directamente a Lobby |
-| `ui:input` | React → Phaser | Actualizar entrada normalizada; ignorar si hay bloqueo |
-| `ui:overlay-changed` | React → Phaser | Adquirir o liberar el único bloqueo de UI |
-| `ui:travel-requested` | React → Phaser | Ejecutar transición y arrancar escena destino |
-| `ui:preferences-changed` | React → Phaser | Ajustar animación y audio sin guardar otra preferencia |
-| `ui:destroy` | React → Phaser | Retirar suscripciones antes de destruir el juego |
-| `game:ready` | Phaser → React | Cambiar indicador de carga por canvas listo |
-| `game:scene-changed` | Phaser → React | Actualizar etiqueta de piso; no controla la escena desde React |
-| `game:focus-changed` | Phaser → React | Mostrar/ocultar indicación y anuncio accesible |
-| `game:interaction-requested` | Phaser → React | Resolver IDs y abrir diálogo, ficha, ascensor o contacto |
-| `game:transition-changed` | Phaser → React | Mostrar estado de carga y bloquear acciones redundantes |
-| `game:error` | Phaser → React | Mostrar recuperación o acceso a Quick View y registrar diagnóstico |
+| `set-ui-blocked` | React → Phaser | Bloquear o liberar entrada mientras existe una superposición |
+| `move`, `jump`, `interact` | React → Phaser | Aplicar controles táctiles o imperativos normalizados |
+| `select-floor` | React → Phaser | Cambiar a la escena del piso elegido |
+| `set-reduced-motion`, `set-muted` | React → Phaser | Aplicar preferencias sin recrear el juego |
+| `ready`, `floor-changed` | Phaser → React | Actualizar estado de carga y etiqueta de piso |
+| `prompt-changed` | Phaser → React | Mostrar u ocultar la indicación accesible |
+| `dialogue-requested` | Phaser → React | Abrir diálogo y, si corresponde, un libro posterior |
+| `project-requested` | Phaser → React | Resolver el ID y abrir la ficha directamente |
+| `elevator-requested` | Phaser → React | Abrir el menú HTML del elevador; puede originarse por `Q` desde cualquier piso |
+| `quick-view-requested`, `contact-requested` | Phaser → React | Abrir la superposición HTML correspondiente |
+| `chess-requested` | Phaser → React | Abrir el modal de Chess.com únicamente desde el tablero |
 
 ### Propiedad del estado
 
@@ -268,26 +239,24 @@ export interface GameBridge {
 | Línea y progreso del diálogo | React | Phaser solo sabe que `mode !== "none"` |
 | Preferencias de sonido/movimiento | React | Phaser aplica el último valor recibido |
 | Datos profesionales | Módulos `data/` | React y Phaser leen por ID; ninguno los muta |
-| Entrada normalizada | React durante la pulsación | Phaser mantiene el estado necesario para su frame actual |
+| Entrada | Phaser para teclado; React para controles táctiles | Ambos convergen en los mismos comandos y respetan el bloqueo de UI |
 
 No se permite que Phaser abra DOM directamente, que React llame métodos de una escena, ni que un componente consulte `window.game`. Toda coordinación cruza el bridge.
 
-### Secuencia de proyecto y bloqueo
+### Secuencia directa de proyecto y bloqueo
 
 ```mermaid
 sequenceDiagram
   participant G as Phaser
   participant B as GameBridge
   participant R as React
-  G->>B: game:interaction-requested(projectId, prelude)
-  B->>R: resolver IDs en data/
-  R->>B: ui:overlay-changed(dialogue)
+  G->>B: project-requested(projectId)
+  B->>R: callback onEvent
+  R->>R: resolver projectId en data/
+  R->>B: send(set-ui-blocked: true)
   B->>G: congelar jugador
-  R->>R: avanzar diálogo
-  R->>B: ui:overlay-changed(project)
-  Note over G: continúa congelado; no hay frame desbloqueado
   R->>R: cerrar modal y restaurar foco
-  R->>B: ui:overlay-changed(none)
+  R->>B: send(set-ui-blocked: false)
   B->>G: restaurar estado físico y entrada
 ```
 
@@ -323,15 +292,17 @@ React normaliza teclado y táctil con `useInputController`:
 - emite `pressed: false` en `keyup`, `pointerup`, `pointercancel`, pérdida de foco y cambio de visibilidad;
 - no emite entrada de juego si hay una superposición activa;
 - Escape pertenece al controlador de superposiciones, no al movimiento;
+- `Q` pertenece al acceso global del elevador y se registra junto con las teclas de juego para impedir scroll accidental;
 - los botones táctiles usan Pointer Events y soportan presión mantenida.
 
 ## Escenas y sistemas
 
 - `BootScene`: crea texturas con `Graphics`, registra animaciones y emite progreso; se ejecuta una vez.
-- `ElevatorScene`: recibe origen/destino como datos y termina con `scene.start` del piso.
+- `ElevatorScene`: recibe origen/destino como datos y termina con `scene.start` del piso; el modal React representa la llegada y sus puertas.
 - Cada piso declara geometría, colliders, spawns y `Interactable[]`; no implementa lógica de modal.
 - `Player`: encapsula sprite, cuerpo y animaciones.
 - `InteractionSystem`: calcula objetivo más cercano y emite cambios solo cuando cambia el ID.
+- Las zonas de interacción también son clicables/táctiles y ejecutan la misma intención que `E`; su representación visual se ancla a objetos reales mediante contornos blancos pulsantes.
 - `PlayerLockSystem`: conserva/restaura estado sin pausar o recrear la escena completa.
 - `TextureFactory`: genera assets originales de baja resolución y fija filtrado `NEAREST`.
 
@@ -339,17 +310,19 @@ Las escenas se suscriben a eventos mediante funciones de cleanup asociadas a `sh
 
 ## Estado de React
 
-Un reducer local es suficiente; no se añade una librería de estado en el MVP.
+Una unión discriminada local en React es suficiente; no se añade una librería de estado en el MVP.
 
 ```ts
 type OverlayState =
-  | { mode: "none" }
-  | { mode: "dialogue"; dialogueId: string; next?: OverlayState }
-  | { mode: "project"; projectId: ProjectId }
-  | { mode: "elevator"; currentSceneId: string }
-  | { mode: "contact" }
-  | { mode: "quick-view"; returnFocusId?: string }
-  | { mode: "settings" };
+  | { type: "none" }
+  | { type: "dialogue"; dialogue: GameDialogue; followUp?: DialogueFollowUp }
+  | { type: "project"; projectId: ProjectId }
+  | { type: "library"; itemId: string }
+  | { type: "elevator"; currentFloor: PortfolioFloor; floors: readonly FloorOption[] }
+  | { type: "chess" }
+  | { type: "contact" }
+  | { type: "quick-view" }
+  | { type: "settings" };
 ```
 
 Las preferencias pueden persistirse en `localStorage` bajo una clave versionada, por ejemplo `jorge-exe.preferences.v1`; el estado del juego no se persiste. Lectura y escritura se hacen solo en cliente y toleran almacenamiento bloqueado.
@@ -379,7 +352,7 @@ Las preferencias pueden persistirse en `localStorage` bajo una clave versionada,
 
 - La portada y Quick View no esperan al chunk de Phaser.
 - Phaser y escenas se cargan dinámicamente después de iniciar, o durante tiempo ocioso sin bloquear interacción.
-- Primer mundo jugable: texturas generadas y assets esenciales; los otros pisos pueden cargar al elegirlos.
+- Primer mundo jugable: fondo de diorama y assets esenciales; los otros pisos pueden cargar al elegirlos.
 - Presupuesto orientativo: menos de `450 KB gzip` de JavaScript antes del juego, chunk de juego menor a `550 KB gzip` y assets iniciales menores a `1.5 MB`.
 - Objetivo práctico: 55–60 FPS en laptop y al menos 45 FPS estable en teléfono de gama media; bajar decoración antes que física o entrada.
 - No usar videos, filtros de postprocesado caros, bucles DOM por frame ni render React a 60 FPS.
@@ -391,6 +364,7 @@ Las preferencias pueden persistirse en `localStorage` bajo una clave versionada,
 - Un `game:error` recuperable no desmonta el shell.
 - IDs de contenido inexistentes producen un fallback seguro y diagnóstico en desarrollo; nunca un modal vacío.
 - Enlaces placeholder no navegan.
+- Un fallo o respuesta parcial de Chess.com mantiene el enlace público y omite las métricas ausentes.
 - Ningún error se oculta con un `catch` vacío.
 
 ## Validación
@@ -400,6 +374,7 @@ Las preferencias pueden persistirse en `localStorage` bajo una clave versionada,
 - TypeScript: contratos, discriminated unions y datos completos.
 - Unitarias: selector de contenido, reducer de overlays, bridge subscribe/unsubscribe e `InteractionSystem` determinista.
 - Componentes: foco/teclado de modal, Quick View y placeholders.
+- Datos externos: normalización de Chess.com, timeout, respuesta parcial y fallback completo.
 - Integración: evento de proyecto → diálogo → ficha → cierre; cambio de piso; cleanup del juego.
 - Build: `npm run build`.
 - Lint: `npm run lint`.
@@ -426,3 +401,4 @@ Las preferencias pueden persistirse en `localStorage` bajo una clave versionada,
 - **TA-08:** Cada suscripción devuelve cleanup y no aumenta tras cambios de escena.
 - **TA-09:** Un fallo de Phaser deja Quick View y contacto operativos.
 - **TA-10:** TypeScript, lint, build y pruebas existentes terminan sin errores antes de liberar.
+- **TA-11:** Un fallo de Chess.com no rompe el modal del tablero ni expone números de respaldo inventados.

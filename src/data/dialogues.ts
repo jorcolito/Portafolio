@@ -19,13 +19,13 @@ export const DIALOGUES = [
     defaults: DEFAULT_DIALOGUE_SETTINGS,
     lines: [
       {
-        speaker: "JORGE LABS",
-        text: "Espacio de trabajo cargado.",
+        speaker: "JORGE.EXE",
+        text: "Jorge Colamarco — desarrollador de software orientado a producto.",
         soundCue: "terminal-key",
       },
       {
-        speaker: "JORGE LABS",
-        text: "Explora el laboratorio o abre Quick View si prefieres ir directo a la información.",
+        speaker: "JORGE.EXE",
+        text: "Construyo soluciones web para operaciones reales: gestión, analítica y comercio. Elige una puerta o abre Quick View para ver lo esencial.",
       },
     ],
   },
@@ -46,12 +46,12 @@ export const DIALOGUES = [
       {
         speaker: "BOT-01",
         portrait: { id: "robot", alt: "Retrato del robot BOT-01" },
-        text: "Jorge me construyó durante una noche larga.",
+        text: "Jorge me dejó aquí para orientar visitas.",
       },
       {
         speaker: "BOT-01",
         portrait: { id: "robot", alt: "Retrato del robot BOT-01" },
-        text: "Todavía no entiendo Git.",
+        text: "Las puertas llevan directo a su trabajo.",
       },
     ],
   },
@@ -185,7 +185,7 @@ export const DIALOGUES = [
     floorId: "about",
     interactionId: "about-chess",
     defaults: DEFAULT_DIALOGUE_SETTINGS,
-    lines: [{ text: "Su ELO también está en desarrollo." }],
+    lines: [{ text: "Abrir actividad reciente de jorcolito en Chess.com." }],
   },
   {
     id: "ecuador-map",
@@ -194,7 +194,7 @@ export const DIALOGUES = [
     defaults: DEFAULT_DIALOGUE_SETTINGS,
     lines: [
       { text: "Guayaquil, Ecuador." },
-      { text: "Aquí comenzó esta partida." },
+      { text: "Desde aquí estudio, construyo productos y colaboro con equipos remotos." },
     ],
   },
   {
@@ -203,13 +203,8 @@ export const DIALOGUES = [
     interactionId: "about-suitcase",
     defaults: DEFAULT_DIALOGUE_SETTINGS,
     lines: [
-      { text: "Esta maleta viajó a California en 2025." },
-      {
-        text: "Volvió con experiencia, historias y menos miedo a hablar con desconocidos.",
-      },
-      {
-        text: "Rush Creek fortaleció la comunicación, la adaptación y el trabajo en equipo de Jorge.",
-      },
+      { text: "Una caja llena de versiones que nunca llegaron a producción." },
+      { text: "Cada prototipo descartado dejó una decisión mejor para el siguiente." },
     ],
   },
   {
@@ -218,8 +213,8 @@ export const DIALOGUES = [
     interactionId: "about-notebook",
     defaults: DEFAULT_DIALOGUE_SETTINGS,
     lines: [
-      { text: "Ideas para productos, automatizaciones y experiencias." },
-      { text: "La lista crece más rápido que el tiempo disponible." },
+      { text: "Primero aclaro el problema, la operación real y el criterio de éxito." },
+      { text: "Después diseño el flujo más corto, construyo una versión medible y la mejoro con evidencia." },
     ],
   },
   {
@@ -232,9 +227,10 @@ export const DIALOGUES = [
       soundCue: "terminal-key",
     },
     lines: [
-      { speaker: "JORGE LABS", text: "Gracias por llegar hasta aquí." },
-      { speaker: "JORGE LABS", text: "Ahora sí." },
-      { speaker: "JORGE LABS", text: "Hablemos." },
+      {
+        speaker: "JORGE.EXE",
+        text: "¿Buscas a alguien que convierta un problema real en software útil? Hablemos.",
+      },
     ],
     completion: { type: "open-contact" },
   },

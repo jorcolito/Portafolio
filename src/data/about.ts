@@ -25,11 +25,11 @@ export const ABOUT_OBJECTS = [
   },
   {
     id: "travel-bag",
-    label: "Maleta",
+    label: "Caja de prototipos",
     interactionId: "about-suitcase",
     dialogueId: "travel-bag",
     accessibleDescription:
-      "Maleta de la experiencia internacional de Jorge en 2025.",
+      "Caja con bocetos, pruebas y prototipos descartados durante el desarrollo de productos.",
   },
   {
     id: "ideas-notebook",

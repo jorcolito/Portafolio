@@ -1,6 +1,6 @@
 import type {
-  PlaceholderResourceLink,
   PortfolioProfile,
+  ResourceLink,
   Technology,
   TechnologyCategory,
   TechnologyGroup,
@@ -32,6 +32,7 @@ export const TECHNOLOGIES = [
   { id: "vercel", name: "Vercel", categoryId: "tools-and-deployment" },
 ] as const satisfies readonly Technology[];
 
+/** Group counts are always derived from the source technology array. */
 export const TECHNOLOGY_GROUPS: readonly TechnologyGroup[] =
   TECHNOLOGY_CATEGORIES.map((category) => ({
     ...category,
@@ -42,31 +43,28 @@ export const TECHNOLOGY_GROUPS: readonly TechnologyGroup[] =
 
 export const CONTACT_LINKS = [
   {
-    id: "contact-email-placeholder",
+    id: "contact-email",
     kind: "email",
-    label: "Correo pendiente",
-    ariaLabel: "Correo electrónico pendiente de confirmar",
-    availability: "placeholder",
-    href: null,
-    placeholderMessage: "Dirección de correo pendiente de proporcionar.",
+    label: "jorgecolamarco03@gmail.com",
+    ariaLabel: "Escribir a Jorge por correo electrónico",
+    availability: "available",
+    href: "mailto:jorgecolamarco03@gmail.com",
   },
   {
-    id: "contact-github-placeholder",
+    id: "contact-github",
     kind: "github",
-    label: "GitHub pendiente",
-    ariaLabel: "Perfil de GitHub pendiente de enlazar",
-    availability: "placeholder",
-    href: null,
-    placeholderMessage: "URL de GitHub pendiente de proporcionar.",
+    label: "github.com/jorcolito",
+    ariaLabel: "Abrir el perfil de Jorge en GitHub",
+    availability: "available",
+    href: "https://github.com/jorcolito",
   },
   {
-    id: "contact-linkedin-placeholder",
+    id: "contact-linkedin",
     kind: "linkedin",
-    label: "LinkedIn pendiente",
-    ariaLabel: "Perfil de LinkedIn pendiente de enlazar",
-    availability: "placeholder",
-    href: null,
-    placeholderMessage: "URL de LinkedIn pendiente de proporcionar.",
+    label: "Jorge Colamarco en LinkedIn",
+    ariaLabel: "Abrir el perfil de Jorge en LinkedIn",
+    availability: "available",
+    href: "https://www.linkedin.com/in/jorge-colamarco-a82456266/",
   },
   {
     id: "contact-cv-placeholder",
@@ -75,19 +73,26 @@ export const CONTACT_LINKS = [
     ariaLabel: "Currículum pendiente de adjuntar",
     availability: "placeholder",
     href: null,
-    placeholderMessage: "Archivo de CV pendiente de proporcionar.",
+    placeholderMessage: "El archivo del CV todavía no ha sido proporcionado.",
   },
-] as const satisfies readonly PlaceholderResourceLink[];
+] as const satisfies readonly ResourceLink[];
 
 export const PROFILE = {
   name: "Jorge Colamarco",
   brandName: "JORGE.EXE",
-  title: "Desarrollador de software y estudiante de Ciencias de la Computación",
+  title: "Desarrollador de software orientado a producto",
   location: "Guayaquil, Ecuador",
   introduction:
-    "Hola, soy Jorge Colamarco. Construyo productos digitales que convierten problemas reales en experiencias claras y útiles.",
+    "Convierto problemas operativos en productos web claros, mantenibles y fáciles de usar.",
   summary:
-    "Estudiante de Ingeniería en Ciencias de la Computación en la UEES, interesado en desarrollo full stack, inteligencia artificial aplicada y creación de productos SaaS.",
+    "Aporto una mirada de producto de extremo a extremo: entiendo el problema, diseño un flujo simple, construyo la solución y valido que resulte útil.",
+  availability:
+    "Disponible para conversar sobre oportunidades de desarrollo de software y colaboraciones de producto.",
+  workPrinciples: [
+    "Entender el problema antes de elegir la tecnología.",
+    "Reducir complejidad en la experiencia y en el código.",
+    "Entregar avances verificables y mejorar con feedback.",
+  ],
   languages: [
     { id: "spanish", name: "Español", level: "Nativo" },
     { id: "english", name: "Inglés", level: "C1" },

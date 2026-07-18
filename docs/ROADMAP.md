@@ -1,27 +1,30 @@
 # Roadmap del MVP — JORGE.EXE
 
-**Objetivo de entrega:** una vertical slice jugable y accesible que demuestre el concepto completo, con CarDrive como interacción de referencia y contenido básico navegable en los cinco pisos.
+**Objetivo de entrega:** una experiencia jugable y accesible formada por cinco dioramas compactos, con proyectos directos, biblioteca académica, señales personales reales y Quick View como ruta equivalente.
 
-## Estado inicial conocido
+## Estado actual del rediseño
 
 - El repositorio parte de un starter vinext/Vite con React, TypeScript, ESLint y scripts de build/pruebas.
 - La aplicación usa `app/` en la raíz; no se migrará a `src/` durante el MVP.
-- Phaser debe agregarse e integrarse solo en cliente.
-- No hay credenciales, URLs de perfil, correo, CV ni enlaces de proyectos confirmados.
-- El primer arte se construye con Phaser Graphics, SVG/CSS originales y placeholders ligeros.
+- Phaser ya está integrado y se carga solo en cliente.
+- Correo, GitHub, LinkedIn y el Statement of Results de Cambridge están confirmados; CV, credencial AWS y varios enlaces de proyecto siguen pendientes.
+- El elevador global con `Q`, sus puertas animadas, los contornos blancos, la proximidad con `E` y la activación por clic/toque ya forman el contrato jugable.
+- Lobby ofrece bitácora, Quick View y puertas directas; memoria, punto de guardado y sprites flotantes sin función quedaron fuera.
+- Chess.com se consulta exclusivamente desde el tablero; Quick View prioriza proyectos, tecnologías, credenciales, método y contacto en menos de un minuto.
 
 ## Decisiones de alcance
 
 | Tema | Decisión del MVP | Evolución posterior |
 | --- | --- | --- |
-| Mundo | Una sala lateral por cada uno de cinco pisos | Salas secundarias o secretos |
-| Nivel de detalle | Lobby y Proyectos pulidos; otros pisos compactos | Igualar profundidad por piso |
+| Mundo | Un diorama compacto por cada uno de cinco pisos | Variaciones ambientales o secretos breves |
+| Nivel de detalle | Todos los pisos densos; Lobby y Proyectos marcan el acabado | Igualar animaciones y profundidad por piso |
 | Proyecto de referencia | CarDrive | Demos integradas de SHIKO y Comernova |
 | Contenido | Datos TypeScript estáticos e inmutables | CMS solo si existe necesidad real |
 | Diálogos y paneles | HTML accesible sobre canvas | Retratos y audio ampliado |
-| Navegación | Ascensor + Quick View | Deep links a piso/objeto |
-| Guardado | Punto decorativo, sin persistencia | Recordar piso solo si mejora retorno |
-| Contacto | Enlaces y formulario visual sin envío | Backend con validación y antispam |
+| Navegación | Elevador global con `Q` + puertas del Lobby + Quick View | Deep links a piso/objeto |
+| Datos externos | Chess.com server-side con caché y fallback | Historial o visualizaciones adicionales si aportan valor |
+| Guardado | Sin memoria, punto de guardado ni persistencia | Recordar piso solo si mejora retorno |
+| Contacto | Correo, GitHub y LinkedIn directos; sin formulario ficticio | CV descargable cuando exista el archivo |
 | Audio | Silenciado hasta consentimiento | Música original y mezclador |
 | Idioma | Español | Inglés completo |
 | Arte | Formas/texturas/SVG originales ligeros | Sprites y fondos finales propios |
@@ -45,7 +48,7 @@
 **Resultado:** la información profesional ya es útil sin arrancar Phaser.
 
 - Añadir Phaser como única dependencia necesaria para el juego.
-- Crear tipos y datos canónicos para proyectos, educación, experiencia, tecnologías, contacto y diálogos.
+- Crear tipos y datos canónicos para proyectos, biblioteca académica, perfil, tecnologías, contacto y diálogos.
 - Implementar selectores compartidos.
 - Crear portada, skip link, Quick View y preferencias de movimiento/sonido.
 - Representar enlaces faltantes como placeholders deshabilitados.
@@ -60,21 +63,22 @@
 
 ### M2 — Núcleo jugable del Lobby
 
-**Resultado:** iniciar, moverse e interactuar ya se sienten como un juego web.
+**Resultado:** iniciar, moverse e interactuar ya se sienten como una escena viva y dirigida.
 
 - Cargar Phaser únicamente tras comenzar.
 - Implementar `BootScene`, texturas generadas y animaciones base.
 - Implementar introducción de ascensor, opción de omitir y reducción de movimiento.
-- Construir `LobbyScene`, suelo, límites, cámara y spawns.
-- Crear jugador con caminar, salto y colisiones.
+- Construir `LobbyScene` como diorama, con límites cortos, cámara contenida y focos visibles desde el spawn.
+- Crear jugador con caminar y colisiones; el movimiento no es una barrera de acceso.
 - Normalizar teclado y controles táctiles.
-- Añadir robot, terminal, prompt contextual y diálogo reutilizable.
+- Añadir bitácora, Quick View clicable, puertas directas, prompt contextual y diálogo reutilizable.
 - Añadir fallback visible si Phaser no inicia.
 
 **Definition of Done:**
 
 - Enter/clic/toque inicia; omitir introducción llega al Lobby.
-- Jugador camina, salta, colisiona y no sale de la sala.
+- Jugador camina, colisiona y no sale de la sala.
+- Ningún foco esencial exige mantener una dirección durante un recorrido largo.
 - La interacción se activa una vez por pulsación.
 - Diálogo soporta varias líneas, revelado inmediato, cierre y devolución de control.
 - No se acumulan canvas ni listeners después de desmontar/remontar.
@@ -83,41 +87,45 @@
 
 **Resultado:** el recorrido principal demuestra narrativa, juego y presentación profesional de extremo a extremo.
 
-- Crear menú HTML del ascensor y transición de piso.
+- Crear elevador global invocable con `Q`, menú HTML y transición de puertas.
 - Implementar `ProjectsScene` y objeto de garaje CarDrive.
-- Enlazar interacción → preludio → ficha de CarDrive.
+- Enlazar interacción → ficha directa de CarDrive.
 - Añadir captura placeholder, funciones, tecnologías, estado y acciones.
 - Implementar foco modal y cierre con Escape/botón.
-- Implementar `PlayerLockSystem` con suspensión en aire.
+- Implementar un bloqueo idempotente mientras existe una superposición.
 - Confirmar que abrir/cerrar UI no recrea Phaser.
 
 **Definition of Done:**
 
-- Lobby → Ascensor → Proyectos → CarDrive funciona con teclado y táctil.
-- Al abrir diálogo/ficha, el jugador queda inmóvil en suelo o aire.
-- Diálogo → ficha no produce un frame desbloqueado.
+- Lobby → `Q` → Proyectos → CarDrive funciona con teclado y táctil.
+- Al abrir diálogo/ficha, el jugador queda inmóvil y no acumula entrada.
+- Una pulsación abre una sola ficha y el cierre devuelve control una sola vez.
 - Cerrar restaura física, entrada y foco.
 - CarDrive muestra “MVP en desarrollo” y links placeholder correctos.
 
 ### M4 — Contenido inicial completo
 
-**Resultado:** los cinco pisos forman una experiencia coherente, aunque el detalle visual sea desigual a propósito.
+**Resultado:** los cinco pisos forman una colección coherente de escenas densas, cada una con una interacción memorable.
 
 - Añadir estaciones SHIKO y Comernova con fichas distintas.
-- Crear `EducationScene` con UEES, inglés C1 y experiencia académica.
-- Crear `AboutScene` con laptop, ajedrez, mapa y maleta.
-- Crear `ContactScene` con terminal y panel de contacto.
-- Conectar todos los pisos al mismo ascensor.
-- Reflejar toda la información en Quick View.
-- Añadir señales, punto de guardado decorativo y feedback de piso.
+- Crear `EducationScene` como biblioteca compacta, con UEES, Cambridge C1 verificable y AWS pendiente.
+- Añadir apertura animada de libro y panel reutilizable para documentos.
+- Crear `AboutScene` con Guayaquil correctamente situado, método de trabajo y tablero conectado a datos públicos de Chess.com.
+- Crear `ContactScene` con escritorio como ancla provisional y panel de contacto real; el avatar espera una foto de Jorge.
+- Añadir ruta server-side de Chess.com con caché, timeout y fallback sin cifras ficticias.
+- Conectar todos los pisos al mismo elevador global.
+- Reflejar lo esencial en Quick View sin duplicar Chess.com ni añadir contadores decorativos.
+- Añadir señalética, iluminación y animaciones idle discretas sin sprites flotantes que parezcan contenido.
 
 **Definition of Done:**
 
 - Se visitan los cinco pisos y se regresa al Lobby.
-- Cada objeto esencial se alcanza sin saltar.
+- Cada objeto esencial se reconoce al entrar o se alcanza en pocos segundos.
 - Los tres proyectos muestran contenido y estados correctos.
-- Contacto no simula un envío ni inventa correo/URLs.
+- Contacto no simula un envío y usa correo/URLs confirmados.
 - Quick View contiene la misma información que las interacciones esenciales.
+- Cambridge se presenta como Statement of Results, AWS permanece pendiente y no hay volúmenes universitarios ficticios.
+- Chess.com puede fallar sin romper el modal del tablero ni el resto del portafolio.
 
 ### M5 — Responsive, accesibilidad y rendimiento
 
@@ -128,7 +136,7 @@
 - Mostrar controles táctiles por capacidad/preferencia, no solo por ancho.
 - Verificar foco, región viva, nombres accesibles, contraste y zoom al 200 %.
 - Respetar `prefers-reduced-motion` y permitir sobrescritura.
-- Reducir partículas, paralaje y DPR cuando sea necesario.
+- Reducir partículas, profundidad ambiental y DPR cuando sea necesario.
 - Lazy-load de Phaser/pisos y revisión de tamaños de chunk/asset.
 - Auditar cleanup de escenas, bridge, teclado, Pointer Events y ResizeObserver.
 
@@ -175,18 +183,18 @@ Cada fila debe tener evidencia: prueba automatizada, revisión manual reproducib
 | MVP-05 | Enter, clic o toque inicia la experiencia | Prueba de interacción |
 | MVP-06 | La introducción se puede omitir | Prueba con preferencia normal y reducida |
 | MVP-07 | Jugador se mueve a izquierda/derecha | Prueba manual teclado/táctil |
-| MVP-08 | Jugador salta y aterriza | Prueba manual |
+| MVP-08 | La sala se lee como un diorama y sus focos principales están visibles al entrar | Revisión visual |
 | MVP-09 | Suelo y límites tienen colisión | Prueba manual y configuración inspeccionada |
 | MVP-10 | Prompt aparece solo dentro del rango | Prueba del sistema de interacción |
 | MVP-11 | Diálogo inicia, avanza, revela y termina | Prueba de componente/integración |
-| MVP-12 | Ascensor abre y permite llegar a Proyectos | Prueba de flujo |
+| MVP-12 | `Q` abre el elevador desde cualquier punto y permite llegar a Proyectos | Prueba de flujo |
 | MVP-13 | CarDrive abre su ficha completa | Prueba de flujo y contenido |
-| MVP-14 | Jugador queda suspendido al abrir en salto | Prueba manual dirigida |
+| MVP-14 | Repetir Enter no reinicia ni cierra dos veces un diálogo | Prueba manual dirigida |
 | MVP-15 | Modal cierra por botón y Escape | Prueba de teclado/componente |
 | MVP-16 | El control vuelve sin recrear juego | Contador de instancias + prueba manual |
 | MVP-17 | Quick View funciona desde portada y juego | Prueba de navegación/teclado |
 | MVP-18 | SHIKO y Comernova muestran estado correcto | Prueba de datos/render |
-| MVP-19 | Educación, Sobre mí y Contacto son navegables | Recorrido de cinco pisos |
+| MVP-19 | Biblioteca, Sobre mí, tablero Chess.com y Contacto son navegables | Recorrido de cinco pisos y fallback de API |
 | MVP-20 | Controles táctiles básicos responden y se liberan | Prueba Pointer Events |
 | MVP-21 | No hay errores importantes en consola | Revisión de recorrido completo |
 | MVP-22 | README explica ejecutar, validar, limitar y desplegar | Revisión documental |
@@ -200,7 +208,7 @@ No se avanza a la siguiente puerta si falla un criterio previo que invalida el f
 
 1. **Datos:** tipos estrictos, placeholders honestos, una sola fuente.
 2. **Shell:** portada y Quick View disponibles sin Phaser.
-3. **Juego:** movimiento, colisión e interacción estables.
+3. **Juego:** dioramas densos, movimiento corto, colisión e interacción estables.
 4. **Slice:** CarDrive completo con bloqueo/restauración.
 5. **Mundo:** cinco pisos y contenido básico.
 6. **Acceso:** teclado, táctil, movimiento reducido y responsive.
@@ -212,13 +220,14 @@ No se avanza a la siguiente puerta si falla un criterio previo que invalida el f
 | --- | --- | --- |
 | Phaser se evalúa durante SSR | `window is not defined` en build | Import dinámico dentro de `useEffect`; frontera cliente |
 | UI y juego divergen | Estado de proyecto distinto en Quick View | IDs estables y selectores sobre `data/` |
-| Modal desbloquea un frame entre vistas | Jugador cae al pasar diálogo → ficha | Overlay discriminado; nunca transicionar por `none` |
+| Enter repetido altera el flujo | Diálogo vuelve al inicio o finaliza dos veces | Máquina de estados monotónica y bloqueo hasta `keyup` |
 | Listeners duplicados | Interacción doble tras cambiar piso | Cleanup en `shutdown/destroy` y pruebas repetidas |
 | Arte consume el calendario | Muchas piezas sin flujo funcional | Graphics/SVG/placeholders hasta cerrar M3 |
 | Móvil pierde control | Personaje sigue andando tras soltar | Manejar `pointercancel`, blur y visibilidad |
 | Canvas excluye usuarios | Información inaccesible con teclado/lector | DOM para overlays + Quick View equivalente |
 | Assets afectan carga | Portada lenta o memoria alta | Lazy-load, presupuestos y recorte decorativo |
-| Enlaces desconocidos parecen reales | Botones `#` o formularios falsos | `href: null`, estado placeholder y acción deshabilitada |
+| Enlaces desconocidos parecen reales | Botones `#` o formularios falsos | Ocultar acciones ausentes o usar `href: null`; publicar solo destinos confirmados |
+| Chess.com no responde o cambia campos | Tarjetas vacías o cifras engañosas | Normalización server-side, campos opcionales, caché y fallback sin números |
 | Host de despliegue no coincide con starter | Build local pasa, destino falla | Spike y despliegue real antes de documentar soporte |
 
 ## Criterio de recorte por tiempo
@@ -227,7 +236,7 @@ Si una fecha limita el MVP, recortar en este orden:
 
 1. partículas, paralaje y animaciones ambientales;
 2. cantidad de objetos opcionales;
-3. detalle visual de Educación, Sobre mí y Contacto;
+3. cantidad de efectos ambientales no esenciales;
 4. transiciones distintas por piso;
 5. audio.
 
@@ -235,10 +244,10 @@ No recortar Quick View, datos canónicos, CarDrive, control del foco, bloqueo/re
 
 ## Siguientes cinco pasos después del MVP
 
-1. Sustituir placeholders con correo, GitHub, LinkedIn, CV, demos y repositorios confirmados.
-2. Producir un set original y coherente de sprites/fondos con inventario de licencias.
-3. Añadir versión completa en inglés usando las mismas claves de contenido.
-4. Integrar envío de contacto con validación, privacidad, rate limiting y antispam.
+1. Incorporar el CV, la credencial AWS y enlaces de demos/repositorios cuando existan documentos o destinos confirmados.
+2. Crear el avatar 8-bit de Contacto a partir de una fotografía real proporcionada por Jorge.
+3. Producir un set original y coherente de sprites/fondos con inventario de licencias.
+4. Añadir versión completa en inglés usando las mismas claves de contenido.
 5. Medir rutas de uso y rendimiento con analítica respetuosa de privacidad, y ajustar la introducción con evidencia.
 
 ## Condición de release

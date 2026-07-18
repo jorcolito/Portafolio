@@ -28,6 +28,7 @@ export type GameDialogue = DialogueSequence & {
 
 export type DialogueFollowUp =
   | { type: "project"; projectId: PortfolioProjectId }
+  | { type: "library"; itemId: string }
   | { type: "quick-view" }
   | { type: "contact" };
 
@@ -54,6 +55,7 @@ export type GameToReactEvent =
     }
   | { type: "project-requested"; projectId: PortfolioProjectId }
   | { type: "quick-view-requested" }
+  | { type: "chess-requested" }
   | { type: "contact-requested" }
   | { type: "sound-requested"; sound: "step" | "jump" | "interact" };
 

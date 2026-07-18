@@ -1,4 +1,14 @@
 export type {
+  ChessGameResult,
+  ChessPuzzleRushSnapshot,
+  ChessRapidSnapshot,
+  ChessRatingRecord,
+  ChessRecentGame,
+  ChessSnapshot,
+  ChessSnapshotStatus,
+  ChessTacticsSnapshot,
+} from "./chess";
+export type {
   AvailableResourceLink,
   PlaceholderResourceLink,
   ResourceLink,
@@ -14,6 +24,9 @@ export type {
   ProjectStatusId,
 } from "./projects";
 export type {
+  EducationLibraryItem,
+  EducationLibraryItemKind,
+  EducationLibraryItemStatus,
   EducationRecord,
   ExperienceRecord,
   PortfolioProfile,

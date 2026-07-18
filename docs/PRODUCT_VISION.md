@@ -1,6 +1,6 @@
 # Visión de producto — JORGE.EXE
 
-**Estado:** definición del MVP
+**Estado:** dirección vigente del rediseño
 
 **Producto:** `JORGE.EXE — A Developer's Tale`
 
@@ -8,7 +8,7 @@
 
 ## Visión
 
-JORGE.EXE es un portafolio web jugable: una breve exploración narrativa por un laboratorio retrofuturista donde cada sala, objeto y diálogo revela evidencia profesional de Jorge. No es un portafolio convencional con una capa visual de videojuego; la exploración es el medio principal de presentación.
+JORGE.EXE es un portafolio web jugable: una breve exploración narrativa por un estudio retrofuturista compuesto por dioramas compactos. Cada sala funciona como una escena curada, con profundidad, luz, movimiento ambiental y objetos que revelan evidencia profesional de Jorge. No es un portafolio convencional con una capa visual de videojuego; la composición y la interacción forman parte de la presentación.
 
 La experiencia siempre ofrece una segunda ruta equivalente: **Quick View**, una interfaz HTML directa y accesible para quien necesite evaluar el perfil sin jugar.
 
@@ -46,7 +46,7 @@ En los primeros 45 segundos, una persona debe poder:
 
 ### 1. Explorar para descubrir
 
-La información importante vive en objetos con intención narrativa: un vehículo representa CarDrive, una mesa de paquetes representa SHIKO y una habitación ordenada representa Comernova. Las tarjetas aparecen como detalle posterior, no como sustituto de la exploración.
+La información importante vive en objetos con intención narrativa: un vehículo representa CarDrive, una mesa de operación representa SHIKO y una boutique digital representa Comernova. Los objetos útiles pulsan con un contorno blanco y, al acercarse, muestran `E`; también aceptan clic o toque directo. Todos los puntos esenciales se ven al entrar o quedan a pocos pasos. Interactuar con un proyecto abre directamente su expediente, sin recorrido vacío ni texto introductorio redundante.
 
 ### 2. Dos recorridos, una sola verdad
 
@@ -56,13 +56,13 @@ Juego y Quick View consumen los mismos datos tipados. Ningún dato profesional s
 
 El humor es breve, sutil y relacionado con desarrollo de software. Los textos distinguen hechos, planes y trabajo en curso; no inventan métricas, clientes, resultados, credenciales ni estados de producción.
 
-### 4. Vertical slice antes que amplitud
+### 4. Densidad antes que tamaño
 
-Lobby y Proyectos definen la calidad del producto. CarDrive es la interacción de referencia. Los otros pisos existen en el MVP como salas compactas y coherentes, sin intentar igualar todavía el detalle de la vertical slice.
+Cada piso concentra de dos a cuatro focos visuales dentro de una sola composición. La sensación de vida proviene de iluminación por capas, partículas discretas, pantallas, reflejos y props animados, no de hacer la habitación más larga. Lobby y Proyectos marcan el nivel de acabado que debe propagarse al resto.
 
-### 5. Retro, original y legible
+### 5. Pixel art cinematográfico, original y legible
 
-La estética combina pixel art original, laboratorio subterráneo, paneles HTML modernos y acentos azul, verde y violeta. La inspiración define el tono, no los recursos: no se copian personajes, mapas, música, tipografías, textos ni sprites protegidos.
+La estética combina pixel art original, profundidad escénica, iluminación volumétrica simulada, paneles HTML modernos y acentos azul, verde y violeta. La inspiración define el tono, no los recursos: no se copian personajes, mapas, música, tipografías, textos ni sprites protegidos.
 
 ### 6. Respeto por el tiempo y el dispositivo
 
@@ -74,43 +74,48 @@ La introducción se puede omitir, el audio requiere acción del usuario, el movi
 
 - Portada negra con `JORGE.EXE`, subtítulo, acción para comenzar y acceso inmediato a Quick View.
 - Transición breve de ascensor, omitible y compatible con movimiento reducido.
-- Lobby jugable con personaje, movimiento, salto, colisiones, cámara, robot, terminal, ascensor, punto de guardado decorativo y señales.
-- Navegación por ascensor a Proyectos, Educación, Sobre mí y Contacto.
-- Piso de Proyectos con objetos diferenciados para CarDrive, SHIKO y Comernova.
-- Sistema de interacción con indicación contextual, diálogo reutilizable y ficha HTML de proyecto.
-- CarDrive como interacción más pulida; SHIKO y Comernova con contenido inicial completo y presentación visual más sencilla.
-- Educación, Sobre mí y Contacto como salas compactas con al menos un recorrido de interacción significativo cada una.
-- Quick View completo: presentación, proyectos, tecnologías, educación, experiencia, contacto y CV.
+- Lobby jugable como diorama denso, con personaje, movimiento, colisiones, cámara contenida, bitácora, Quick View clicable, puertas directas y objetos ambientales. No contiene memoria ni punto de guardado.
+- Elevador global invocable con `Q` desde cualquier punto, panel de destinos y transición breve de puertas.
+- Piso de Proyectos con tres sets diferenciados para CarDrive, SHIKO y Comernova; cada interacción abre la ficha correspondiente de forma directa.
+- Sistema de interacción con indicación contextual, diálogo grande reutilizable y fichas HTML de proyecto.
+- Educación como biblioteca compacta: expediente UEES, Cambridge C1 Advanced con su Statement of Results verificable y una credencial AWS pendiente; los libros abren con una animación breve.
+- Sobre mí como estudio personal compacto: Guayaquil se ubica dentro del mapa de Ecuador y el contenido explica cómo Jorge comprende, simplifica y entrega software. Chess.com no se duplica aquí: solo se abre desde el tablero físico.
+- Contacto como escena final centrada en el escritorio de trabajo; abre correo, GitHub y LinkedIn reales. El avatar se incorporará únicamente a partir de una fotografía real de Jorge.
+- Quick View en menos de un minuto: presentación, proyectos, tecnologías animadas por área, tres credenciales, método de trabajo y contacto directo; sin numeración decorativa, contadores de productos ni Chess duplicado.
 - Controles de teclado y táctiles; cierre con Escape; botones HTML reales.
 - Preferencias de sonido y reducción de movimiento; inicio sin reproducción automática.
 - Diseño adaptable sin scroll horizontal, deformación del canvas ni modales fuera del viewport.
-- Enlaces de demo, GitHub, LinkedIn, correo y CV como placeholders inequívocos hasta disponer de URLs reales.
+- Correo, GitHub, LinkedIn y Statement of Results como recursos disponibles; CV, AWS y enlaces de proyecto ausentes permanecen ocultos o inequívocamente pendientes.
 
 ### Fuera del MVP
 
-- Combate, enemigos, vidas, daño, inventario, economía o sistema de logros.
+- Combate, enemigos, inventario, economía o sistema de logros.
 - Persistencia real del progreso o cuentas de usuario.
-- Backend del formulario de contacto.
+- Backend de mensajería o agenda; el MVP usa canales directos.
 - Editor de contenido o panel administrativo.
 - Música extensa, actuación de voz o paquetes grandes de assets.
 - Localización completa a inglés.
 - Analítica avanzada, personalización por visitante o funciones sociales.
-- Mapas grandes, plataformas de precisión o más de una sala por piso.
+- Mapas grandes, desplazamientos largos o más de una sala por piso.
 
 ## Decisiones del MVP
 
 | Decisión | Razón |
 | --- | --- |
-| Una sala lateral compacta por piso | Reduce carga de arte y mantiene orientación simple |
-| Cinco pisos navegables, con mayor detalle en Lobby y Proyectos | Cumple la narrativa completa sin diluir la vertical slice |
+| Un diorama compacto por piso | Cada entrada ofrece información y detalle visual sin tiempo muerto |
+| Cinco pisos navegables con densidad visual consistente | Comunica la narrativa completa sin recurrir a habitaciones de relleno |
+| Elevador global con `Q` | Evita obligar al visitante a regresar a una esquina y conserva una transición diegética clara |
+| Contorno blanco + proximidad `E` + clic | Hace inequívoco qué parte del fondo contiene información profesional |
 | Diálogos y paneles en HTML sobre el canvas | Mejora accesibilidad, foco, selección de texto y responsive |
+| Proyecto → expediente directo | Evita textos introductorios diminutos y acelera la evaluación profesional |
+| API de Chess.com aislada en servidor | Permite mostrar señales personales reales sin exponer secretos ni romper la experiencia cuando el servicio falla |
 | Phaser se carga en cliente y bajo demanda | Evita SSR incompatible y no bloquea Quick View |
 | Contenido estático, tipado y versionado | Es suficiente para un portafolio sin backend y evita duplicación |
 | Una sola superposición activa | Simplifica foco, bloqueo del jugador y restauración de estado |
-| Sin guardado real | La sesión es breve; el punto de guardado comunica humor, no persistencia |
+| Sin memoria ni guardado | La sesión es breve y no necesita simular un sistema que no existe |
 | Audio desactivado hasta interacción | Respeta políticas del navegador y preferencias del visitante |
 | Español como idioma inicial | Permite pulir voz y contenido; inglés queda como evolución |
-| Enlaces faltantes visibles como “Próximamente” y no navegables | Evita destinos falsos o `#` ambiguos |
+| Acciones ausentes ocultas o marcadas como pendientes | Evita destinos falsos, botones muertos y ruido para el empleador |
 
 ## Identidad y tono
 
@@ -127,7 +132,7 @@ Las reglas de escritura y el inventario de contenido viven en [CONTENT_GUIDE.md]
 ### Producto
 
 - El nombre, perfil, proyecto destacado y contacto son encontrables sin jugar.
-- Un visitante puede abrir CarDrive desde el inicio de la experiencia en menos de tres decisiones: comenzar, usar ascensor, interactuar.
+- Un visitante puede abrir CarDrive desde el inicio en menos de tres decisiones: comenzar, pulsar `Q`, elegir Proyectos y abrir el vehículo por `E` o clic; no necesita recorrer una sala larga.
 - No existe información profesional importante exclusiva del canvas.
 - Las llamadas a demo, repositorio, CV y contacto distinguen claramente entre disponible y placeholder.
 
@@ -143,13 +148,16 @@ Las reglas de escritura y el inventario de contenido viven en [CONTENT_GUIDE.md]
 ## Criterios de aceptación de visión
 
 - **PV-01:** La portada ofrece dos acciones distinguibles: comenzar y abrir Quick View.
-- **PV-02:** Las cinco áreas del perfil se representan como pisos conectados por ascensor.
+- **PV-02:** Las cinco áreas del perfil se representan como pisos conectados por un elevador global invocable con `Q`.
 - **PV-03:** CarDrive, SHIKO y Comernova aparecen en juego y Quick View desde una misma fuente de datos.
-- **PV-04:** Quick View contiene presentación, proyectos, tecnologías, educación, experiencia, contacto y CV.
+- **PV-04:** Quick View contiene presentación, proyectos, tecnologías, credenciales, método de trabajo y contacto; Chess.com aparece únicamente al abrir el tablero.
 - **PV-05:** Ningún recurso visual o sonoro depende de propiedad intelectual de otro videojuego.
 - **PV-06:** El contenido esencial sigue disponible con teclado, movimiento reducido y sin audio.
 - **PV-07:** El MVP no comunica como terminadas funciones, enlaces o proyectos que siguen en desarrollo.
+- **PV-08:** Al entrar a cualquier piso, sus interacciones esenciales son visibles o alcanzables en pocos segundos.
+- **PV-09:** El Statement of Results se nombra con precisión; AWS, CV y estadísticas externas ausentes muestran un estado honesto, nunca contenido inventado.
+- **PV-10:** Correo, GitHub y LinkedIn conducen a los destinos confirmados, sin formulario ni falsa acción de envío.
 
 ## Principio de recorte
 
-Si una restricción obliga a reducir alcance, se conserva en este orden: acceso a Quick View, datos profesionales, interacción CarDrive, controles y accesibilidad, navegación por ascensor, contenido de los otros pisos y, al final, decoración. Nunca se recorta la ruta accesible para proteger un efecto visual.
+Si una restricción obliga a reducir alcance, se conserva en este orden: acceso a Quick View, datos profesionales, interacción CarDrive, controles y accesibilidad, navegación por elevador, contenido de los otros pisos y, al final, decoración. Nunca se recorta la ruta accesible para proteger un efecto visual.

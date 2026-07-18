@@ -1,6 +1,6 @@
 # JORGE.EXE — A Developer's Tale
 
-Portafolio web interactivo de Jorge Colamarco presentado como una experiencia narrativa 2D. El visitante puede recorrer JORGE LABS, descubrir proyectos y trayectoria mediante objetos jugables, o abrir **Quick View** para consultar la misma información en una interfaz HTML directa y accesible.
+Portafolio web interactivo de Jorge Colamarco presentado como una colección de dioramas narrativos 2D. Cada piso de JORGE LABS es una habitación compacta, viva y cinematográfica: la información importante aparece cerca, se reconoce por su composición y se abre sin recorridos de relleno. **Quick View** conserva una ruta HTML directa y accesible para consultar el mismo portafolio sin jugar.
 
 ![Vista previa de JORGE.EXE](public/og.png)
 
@@ -8,21 +8,26 @@ Portafolio web interactivo de Jorge Colamarco presentado como una experiencia na
 
 - Portada `JORGE.EXE` iniciable con Enter, clic o toque.
 - Introducción de ascensor con opción para omitirla.
-- Mundo 2D construido con Phaser: movimiento, salto, gravedad, colisiones, cámara e interacción contextual.
-- Cinco pisos conectados por ascensor: Lobby, Proyectos, Educación, Sobre mí y Contacto.
-- Lobby con robot, terminal de bienvenida y punto de guardado decorativo.
-- Laboratorio de proyectos con estaciones para CarDrive, SHIKO y Comernova.
-- Diálogos de varias líneas con efecto de escritura, revelado inmediato y avance por teclado o botón.
+- Mundo 2D construido con Phaser: movimiento, gravedad, colisiones, cámara contenida e interacción contextual.
+- Cinco pisos conectados por un elevador global: `Q` lo llama desde cualquier punto y una transición de puertas acompaña el cambio de piso.
+- Habitaciones tipo diorama con iluminación por capas, pantallas y movimiento ambiental discreto; los elementos flotantes sin función fueron eliminados.
+- Objetos reales del escenario identificables por un pulso de contorno blanco. Se abren por proximidad con `E`/`Enter` o directamente con clic/toque.
+- Lobby compacto con bitácora, Quick View clicable y accesos directos a Proyectos, Educación, Sobre mí y Contacto; no simula memoria ni guardado.
+- Laboratorio de proyectos con sets diferenciados para CarDrive, SHIKO y Comernova; interactuar abre directamente su expediente.
+- Diálogos grandes superpuestos al escenario, con efecto de escritura, progreso visible y protección contra pulsaciones repetidas.
 - Fichas HTML accesibles con descripción, problema resuelto, funciones, tecnologías, estado y acciones de proyecto.
-- Quick View con presentación, proyectos, tecnologías, educación, experiencia, contacto y acceso al CV.
-- Panel de contacto y formulario visual; esta versión no envía ni almacena datos.
+- Biblioteca académica compacta con UEES, `Cambridge C1 Advanced · Statement of Results` verificable y una credencial AWS marcada honestamente como pendiente.
+- Sobre mí con ubicación real en Guayaquil y un método de trabajo orientado a comprender, simplificar y entregar. Chess.com vive exclusivamente en el tablero de ajedrez de la escena.
+- Tablero de ajedrez con perfil público de [Chess.com](https://www.chess.com/member/jorcolito), Rapid, Tactics/Puzzle Rush cuando la API los expone y partidas recientes.
+- Escena de contacto sin avatar genérico ni formulario ficticio; abre correo, GitHub y LinkedIn reales. El retrato final queda pendiente de una fotografía de Jorge.
+- Quick View compacto con presentación, proyectos, tecnologías animadas por área, credenciales, método de trabajo y contacto directo; no duplica Chess ni muestra contadores decorativos.
 - Controles táctiles en pantallas pequeñas o dispositivos con puntero grueso.
 - Navegación por teclado, foco visible, modales con control de foco y cierre con Escape.
 - Preferencia de movimiento reducido, introducción omitible y audio desactivado de inicio.
 - Diseño responsive con canvas 16:9 y paneles adaptados al viewport.
 - Fallback HTML útil: Quick View no depende del canvas para presentar la información profesional.
 
-El control de sonido está preparado en la interfaz y en el contrato del juego, pero el MVP todavía no reproduce música ni efectos. Tampoco existe guardado de progreso, combate, backend de contacto o analítica.
+El control de sonido está preparado en la interfaz y en el contrato del juego, pero el MVP todavía no reproduce música ni efectos. Tampoco existe persistencia de progreso, combate, backend de contacto o analítica.
 
 ## Arquitectura real
 
@@ -39,6 +44,8 @@ app/page.tsx
 src/data ────────────────┬─ juego
                          └─ Quick View y modales
 
+Chess.com PubAPI ──> app/api/chess ──> modal del tablero de ajedrez
+
 React ── comandos tipados ──> GameBridge ──> Phaser
 React <── eventos tipados ─── GameBridge <── Phaser
 ```
@@ -48,10 +55,11 @@ React <── eventos tipados ─── GameBridge <── Phaser
 - **Phaser:** controla escenas, jugador, física, colisiones, cámara y zonas de interacción.
 - **GameBridge:** transporta `ReactToGameCommand` y `GameToReactEvent` sin guardar un segundo estado de la aplicación.
 - **Datos tipados:** `src/data/` alimenta tanto el juego como Quick View; los componentes no mantienen copias manuales.
+- **Chess.com server-side:** `app/api/chess/route.ts` consulta la PubAPI en serie, normaliza los datos públicos y alimenta únicamente el modal invocado desde el tablero.
 - **Carga segura:** Phaser se importa dinámicamente desde `GameCanvas`, por lo que no se evalúa durante renderizado de servidor.
 - **Ciclo de vida:** abrir un modal pausa el mundo existente; no crea otra instancia del juego. Al desmontar, canvas, bridge y listeners se destruyen.
 
-Educación, Sobre mí y Contacto reutilizan una escena parametrizada (`InfoFloorScene`); Lobby y Proyectos tienen escenas dedicadas.
+Educación, Sobre mí y Contacto reutilizan una escena parametrizada (`InfoFloorScene`); Lobby y Proyectos tienen escenas dedicadas. Cada escena mantiene su composición dentro de una sala corta, con objetos esenciales visibles o a pocos pasos.
 
 ## Prerrequisitos
 
@@ -59,7 +67,7 @@ Educación, Sobre mí y Contacto reutilizan una escena parametrizada (`InfoFloor
 - npm compatible con la versión de Node instalada.
 - Navegador moderno con Canvas/WebGL, módulos ES y Pointer Events.
 
-El MVP no requiere variables de entorno, base de datos ni credenciales para ejecutarse.
+El MVP no requiere variables de entorno, base de datos ni credenciales para ejecutarse. Una conexión de red permite cargar la actividad pública de Chess.com; si no está disponible, la sección muestra un fallback y el resto del portafolio funciona normalmente.
 
 ## Instalación y desarrollo
 
@@ -102,6 +110,7 @@ npx tsc --noEmit
 
 ```text
 app/
+  api/chess/route.ts           # proxy con caché y fallback para Chess.com
   JorgeExeExperience.tsx    # orquestación de la experiencia y overlays
   globals.css               # tokens, pixel UI, responsive y accesibilidad
   layout.tsx                # metadata y shell HTML
@@ -115,8 +124,9 @@ src/
   game/events/              # bridge React–Phaser
   game/scenes/              # Lobby, Proyectos y pisos informativos
   game/types/               # eventos, comandos y contratos públicos
+  lib/chess-com.ts           # normalización server-side de la PubAPI
   types/                    # modelos de contenido y enlaces discriminados
-public/                     # favicon, Open Graph y futuros archivos públicos
+public/                     # favicon, Open Graph y fondos originales de escenas
 docs/                       # visión, GDD, arquitectura, contenido y roadmap
 tests/                      # pruebas sobre la build renderizada
 worker/                     # entrada conservada del starter Sites/Cloudflare
@@ -134,25 +144,25 @@ next.config.ts              # ruta nativa de Next.js para Vercel
 | Mover derecha | `D` o `→` |
 | Saltar | `W`, `↑` o `Espacio` |
 | Interactuar | `E` o `Enter` |
-| Usar ascensor al estar cerca | `S` o `↓` |
+| Llamar al elevador desde cualquier punto | `Q` |
 | Avanzar/revelar diálogo | `E`, `Enter`, `Espacio` o botón Continuar |
 | Cerrar modal | `Escape` o botón Cerrar |
 
-También se puede elegir un piso desde el panel lateral del ascensor y abrir Quick View desde la barra superior.
+También se puede abrir el elevador desde la barra superior y Quick View desde la barra o el objeto correspondiente del Lobby.
 
 ### Móvil y tablet
 
 - Mantener `←` o `→` para desplazarse.
 - `↑` para saltar.
 - `E` para interactuar.
-- `☰` para abrir el menú de pisos.
+- `Q` para llamar al elevador.
 - Tocar Continuar para avanzar diálogos y los botones HTML para cerrar paneles.
 
 Los controles táctiles aparecen por debajo de `760 px` o cuando el navegador informa un puntero grueso. Se deshabilitan mientras un diálogo o modal bloquea el juego.
 
-## Datos tipados y placeholders pendientes
+## Datos tipados y disponibilidad de recursos
 
-La aplicación no publica información ficticia. Correo, GitHub, LinkedIn, CV, demos y repositorios permanecen como recursos `placeholder` con `href: null` hasta recibir valores reales.
+La aplicación no publica información ficticia. Correo, GitHub y LinkedIn ya tienen destinos reales; el Statement of Results de Cambridge está disponible. CV, credencial AWS, demos o repositorios no entregados conservan `availability: "placeholder"` y `href: null`, y sus acciones no se muestran como enlaces funcionales.
 
 El modelo en `src/types/links.ts` es una unión discriminada:
 
@@ -173,7 +183,7 @@ type ResourceLink =
 
 Esto evita enlaces `#`, URLs vacías y botones que aparenten estar disponibles.
 
-### Correo, GitHub, LinkedIn y CV
+### Contacto y CV
 
 Edita `CONTACT_LINKS` en `src/data/profile.ts`. Para cada recurso confirmado:
 
@@ -217,7 +227,7 @@ Para el CV:
 2. usa `kind: "cv"`, `availability: "available"` y `href: "/jorge-colamarco-cv.pdf"`;
 3. ejecuta TypeScript, lint y build.
 
-Quick View y el panel de contacto leerán automáticamente los enlaces actualizados. El botón específico **Copiar correo** sigue siendo demostrativo en este MVP; cuando exista una dirección real, conéctalo en `src/components/ui/ContactModal.tsx` al enlace `kind: "email"` y usa `navigator.clipboard.writeText` con un fallback accesible.
+Quick View y el panel de contacto leen automáticamente los enlaces actualizados. Los destinos publicados actualmente son `mailto:jorgecolamarco03@gmail.com`, `github.com/jorcolito` y el perfil confirmado de LinkedIn; el CV continúa pendiente.
 
 ### Demos y repositorios de proyectos
 
@@ -245,6 +255,17 @@ links: {
 ```
 
 Usa URLs reales en lugar de los dominios del ejemplo. El cambio se refleja en la ficha del proyecto y en cualquier vista que consuma el mismo objeto tipado.
+
+### Cambridge C1 y credencial AWS
+
+La biblioteca se define en `EDUCATION_LIBRARY`, dentro de `src/data/education.ts`, y contiene tres registros: formación UEES, Cambridge C1 y AWS.
+
+- Cambridge se publica como **`Cambridge C1 Advanced · Statement of Results`**, con CEFR C1, overall score 180, Pass at Grade C y fecha de marzo de 2023.
+- El archivo adjunto dice expresamente que no es el certificado formal; la interfaz y esta documentación conservan esa distinción.
+- La credencial AWS permanece pendiente hasta recibir un documento verificable con nombre, nivel y fecha.
+- No se infiere ninguna credencial ausente ni se rellenan volúmenes académicos ficticios.
+
+La animación de apertura del libro y Quick View consumen la misma colección tipada, por lo que una actualización se refleja en ambas rutas.
 
 Después de sustituir contenido:
 
@@ -317,8 +338,11 @@ No mezcles las salidas: `dist` pertenece al flujo vinext/Cloudflare y la salida 
 
 ## Limitaciones actuales
 
-- Los enlaces de contacto, CV, demos y repositorios son placeholders intencionales.
-- El formulario de contacto no transmite ni almacena información.
+- El CV, la credencial AWS y algunos enlaces de proyecto continúan pendientes; no se presentan como disponibles.
+- Correo, GitHub, LinkedIn y el Statement of Results de Cambridge sí tienen destinos reales.
+- No existe un formulario de contacto ficticio ni se simula un envío.
+- La actividad de Chess.com depende de su API pública; el portafolio muestra un fallback si no está disponible y nunca inventa estadísticas.
 - El control de audio no reproduce sonidos todavía.
-- El punto de guardado es narrativo; no existe persistencia de progreso.
-- Los recursos visuales son originales y ligeros, generados principalmente con código y CSS para el MVP.
+- No existe memoria, punto de guardado ni persistencia de progreso.
+- El avatar final de la escena de Contacto espera una fotografía real de Jorge; no se usa una persona genérica.
+- Los fondos y recursos visuales son originales; las animaciones ambientales se construyen con capas ligeras de Phaser y CSS.

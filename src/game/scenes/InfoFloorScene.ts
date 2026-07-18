@@ -1,3 +1,5 @@
+import * as Phaser from "phaser";
+
 import type { GameBridge } from "../events/GameBridge";
 import type { PortfolioFloor } from "../types/contracts";
 import { BasePortfolioScene } from "./BasePortfolioScene";
@@ -13,110 +15,193 @@ export class InfoFloorScene extends BasePortfolioScene {
     super(config.key, config.floor, bridge, config.accent);
   }
 
-  protected getWorldWidth(): number {
-    return 1360;
+  protected getPlayerSpawn(): Phaser.Types.Math.Vector2Like {
+    if (this.floor === -2) return { x: 520, y: 420 };
+    if (this.floor === -4) return { x: 610, y: 420 };
+    return { x: 470, y: 420 };
   }
 
   protected buildWorld(): void {
-    this.addElevator(106);
     if (this.floor === -2) this.buildEducation();
     if (this.floor === -3) this.buildAbout();
     if (this.floor === -4) this.buildContact();
   }
 
   private buildEducation(): void {
-    this.addRoomTitle("ARCHIVO ACADEMICO", "PISO -2  •  APRENDER TAMBIEN ES CONSTRUIR");
-    const graphics = this.add.graphics();
-    for (let shelf = 0; shelf < 4; shelf += 1) {
-      const x = 285 + shelf * 235;
-      graphics.fillStyle(0x151826);
-      graphics.fillRect(x, 240, 172, 216);
-      graphics.lineStyle(2, 0x6574e7, 0.35);
-      graphics.strokeRect(x, 240, 172, 216);
-      for (let row = 0; row < 3; row += 1) {
-        graphics.fillStyle(0x273044);
-        graphics.fillRect(x + 10, 300 + row * 51, 152, 5);
-        for (let book = 0; book < 6; book += 1) {
-          graphics.fillStyle([0x6574e7, 0x25c5db, 0xb65cff][(book + row) % 3], 0.65);
-          graphics.fillRect(x + 16 + book * 23, 267 + row * 51, 15, 32);
-        }
-      }
-    }
-    this.drawTerminal(1190, 425, 0x6574e7, 1.05);
-    this.addNeonLabel(595, 210, "UEES / COMPUTER SCIENCE", 0x8b9aff, 17);
-    this.addInteraction("education-uees", 520, 390, "Consultar expediente UEES", {
+    // The books are already part of the authored library plate. They no longer
+    // receive duplicate Phaser books or slow levitation tweens.
+    this.addInteractiveOutline(
+      [
+        { x: 177, y: 277 },
+        { x: 351, y: 277 },
+        { x: 351, y: 364 },
+        { x: 177, y: 364 },
+      ],
+      0,
+    );
+    this.addInteraction("education-uees", 270, 190, "Abrir libro de la UEES", {
       type: "dialogue",
       dialogueId: "uees-record",
-    });
-    this.addInteraction("education-english", 960, 260, "Revisar certificado de ingles", {
+      after: { type: "library", itemId: "uees-degree-volume" },
+    }, { x: 264, y: 321, width: 176, height: 90 });
+
+    this.addInteractiveOutline(
+      [
+        { x: 462, y: 245 },
+        { x: 532, y: 263 },
+        { x: 553, y: 320 },
+        { x: 505, y: 335 },
+        { x: 470, y: 310 },
+      ],
+      260,
+    );
+    this.addInteraction("education-english", 515, 170, "Abrir certificado C1", {
       type: "dialogue",
       dialogueId: "english-certificate",
-    });
+      after: { type: "library", itemId: "english-c1-volume" },
+    }, { x: 508, y: 289, width: 102, height: 94 });
+
+    this.addInteractiveOutline(
+      [
+        { x: 617, y: 268 },
+        { x: 684, y: 275 },
+        { x: 714, y: 322 },
+        { x: 691, y: 385 },
+        { x: 621, y: 385 },
+        { x: 603, y: 327 },
+      ],
+      520,
+    );
+    this.addInteraction("education-aws", 675, 190, "Abrir certificado AWS", {
+      type: "dialogue",
+      dialogueId: "academic-projects",
+      after: { type: "library", itemId: "aws-certificate-volume" },
+    }, { x: 660, y: 326, width: 118, height: 122 });
   }
 
   private buildAbout(): void {
-    this.addRoomTitle("ESTUDIO PERSONAL", "PISO -3  •  IDEAS, VIAJES Y DEMASIADAS PESTANAS");
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x191429);
-    graphics.fillRoundedRect(286, 342, 260, 113, 7);
-    graphics.fillStyle(0x28213a);
-    graphics.fillRect(306, 318, 220, 31);
-    this.drawTerminal(408, 339, 0xb96cff, 1.15);
+    this.drawProfessionalMethod();
+    this.drawGuayaquilMap();
+    this.drawChessboard();
+  }
 
-    // Chess board.
-    for (let row = 0; row < 6; row += 1) {
-      for (let column = 0; column < 6; column += 1) {
-        graphics.fillStyle((row + column) % 2 ? 0x5c5471 : 0xd4c4b8);
-        graphics.fillRect(685 + column * 15, 370 + row * 15, 15, 15);
-      }
-    }
-    graphics.fillStyle(0x2b2238);
-    graphics.fillRoundedRect(998, 336, 170, 120, 7);
-    graphics.lineStyle(3, 0x42d8bf);
-    graphics.strokeRoundedRect(998, 336, 170, 120, 7);
-    graphics.fillStyle(0x42d8bf, 0.5);
-    graphics.fillCircle(1055, 385, 21);
-    graphics.fillStyle(0xffd46b, 0.7);
-    graphics.fillCircle(1107, 405, 14);
+  private drawProfessionalMethod(): void {
+    // The central planning board now explains a hiring-relevant working method.
+    this.addInteractiveOutline(
+      [
+        { x: 325, y: 49 },
+        { x: 620, y: 49 },
+        { x: 620, y: 247 },
+        { x: 325, y: 247 },
+      ],
+      0,
+    );
+    this.addInteraction("about-method", 460, 230, "Ver método de trabajo", {
+      type: "dialogue",
+      dialogueId: "ideas-notebook",
+    }, { x: 472, y: 148, width: 296, height: 200 });
+  }
 
-    this.addNeonLabel(408, 286, "WORKSTATION", 0xb96cff, 14);
-    this.addNeonLabel(729, 342, "CHESS.EXE", 0xffd46b, 12);
-    this.addNeonLabel(1084, 309, "GUAYAQUIL → CALIFORNIA", 0x42d8bf, 12);
-    this.addInteraction("about-laptop", 410, 270, "Revisar laptop", {
-      type: "dialogue",
-      dialogueId: "laptop",
+  private drawGuayaquilMap(): void {
+    this.addInteractiveOutline(
+      [
+        { x: 636, y: 47 },
+        { x: 755, y: 47 },
+        { x: 755, y: 181 },
+        { x: 636, y: 181 },
+      ],
+      300,
+    );
+
+    // Guayaquil sits on Ecuador's south-western coast. The marker is anchored
+    // to that point on the existing map rather than floating elsewhere.
+    const pin = this.add.graphics().setDepth(24).setBlendMode(Phaser.BlendModes.ADD);
+    pin.fillStyle(0xffffff, 0.94);
+    pin.fillCircle(674, 132, 4);
+    pin.lineStyle(1, 0xffffff, 0.9);
+    pin.lineBetween(674, 136, 674, 143);
+    const ring = this.add
+      .circle(674, 132, 10, 0xffffff, 0)
+      .setStrokeStyle(1, 0xffffff, 0.8)
+      .setDepth(23);
+    this.tweens.add({
+      targets: ring,
+      alpha: { from: 0.75, to: 0.08 },
+      scale: { from: 0.65, to: 1.35 },
+      duration: 1050,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.InOut",
     });
-    this.addInteraction("about-chess", 730, 220, "Examinar tablero", {
+
+    this.addInteraction("about-map", 650, 110, "Guayaquil, Ecuador", {
       type: "dialogue",
-      dialogueId: "chessboard",
-    });
-    this.addInteraction("about-suitcase", 1080, 280, "Abrir recuerdos de viaje", {
-      type: "dialogue",
-      dialogueId: "travel-bag",
-    });
+      dialogueId: "ecuador-map",
+    }, { x: 696, y: 114, width: 120, height: 136 });
+  }
+
+  private drawChessboard(): void {
+    // Chess data belongs to the literal board, not to the generic About copy.
+    this.addInteractiveOutline(
+      [
+        { x: 641, y: 311 },
+        { x: 780, y: 311 },
+        { x: 780, y: 370 },
+        { x: 641, y: 370 },
+      ],
+      600,
+    );
+    this.addInteraction("about-chess", 780, 120, "Abrir perfil de Chess.com", {
+      type: "chess",
+    }, { x: 710, y: 340, width: 210, height: 112 });
   }
 
   private buildContact(): void {
-    this.addRoomTitle("NODO DE COMUNICACION", "PISO -4  •  CANAL EXTERNO DISPONIBLE");
-    const x = 720;
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x07171c);
-    graphics.fillRoundedRect(x - 235, 231, 470, 225, 12);
-    graphics.lineStyle(3, 0x27d6ef, 0.6);
-    graphics.strokeRoundedRect(x - 235, 231, 470, 225, 12);
-    graphics.fillStyle(0x02080d);
-    graphics.fillRoundedRect(x - 167, 267, 334, 115, 5);
-    graphics.fillStyle(0x27d6ef, 0.6);
-    graphics.fillRect(x - 136, 294, 194, 4);
-    graphics.fillRect(x - 136, 314, 263, 3);
-    graphics.fillRect(x - 136, 334, 221, 3);
-    graphics.fillStyle(0x14242b);
-    graphics.fillRect(x - 41, 382, 82, 38);
-    graphics.fillRect(x - 131, 418, 262, 18);
-    this.addNeonLabel(x, 199, "UPLINK / JORGE COLAMARCO", 0x27d6ef, 18);
-    this.addInteraction("contact-terminal", x, 520, "Iniciar contacto", {
+    this.drawAnimatedRain();
+    this.drawFutureAvatarAnchor();
+  }
+
+  private drawAnimatedRain(): void {
+    // Rain is restricted to the window; unlike the old particles it belongs to
+    // an object in the scene and reinforces the after-hours atmosphere.
+    for (let index = 0; index < 14; index += 1) {
+      const x = 472 + ((index * 43) % 365);
+      const y = 92 + ((index * 47) % 245);
+      const rain = this.add
+        .rectangle(x, y, 1, 14, 0x91e6f3, 0.26)
+        .setAngle(11)
+        .setDepth(7);
+      this.tweens.add({
+        targets: rain,
+        y: y + 64,
+        x: x + 11,
+        alpha: { from: 0.3, to: 0 },
+        duration: 760 + (index % 5) * 140,
+        delay: index * 80,
+        repeat: -1,
+      });
+    }
+  }
+
+  private drawFutureAvatarAnchor(): void {
+    // This chair/desk is the stable anchor for Jorge's future portrait sprite.
+    // Until that asset arrives, no substitute person or status beacon is drawn.
+    this.addInteractiveOutline(
+      [
+        { x: 292, y: 260 },
+        { x: 477, y: 260 },
+        { x: 477, y: 302 },
+        { x: 465, y: 302 },
+        { x: 465, y: 409 },
+        { x: 362, y: 409 },
+        { x: 362, y: 305 },
+        { x: 292, y: 305 },
+      ],
+      120,
+    );
+    this.addInteraction("contact-terminal", 430, 270, "¿Listo para trabajar?", {
       type: "dialogue",
       dialogueId: "contact-invitation",
-    });
+    }, { x: 384, y: 334, width: 190, height: 152 });
   }
 }

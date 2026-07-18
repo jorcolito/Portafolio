@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
-
 import { CONTACT_LINKS, PROFILE } from "@/src/data";
-import type { ResourceLink } from "@/src/types";
+import type { AvailableResourceLink, ResourceLink } from "@/src/types";
 
 import { ModalShell } from "./ModalShell";
 
@@ -12,117 +10,122 @@ interface ContactModalProps {
   onNotice: (message: string) => void;
 }
 
-export function ContactModal({ onClose, onNotice }: ContactModalProps) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const contactLinks: readonly ResourceLink[] = CONTACT_LINKS;
+const CONTACT_KIND_LABELS: Record<ResourceLink["kind"], string> = {
+  demo: "Demo",
+  repository: "Repositorio",
+  certificate: "Certificado",
+  email: "Email",
+  github: "GitHub",
+  linkedin: "LinkedIn",
+  cv: "CV",
+};
+
+function ContactAction({
+  link,
+}: {
+  link: AvailableResourceLink;
+}) {
+  const content = (
+    <>
+      <span className="contact-link__kind">{CONTACT_KIND_LABELS[link.kind]}</span>
+      <span className="contact-link__label">{link.label}</span>
+      <span className="contact-link__arrow" aria-hidden="true">
+        ↗
+      </span>
+    </>
+  );
 
   return (
-    <ModalShell title="Contacto" eyebrow="Nodo de comunicación" onClose={onClose}>
-      <div className="contact-grid">
-        <section>
-          <p className="eyebrow">Gracias por llegar hasta aquí</p>
-          <h2>Ahora sí. Hablemos.</h2>
-          <p className="contact-copy">
-            Jorge está interesado en equipos de producto, oportunidades de
-            desarrollo y proyectos donde la tecnología resuelva un problema
-            concreto.
-          </p>
-          <div className="contact-links">
-            {contactLinks.map((link) =>
-              link.availability === "available" ? (
-                <a
-                  className="contact-link"
-                  key={link.id}
-                  href={link.href}
-                  target={link.kind === "email" ? undefined : "_blank"}
-                  rel={link.kind === "email" ? undefined : "noreferrer"}
-                  aria-label={link.ariaLabel}
-                >
-                  <span>{link.kind.toUpperCase()}</span>
-                  <span>{link.label} →</span>
-                </a>
-              ) : (
-                <button
-                  className="contact-link"
-                  key={link.id}
-                  type="button"
-                  onClick={() => onNotice(link.placeholderMessage)}
-                  aria-label={link.ariaLabel}
-                >
-                  <span>{link.kind.toUpperCase()}</span>
-                  <span>{link.label}</span>
-                </button>
-              ),
-            )}
-            <button
-              className="contact-link"
-              type="button"
-              onClick={() =>
-                onNotice(
-                  "El correo real aún no fue proporcionado; no se copió una dirección ficticia.",
-                )
-              }
+    <a
+      className="contact-link"
+      href={link.href}
+      target={link.kind === "email" ? undefined : "_blank"}
+      rel={link.kind === "email" ? undefined : "noreferrer"}
+      aria-label={link.ariaLabel}
+    >
+      {content}
+    </a>
+  );
+}
+
+export function ContactModal({ onClose }: ContactModalProps) {
+  const initials = PROFILE.name
+    .split(" ")
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("");
+  const emailLink = CONTACT_LINKS.find((link) => link.kind === "email");
+
+  return (
+    <ModalShell
+      title="Trabajemos juntos"
+      eyebrow="Canal directo"
+      variant="contact"
+      wide
+      onClose={onClose}
+    >
+      <div className="contact-experience">
+        <section className="contact-profile" aria-labelledby="contact-heading">
+          <div className="contact-profile__visual">
+            <figure
+              className="contact-portrait"
+              role="img"
+              aria-label="Monograma de Jorge Colamarco"
             >
-              <span>COPIAR</span>
-              <span>Correo pendiente</span>
-            </button>
+              <span className="contact-portrait__glow" aria-hidden="true" />
+              <span className="contact-portrait__initials" aria-hidden="true">
+                {initials}
+              </span>
+              <figcaption>Jorge Colamarco</figcaption>
+            </figure>
+            <div className="contact-availability">
+              <span className="contact-availability__signal" aria-hidden="true" />
+              Disponible para conversar
+            </div>
+          </div>
+
+          <div className="contact-profile__copy">
+            <p className="eyebrow">{PROFILE.location}</p>
+            <h2 id="contact-heading">Listo para construir algo útil.</h2>
+            <p className="contact-copy">{PROFILE.summary}</p>
+            <p className="contact-profile__role">{PROFILE.title}</p>
           </div>
         </section>
 
-        <section>
-          <h3>Formulario visual</h3>
-          <form
-            className="contact-form"
-            onSubmit={(event) => {
-              event.preventDefault();
-              onNotice(
-                "Formulario de demostración: no se envió ningún dato. El backend se conectará en una fase posterior.",
-              );
-            }}
-          >
-            <div className="form-field">
-              <label htmlFor="contact-name">Nombre</label>
-              <input
-                id="contact-name"
-                name="name"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                autoComplete="name"
-                placeholder="Tu nombre"
-              />
+        <section
+          className="contact-message-panel contact-direct-panel"
+          aria-labelledby="contact-direct-heading"
+        >
+          <header className="contact-message-panel__header">
+            <span aria-hidden="true">✦</span>
+            <div>
+              <p className="eyebrow">Contacto profesional</p>
+              <h3 id="contact-direct-heading">¿Hablamos?</h3>
             </div>
-            <div className="form-field">
-              <label htmlFor="contact-email">Correo</label>
-              <input
-                id="contact-email"
-                name="email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                autoComplete="email"
-                placeholder="tu@correo.com"
-              />
-            </div>
-            <div className="form-field">
-              <label htmlFor="contact-message">Mensaje</label>
-              <textarea
-                id="contact-message"
-                name="message"
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                placeholder={`Hola ${PROFILE.name}, me gustaría hablar sobre…`}
-              />
-            </div>
-            <p className="form-note">
-              Esta versión no transmite ni almacena información. Se conserva
-              como demostración de la experiencia final.
-            </p>
-            <button className="pixel-button pixel-button--primary" type="submit">
-              Enviar mensaje (demo)
-            </button>
-          </form>
+          </header>
+
+          <p className="contact-direct-panel__intro">
+            Correo para una conversación directa; GitHub para revisar el trabajo y
+            LinkedIn para el contexto profesional.
+          </p>
+
+          <nav className="contact-links" aria-label="Canales de contacto de Jorge">
+            {CONTACT_LINKS.map((link) =>
+              link.availability === "available" ? (
+                <ContactAction key={link.id} link={link} />
+              ) : null,
+            )}
+          </nav>
+
+          {emailLink?.availability === "available" ? (
+            <a
+              className="pixel-button pixel-button--primary contact-direct-panel__primary"
+              href={emailLink.href}
+            >
+              Escribir a Jorge
+              <span aria-hidden="true">→</span>
+            </a>
+          ) : null}
         </section>
       </div>
     </ModalShell>

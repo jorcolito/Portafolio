@@ -6,19 +6,18 @@ import { ensureGeneratedTextures } from "../entities/createTextures";
 import type { GameBridge } from "../events/GameBridge";
 import {
   PORTFOLIO_FLOORS,
+  type DialogueFollowUp,
   type PortfolioFloor,
   type PortfolioProjectId,
   type ReactToGameCommand,
 } from "../types/contracts";
 
 type InteractionAction =
-  | {
-      type: "dialogue";
-      dialogueId: DialogueId;
-    }
-  | { type: "elevator" }
+  | { type: "dialogue"; dialogueId: DialogueId; after?: DialogueFollowUp }
   | { type: "project"; projectId: PortfolioProjectId }
+  | { type: "floor"; floor: PortfolioFloor }
   | { type: "quick-view" }
+  | { type: "chess" }
   | { type: "contact" };
 
 interface InteractionZone {
@@ -35,6 +34,7 @@ interface GameKeys {
   s: Phaser.Input.Keyboard.Key;
   d: Phaser.Input.Keyboard.Key;
   e: Phaser.Input.Keyboard.Key;
+  q: Phaser.Input.Keyboard.Key;
   enter: Phaser.Input.Keyboard.Key;
   space: Phaser.Input.Keyboard.Key;
 }
@@ -45,6 +45,17 @@ const FLOOR_SCENES: Record<PortfolioFloor, string> = {
   [-2]: "EducationScene",
   [-3]: "AboutScene",
   [-4]: "ContactScene",
+};
+
+const FLOOR_BACKGROUNDS: Record<
+  PortfolioFloor,
+  { key: string; url: string }
+> = {
+  0: { key: "room-lobby-v2", url: "/scenes/lobby-v2.png" },
+  [-1]: { key: "room-projects-v2", url: "/scenes/projects-v2.png" },
+  [-2]: { key: "room-education-v2", url: "/scenes/education-v2.png" },
+  [-3]: { key: "room-about-v2", url: "/scenes/about-v2.png" },
+  [-4]: { key: "room-contact-v2", url: "/scenes/contact-v2.png" },
 };
 
 const FONT = 'ui-monospace, "Cascadia Mono", "Courier New", monospace';
@@ -59,9 +70,17 @@ const CAPTURED_KEYS = [
   Phaser.Input.Keyboard.KeyCodes.D,
   Phaser.Input.Keyboard.KeyCodes.SPACE,
   Phaser.Input.Keyboard.KeyCodes.E,
+  Phaser.Input.Keyboard.KeyCodes.Q,
   Phaser.Input.Keyboard.KeyCodes.ENTER,
 ];
 
+/**
+ * Shared stage for the five compact dioramas.
+ *
+ * The world is deliberately the same size as the camera. Every room presents
+ * its meaningful objects immediately instead of asking the visitor to cross a
+ * long corridor before finding an interaction.
+ */
 export abstract class BasePortfolioScene extends Phaser.Scene {
   protected readonly bridge: GameBridge;
   protected readonly floor: PortfolioFloor;
@@ -73,8 +92,6 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
   private zones: InteractionZone[] = [];
   private platforms: Phaser.GameObjects.Rectangle[] = [];
   private activeZone: InteractionZone | null = null;
-  private prompt!: Phaser.GameObjects.Container;
-  private promptLabel!: Phaser.GameObjects.Text;
   private unsubscribeCommands?: () => void;
   private touchLeft = false;
   private touchRight = false;
@@ -83,6 +100,7 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
   private uiBlocked = false;
   private reducedMotion = false;
   private muted = true;
+  private transitioning = false;
   private walkFrame = 0;
   private lastStepAt = 0;
 
@@ -98,23 +116,43 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     this.accent = accent;
   }
 
+  preload(): void {
+    const background = FLOOR_BACKGROUNDS[this.floor];
+    if (!this.textures.exists(background.key)) {
+      this.load.image(background.key, background.url);
+    }
+  }
+
   create(): void {
     const worldWidth = this.getWorldWidth();
+    this.zones = [];
+    this.platforms = [];
+    this.activeZone = null;
+    this.uiBlocked = false;
+    this.transitioning = false;
     ensureGeneratedTextures(this);
 
     this.physics.world.setBounds(0, 0, worldWidth, 540);
     this.cameras.main.setBounds(0, 0, worldWidth, 540);
-    this.cameras.main.setBackgroundColor(0x05080e);
+    this.cameras.main.setBackgroundColor(0x03050a);
 
-    this.drawLabBackdrop(worldWidth);
-    this.addPlatform(worldWidth / 2, 500, worldWidth, 80, 0x0b1119);
+    this.add
+      .image(worldWidth / 2, 270, FLOOR_BACKGROUNDS[this.floor].key)
+      .setDisplaySize(worldWidth, 540)
+      .setDepth(-100);
+    this.drawDioramaBackdrop(worldWidth);
+    // The collider follows the floor already painted into each room. It stays
+    // completely invisible so the visitor never appears to walk on a UI line.
+    this.addPlatform(worldWidth / 2, 500, worldWidth, 80).setVisible(false);
     this.buildWorld();
     this.createPlayer();
-    this.createPrompt();
     this.createInput();
+    this.drawElevatorShortcutHint();
 
-    this.cameras.main.startFollow(this.player, true, 0.08, 0.08, 0, 36);
-    this.cameras.main.fadeIn(this.reducedMotion ? 0 : 180, 3, 7, 12);
+    // At 960px there is no horizontal dead space to reveal. Following only
+    // adds a small living-camera ease when the player moves inside the frame.
+    this.cameras.main.startFollow(this.player, true, 0.045, 0.045, 0, 30);
+    this.playElevatorArrival();
 
     this.unsubscribeCommands = this.bridge.onCommand((command) =>
       this.receiveCommand(command),
@@ -124,23 +162,21 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     const floorLabel =
       PORTFOLIO_FLOORS.find((option) => option.floor === this.floor)?.label ??
       "Lobby";
-    this.bridge.emit({
-      type: "floor-changed",
-      floor: this.floor,
-      label: floorLabel,
-    });
+    this.bridge.emit({ type: "floor-changed", floor: this.floor, label: floorLabel });
   }
 
   update(time: number): void {
-    if (!this.active || this.uiBlocked) return;
+    if (!this.active || this.uiBlocked || this.transitioning) return;
 
     this.updateNearbyZone();
 
-    const left = Boolean(this.cursors.left?.isDown || this.keys.a.isDown || this.touchLeft);
+    const left = Boolean(
+      this.cursors.left?.isDown || this.keys.a.isDown || this.touchLeft,
+    );
     const right = Boolean(
       this.cursors.right?.isDown || this.keys.d.isDown || this.touchRight,
     );
-    const speed = 178;
+    const speed = 158;
 
     if (left === right) {
       this.player.setVelocityX(0);
@@ -152,7 +188,7 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
       this.walkFrame = Math.floor(time / 145) % 2;
       this.player.setTexture(this.walkFrame ? "jorge-walk-2" : "jorge-walk-1");
 
-      if (this.isGrounded() && time - this.lastStepAt > 310) {
+      if (this.isGrounded() && time - this.lastStepAt > 330) {
         this.lastStepAt = time;
         if (!this.muted) this.bridge.emit({ type: "sound-requested", sound: "step" });
       }
@@ -163,17 +199,19 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
       Phaser.Input.Keyboard.JustDown(this.keys.w) ||
       Phaser.Input.Keyboard.JustDown(this.keys.space);
     if ((keyboardJump || this.jumpQueued) && this.isGrounded()) {
-      this.player.setVelocityY(-360);
+      this.player.setVelocityY(-330);
       if (!this.muted) this.bridge.emit({ type: "sound-requested", sound: "jump" });
     }
     this.jumpQueued = false;
 
+    if (Phaser.Input.Keyboard.JustDown(this.keys.q)) {
+      this.requestElevator();
+      return;
+    }
+
     const keyboardInteract =
       Phaser.Input.Keyboard.JustDown(this.keys.e) ||
-      Phaser.Input.Keyboard.JustDown(this.keys.enter) ||
-      (this.activeZone?.action.type === "elevator" &&
-        (Phaser.Input.Keyboard.JustDown(this.keys.s) ||
-          Phaser.Input.Keyboard.JustDown(this.cursors.down)));
+      Phaser.Input.Keyboard.JustDown(this.keys.enter);
     if (keyboardInteract) this.interact();
 
     if (this.player.y > 535) this.resetPlayer();
@@ -182,11 +220,11 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
   protected abstract buildWorld(): void;
 
   protected getWorldWidth(): number {
-    return 1440;
+    return 960;
   }
 
   protected getPlayerSpawn(): Phaser.Types.Math.Vector2Like {
-    return { x: 210, y: 430 };
+    return { x: 430, y: 420 };
   }
 
   protected addInteraction(
@@ -195,10 +233,24 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     width: number,
     label: string,
     action: InteractionAction,
+    clickBounds?: { x: number; y: number; width: number; height: number },
     keyHint = "E / ENTER",
   ): void {
-    const area = this.add.zone(x, 392, width, 170).setOrigin(0.5, 0.5);
-    this.zones.push({ id, label, keyHint, area, action });
+    const area = this.add.zone(x, 388, width, 166).setOrigin(0.5);
+    const zone = { id, label, keyHint, area, action } satisfies InteractionZone;
+    const pointerArea = clickBounds
+      ? this.add.zone(
+          clickBounds.x,
+          clickBounds.y,
+          clickBounds.width,
+          clickBounds.height,
+        )
+      : area;
+    pointerArea
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true })
+      .on(Phaser.Input.Events.POINTER_DOWN, () => this.interact(zone));
+    this.zones.push(zone);
   }
 
   protected addPlatform(
@@ -208,165 +260,202 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     height: number,
     color = 0x111a24,
   ): Phaser.GameObjects.Rectangle {
-    const platform = this.add.rectangle(x, y, width, height, color);
-    platform.setStrokeStyle(2, 0x263949);
+    const platform = this.add
+      .rectangle(x, y, width, height, color)
+      .setStrokeStyle(1, 0x263949)
+      .setDepth(3);
     this.physics.add.existing(platform, true);
     this.platforms.push(platform);
     if (this.player) this.physics.add.collider(this.player, platform);
     return platform;
   }
 
-  protected addElevator(x = 104): void {
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x071116);
-    graphics.fillRect(x - 68, 285, 136, 176);
-    graphics.lineStyle(3, this.accent, 0.8);
-    graphics.strokeRect(x - 68, 285, 136, 176);
-    graphics.fillStyle(0x111c24);
-    graphics.fillRect(x - 55, 304, 52, 150);
-    graphics.fillRect(x + 3, 304, 52, 150);
-    graphics.lineStyle(1, 0x48606c, 0.8);
-    graphics.lineBetween(x, 304, x, 454);
-    graphics.fillStyle(this.accent, 0.8);
-    graphics.fillRect(x + 47, 364, 4, 18);
+  /**
+   * Gives a real object in the background plate a restrained white pulse.
+   * Points use absolute scene coordinates, so outlines can follow silhouettes
+   * instead of adding unrelated icons on top of the art.
+   */
+  protected addInteractiveOutline(
+    points: readonly Phaser.Types.Math.Vector2Like[],
+    delay = 0,
+  ): Phaser.GameObjects.Graphics {
+    const outline = this.add.graphics().setDepth(22);
+    outline.lineStyle(2, 0xffffff, 0.85);
+    outline.strokePoints(
+      points.map(
+        (point) => new Phaser.Geom.Point(point.x ?? 0, point.y ?? 0),
+      ),
+      true,
+    );
+    outline
+      .setAlpha(0.14)
+      .setBlendMode(Phaser.BlendModes.ADD);
 
-    this.addNeonLabel(x, 267, "ASCENSOR", 0xf5b942, 13);
-    this.addInteraction("elevator", x, 150, "Elegir piso", { type: "elevator" });
-  }
-
-  protected addNeonLabel(
-    x: number,
-    y: number,
-    text: string,
-    color = this.accent,
-    size = 16,
-  ): Phaser.GameObjects.Text {
-    const label = this.add
-      .text(x, y, text, {
-        fontFamily: FONT,
-        fontSize: `${size}px`,
-        color: `#${color.toString(16).padStart(6, "0")}`,
-        stroke: "#020409",
-        strokeThickness: 5,
-      })
-      .setOrigin(0.5);
-    label.setShadow(0, 0, `#${color.toString(16).padStart(6, "0")}`, 7, true, true);
-    return label;
-  }
-
-  protected drawTerminal(
-    x: number,
-    y: number,
-    color = this.accent,
-    scale = 1,
-  ): void {
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x111924);
-    graphics.fillRoundedRect(x - 35 * scale, y - 44 * scale, 70 * scale, 50 * scale, 4);
-    graphics.lineStyle(2, 0x3e5362);
-    graphics.strokeRoundedRect(x - 35 * scale, y - 44 * scale, 70 * scale, 50 * scale, 4);
-    graphics.fillStyle(0x031116);
-    graphics.fillRect(x - 28 * scale, y - 37 * scale, 56 * scale, 35 * scale);
-    graphics.fillStyle(color, 0.75);
-    graphics.fillRect(x - 21 * scale, y - 29 * scale, 28 * scale, 3 * scale);
-    graphics.fillRect(x - 21 * scale, y - 20 * scale, 40 * scale, 2 * scale);
-    graphics.fillRect(x - 21 * scale, y - 13 * scale, 33 * scale, 2 * scale);
-    graphics.fillStyle(0x18232f);
-    graphics.fillRect(x - 5 * scale, y + 6 * scale, 10 * scale, 22 * scale);
-    graphics.fillRect(x - 25 * scale, y + 28 * scale, 50 * scale, 7 * scale);
-  }
-
-  protected drawCrate(x: number, y: number, color = 0x9e6730): void {
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x241b18);
-    graphics.fillRect(x - 27, y - 22, 54, 44);
-    graphics.lineStyle(3, color);
-    graphics.strokeRect(x - 27, y - 22, 54, 44);
-    graphics.lineBetween(x - 24, y - 19, x + 24, y + 19);
-    graphics.lineBetween(x + 24, y - 19, x - 24, y + 19);
-  }
-
-  protected drawLabBackdrop(width: number): void {
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x05080e);
-    graphics.fillRect(0, 0, width, 540);
-    graphics.fillStyle(0x080d15);
-    graphics.fillRect(0, 82, width, 382);
-
-    for (let x = 0; x < width; x += 96) {
-      graphics.lineStyle(1, 0x16222f, 0.7);
-      graphics.strokeRect(x, 92, 92, 105);
-      graphics.strokeRect(x, 201, 92, 105);
-      graphics.strokeRect(x, 310, 92, 105);
-      graphics.fillStyle(0x243342, 0.7);
-      graphics.fillCircle(x + 8, 100, 2);
-      graphics.fillCircle(x + 84, 188, 2);
+    if (!this.reducedMotion) {
+      this.tweens.add({
+        targets: outline,
+        alpha: { from: 0.12, to: 0.82 },
+        duration: 760,
+        delay,
+        hold: 180,
+        yoyo: true,
+        repeat: -1,
+        repeatDelay: 620,
+        ease: "Sine.InOut",
+      });
     }
 
-    graphics.lineStyle(5, 0x111b25);
-    graphics.lineBetween(0, 118, width, 118);
-    graphics.lineStyle(1, this.accent, 0.18);
-    graphics.lineBetween(0, 121, width, 121);
-
-    for (let x = 45; x < width; x += 230) {
-      graphics.fillStyle(0x101722);
-      graphics.fillRect(x, 44, 120, 27);
-      graphics.lineStyle(1, 0x344555);
-      graphics.strokeRect(x, 44, 120, 27);
-      graphics.fillStyle(this.accent, 0.32);
-      graphics.fillRect(x + 10, 55, 58, 4);
-    }
+    return outline;
   }
 
-  protected addRoomTitle(title: string, subtitle: string): void {
-    this.add
-      .text(30, 23, title, {
-        fontFamily: FONT,
-        fontSize: "22px",
-        color: "#edf9ff",
-        stroke: "#020409",
-        strokeThickness: 5,
-      })
+  private drawDioramaBackdrop(width: number): void {
+    const atmosphere = this.add.graphics().setDepth(-20);
+    // Gentle letterbox and edge falloff make the generated plate read like a
+    // diorama while leaving its detailed centre almost completely untouched.
+    atmosphere.fillStyle(0x010205, 0.34);
+    atmosphere.fillRect(0, 0, width, 58);
+    atmosphere.fillRect(0, 506, width, 34);
+    atmosphere.fillStyle(0x010205, 0.2);
+    atmosphere.fillRect(0, 58, 24, 448);
+    atmosphere.fillRect(width - 24, 58, 24, 448);
+  }
+
+  private drawElevatorShortcutHint(): void {
+    const plate = this.add
+      .rectangle(850, 82, 190, 30, 0x03070b, 0.84)
+      .setStrokeStyle(1, 0xffffff, 0.25)
       .setScrollFactor(0)
-      .setDepth(50);
-    this.add
-      .text(31, 53, subtitle, {
-        fontFamily: FONT,
-        fontSize: "10px",
-        color: "#91a3af",
-        letterSpacing: 2,
-      })
+      .setDepth(92);
+    const keycap = this.add
+      .rectangle(776, 82, 22, 20, 0x101820, 1)
+      .setStrokeStyle(1, 0xffffff, 0.62)
       .setScrollFactor(0)
-      .setDepth(50);
+      .setDepth(93);
+    this.add
+      .text(776, 82, "Q", {
+        fontFamily: FONT,
+        fontSize: "11px",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(94);
+    this.add
+      .text(798, 82, "LLAMAR ASCENSOR", {
+        fontFamily: FONT,
+        fontSize: "9px",
+        color: "#dce7ec",
+        letterSpacing: 1,
+      })
+      .setOrigin(0, 0.5)
+      .setScrollFactor(0)
+      .setDepth(94);
+
+    // Keep the variables intentional: the shapes form one fixed HUD affordance.
+    plate.setData("control", "elevator-shortcut");
+    keycap.setData("key", "Q");
+  }
+
+  private requestElevator(): void {
+    if (!this.active || this.uiBlocked || this.transitioning) return;
+    this.player.setVelocityX(0).setTexture("jorge-idle");
+    this.setUiBlocked(true);
+    if (!this.muted) this.bridge.emit({ type: "sound-requested", sound: "interact" });
+    this.bridge.emit({
+      type: "elevator-requested",
+      currentFloor: this.floor,
+      floors: PORTFOLIO_FLOORS,
+    });
+  }
+
+  private createElevatorDoor(side: "left" | "right", closed: boolean): Phaser.GameObjects.Container {
+    const panelWidth = 480;
+    const graphics = this.add.graphics();
+    graphics.fillStyle(0x05090e, 0.99);
+    graphics.fillRect(0, 0, panelWidth, 540);
+    graphics.fillStyle(0x0d1821, 1);
+    graphics.fillRect(side === "left" ? 452 : 0, 0, 28, 540);
+    graphics.lineStyle(1, 0x38515d, 0.72);
+    for (let y = 54; y < 540; y += 72) graphics.lineBetween(20, y, 460, y);
+    graphics.lineStyle(2, this.accent, 0.54);
+    graphics.lineBetween(side === "left" ? 477 : 3, 0, side === "left" ? 477 : 3, 540);
+    graphics.lineStyle(1, 0xffffff, 0.1);
+    graphics.strokeRect(18, 18, 444, 504);
+
+    const closedX = side === "left" ? 0 : 480;
+    const openX = side === "left" ? -480 : 960;
+    return this.add
+      .container(closed ? closedX : openX, 0, [graphics])
+      .setScrollFactor(0)
+      .setDepth(240);
+  }
+
+  private playElevatorArrival(): void {
+    if (this.reducedMotion) return;
+    this.transitioning = true;
+    this.player.setVelocity(0, 0).setTexture("jorge-idle");
+    const left = this.createElevatorDoor("left", true);
+    const right = this.createElevatorDoor("right", true);
+    const duration = 480;
+
+    this.tweens.add({
+      targets: left,
+      x: -480,
+      duration,
+      delay: 110,
+      ease: "Cubic.InOut",
+    });
+    this.tweens.add({
+      targets: right,
+      x: 960,
+      duration,
+      delay: 110,
+      ease: "Cubic.InOut",
+      onComplete: () => {
+        left.destroy(true);
+        right.destroy(true);
+        this.transitioning = false;
+      },
+    });
+  }
+
+  private closeElevatorDoors(onComplete: () => void): void {
+    if (this.reducedMotion) {
+      onComplete();
+      return;
+    }
+
+    const left = this.createElevatorDoor("left", false);
+    const right = this.createElevatorDoor("right", false);
+    const duration = 430;
+    this.tweens.add({
+      targets: left,
+      x: 0,
+      duration,
+      ease: "Cubic.InOut",
+    });
+    this.tweens.add({
+      targets: right,
+      x: 480,
+      duration,
+      ease: "Cubic.InOut",
+      onComplete,
+    });
   }
 
   private createPlayer(): void {
     const spawn = this.getPlayerSpawn();
-    this.player = this.physics.add.sprite(spawn.x ?? 210, spawn.y ?? 430, "jorge-idle");
-    this.player.setDepth(20).setCollideWorldBounds(true);
-    this.player.setDragX(900).setMaxVelocity(220, 500);
+    this.player = this.physics.add.sprite(
+      spawn.x ?? 430,
+      spawn.y ?? 420,
+      "jorge-idle",
+    );
+    this.player.setDepth(40).setScale(2).setCollideWorldBounds(true);
+    this.player.setDragX(900).setMaxVelocity(190, 500);
     const body = this.player.body as Phaser.Physics.Arcade.Body;
-    body.setSize(16, 33).setOffset(4, 5);
+    body.setSize(13, 31).setOffset(5.5, 6);
 
     for (const platform of this.platforms) this.physics.add.collider(this.player, platform);
-  }
-
-  private createPrompt(): void {
-    const background = this.add
-      .rectangle(0, 0, 312, 42, 0x03060b, 0.96)
-      .setStrokeStyle(1, this.accent, 0.9);
-    this.promptLabel = this.add
-      .text(0, 0, "", {
-        fontFamily: FONT,
-        fontSize: "13px",
-        color: "#f4fbff",
-      })
-      .setOrigin(0.5);
-    this.prompt = this.add
-      .container(480, 479, [background, this.promptLabel])
-      .setScrollFactor(0)
-      .setDepth(100)
-      .setVisible(false);
   }
 
   private createInput(): void {
@@ -378,15 +467,13 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
       s: Phaser.Input.Keyboard.KeyCodes.S,
       d: Phaser.Input.Keyboard.KeyCodes.D,
       e: Phaser.Input.Keyboard.KeyCodes.E,
+      q: Phaser.Input.Keyboard.KeyCodes.Q,
       enter: Phaser.Input.Keyboard.KeyCodes.ENTER,
       space: Phaser.Input.Keyboard.KeyCodes.SPACE,
     }) as GameKeys;
     this.input.keyboard.addCapture(CAPTURED_KEYS);
     this.input.keyboard.enableGlobalCapture();
 
-    this.input.on("pointerdown", () => {
-      if (this.activeZone && !this.uiBlocked && this.active) this.interact();
-    });
   }
 
   private updateNearbyZone(): void {
@@ -396,8 +483,6 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     if (next === this.activeZone) return;
 
     this.activeZone = next;
-    this.prompt.setVisible(Boolean(next));
-    if (next) this.promptLabel.setText(`[ ${next.keyHint} ]  ${next.label}`);
     this.bridge.emit({
       type: "prompt-changed",
       prompt: next
@@ -406,9 +491,15 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     });
   }
 
-  private interact(): void {
-    const zone = this.activeZone;
-    if (!zone || !this.active || this.uiBlocked) return;
+  private interact(requestedZone: InteractionZone | null = this.activeZone): void {
+    const zone = requestedZone;
+    if (!zone || !this.active || this.uiBlocked || this.transitioning) return;
+
+    if (zone.action.type === "floor") {
+      if (!this.muted) this.bridge.emit({ type: "sound-requested", sound: "interact" });
+      this.changeFloor(zone.action.floor);
+      return;
+    }
 
     this.setUiBlocked(true);
     if (!this.muted) this.bridge.emit({ type: "sound-requested", sound: "interact" });
@@ -416,14 +507,13 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     switch (zone.action.type) {
       case "dialogue": {
         const dialogue: DialogueSequence = DIALOGUES_BY_ID[zone.action.dialogueId];
-        const after = dialogue.completion
-          ? dialogue.completion.type === "open-project"
-            ? {
-                type: "project" as const,
-                projectId: dialogue.completion.projectId,
-              }
-            : { type: "contact" as const }
-          : undefined;
+        const after =
+          zone.action.after ??
+          (dialogue.completion
+            ? dialogue.completion.type === "open-project"
+              ? { type: "project" as const, projectId: dialogue.completion.projectId }
+              : { type: "contact" as const }
+            : undefined);
         this.bridge.emit({
           type: "dialogue-requested",
           dialogue: {
@@ -436,18 +526,14 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
         });
         break;
       }
-      case "elevator":
-        this.bridge.emit({
-          type: "elevator-requested",
-          currentFloor: this.floor,
-          floors: PORTFOLIO_FLOORS,
-        });
-        break;
       case "project":
         this.bridge.emit({ type: "project-requested", projectId: zone.action.projectId });
         break;
       case "quick-view":
         this.bridge.emit({ type: "quick-view-requested" });
+        break;
+      case "chess":
+        this.bridge.emit({ type: "chess-requested" });
         break;
       case "contact":
         this.bridge.emit({ type: "contact-requested" });
@@ -497,10 +583,14 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
 
     this.touchLeft = false;
     this.touchRight = false;
+    // A direct lobby door does not open React UI, so scene transitions must
+    // use their own lock instead of relying on the modal pause state.
+    this.setUiBlocked(false);
+    this.transitioning = true;
+    this.player.setVelocity(0, 0).setTexture("jorge-idle");
     this.bridge.emit({ type: "prompt-changed", prompt: null });
     const startFloor = () => {
-      // Scene instances are reused by Phaser; do not carry a modal lock to a future visit.
-      this.uiBlocked = false;
+      this.transitioning = false;
       this.scene.start(FLOOR_SCENES[floor]);
     };
 
@@ -509,8 +599,7 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
       return;
     }
 
-    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, startFloor);
-    this.cameras.main.fadeOut(170, 2, 8, 14);
+    this.closeElevatorDoors(startFloor);
   }
 
   private setUiBlocked(blocked: boolean): void {
@@ -547,7 +636,7 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
 
   private resetPlayer(): void {
     const spawn = this.getPlayerSpawn();
-    this.player.setPosition(spawn.x ?? 210, spawn.y ?? 430);
+    this.player.setPosition(spawn.x ?? 430, spawn.y ?? 420);
     this.player.setVelocity(0, 0);
   }
 

@@ -65,6 +65,8 @@ export interface PortfolioProfile {
   readonly location: string;
   readonly introduction: string;
   readonly summary: string;
+  readonly availability: string;
+  readonly workPrinciples: readonly string[];
   readonly languages: readonly SpokenLanguage[];
   readonly interests: readonly ProfessionalInterest[];
   readonly technologyIds: readonly TechnologyId[];
@@ -80,6 +82,30 @@ export interface EducationRecord {
   readonly location: string;
   readonly summary: string;
   readonly areas: readonly string[];
+}
+
+export type EducationLibraryItemKind =
+  | "degree"
+  | "language-certificate"
+  | "cloud-certificate"
+  | "university-project";
+
+export type EducationLibraryItemStatus =
+  | "in-progress"
+  | "verified"
+  | "document-pending"
+  | "details-pending";
+
+export interface EducationLibraryItem {
+  readonly id: string;
+  readonly kind: EducationLibraryItemKind;
+  readonly shelfLabel: string;
+  readonly title: string;
+  readonly summary: string;
+  readonly status: EducationLibraryItemStatus;
+  readonly statusLabel: string;
+  readonly metadata: readonly string[];
+  readonly resource: ResourceLink | null;
 }
 
 export interface ExperienceRecord {

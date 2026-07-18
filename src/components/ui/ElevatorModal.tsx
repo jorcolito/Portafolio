@@ -18,13 +18,28 @@ export function ElevatorModal({
   onClose,
 }: ElevatorModalProps) {
   return (
-    <ModalShell title="Ascensor" eyebrow="Selector de piso" onClose={onClose}>
-      <div className="settings-panel">
-        <p className="status-copy">
-          Selecciona un destino. El ascensor conecta todas las zonas del
-          portafolio y mantiene el recorrido completamente accesible.
-        </p>
-        <ul className="floor-list" style={{ marginTop: "1rem" }}>
+    <ModalShell
+      title="Elevador"
+      eyebrow="Acceso instantáneo · Q"
+      variant="elevator"
+      onClose={onClose}
+    >
+      <div className="elevator-console">
+        <div className="elevator-arrival" aria-hidden="true">
+          <span className="elevator-arrival__door elevator-arrival__door--left" />
+          <span className="elevator-arrival__door elevator-arrival__door--right" />
+          <span className="elevator-arrival__indicator">
+            {String(currentFloor).padStart(2, "0")}
+          </span>
+          <span className="elevator-arrival__light" />
+        </div>
+
+        <div className="elevator-console__destinations">
+          <p className="eyebrow">¿A dónde quieres ir?</p>
+          <p className="elevator-console__copy">
+            Elige un destino. No necesitas caminar hasta otra puerta.
+          </p>
+          <ul className="floor-list elevator-floor-list">
           {floors.map((floor) => (
             <li key={floor.floor}>
               <button
@@ -40,10 +55,14 @@ export function ElevatorModal({
                     {floor.floor === currentFloor ? " (piso actual)" : ""}
                   </span>
                 </span>
+                <span className="elevator-floor-state" aria-hidden="true">
+                  {floor.floor === currentFloor ? "AHORA" : "IR →"}
+                </span>
               </button>
             </li>
           ))}
-        </ul>
+          </ul>
+        </div>
       </div>
     </ModalShell>
   );

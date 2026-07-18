@@ -1,5 +1,7 @@
 "use client";
 
+import type { CSSProperties } from "react";
+
 import { TECHNOLOGIES } from "@/src/data";
 import type { PortfolioProject } from "@/src/types";
 
@@ -11,54 +13,105 @@ interface ProjectModalProps {
   onPlaceholder: (message: string) => void;
 }
 
+type ProjectAccentStyle = CSSProperties & {
+  "--project-accent": string;
+};
+
 export function ProjectModal({
   project,
   onClose,
-  onPlaceholder,
 }: ProjectModalProps) {
   const technologies = TECHNOLOGIES.filter((technology) =>
     project.technologyIds.includes(technology.id),
+  );
+  const accentStyle: ProjectAccentStyle = {
+    "--project-accent": project.scene.accentColor,
+  };
+  const availableLinks = [project.links.demo, project.links.repository].filter(
+    (link) => link.availability === "available",
   );
 
   return (
     <ModalShell
       title={project.name}
-      eyebrow="Ficha de proyecto"
+      eyebrow="Expediente de proyecto"
+      variant="project"
+      wide
       onClose={onClose}
     >
-      <div className="project-modal">
-        <div
-          className={`project-visual project-visual--${project.id}`}
-          role="img"
-          aria-label={project.media.alt}
-        >
-          <div className="project-visual__label">
-            <span>{project.media.label}</span>
-            <strong>{project.scene.objectLabel}</strong>
+      <article
+        className={`project-dossier project-dossier--${project.id}`}
+        style={accentStyle}
+        data-project-id={project.id}
+      >
+        <header className="project-dossier__hero">
+          <div
+            className={`project-visual project-visual--${project.id} project-dossier__visual`}
+            role="img"
+            aria-label={project.media.alt}
+          >
+            <div className="project-dossier__visual-glow" aria-hidden="true" />
+            <div className="project-dossier__visual-grid" aria-hidden="true" />
+            <div className="project-visual__label project-dossier__visual-label">
+              <span>Entorno interactivo</span>
+              <strong>{project.scene.objectLabel}</strong>
+            </div>
+            <span className="project-dossier__scanline" aria-hidden="true" />
           </div>
-        </div>
 
-        <article className="project-copy">
-          <p className="eyebrow">{project.category}</p>
-          <h3>{project.name}</h3>
-          <p className="project-summary">{project.description}</p>
-          <p className="project-problem">
-            <strong>Problema resuelto:</strong> {project.problemSolved}
-          </p>
+          <div className="project-dossier__intro">
+            <div className="project-dossier__meta">
+              <span className="project-dossier__index">
+                CASE / {project.id.toUpperCase()}
+              </span>
+              <span
+                className={`project-status project-status--${project.status.tone}`}
+              >
+                <span className="project-status__signal" aria-hidden="true" />
+                {project.status.label}
+              </span>
+            </div>
+            <p className="eyebrow project-dossier__category">
+              {project.category}
+            </p>
+            <h3 className="project-dossier__title">{project.name}</h3>
+            <p className="project-summary project-dossier__summary">
+              {project.description}
+            </p>
+            <p className="project-dossier__concept">
+              <span>Escena</span>
+              {project.scene.concept}
+            </p>
+          </div>
+        </header>
 
-          <div className="project-grid">
-            <section>
-              <h4>Funcionalidades</h4>
-              <ul className="project-list">
+        <div className="project-dossier__body">
+          <section className="project-dossier__story" aria-labelledby={`${project.id}-challenge`}>
+            <div>
+              <p className="project-section-kicker">El reto</p>
+              <h4 id={`${project.id}-challenge`}>Problema resuelto</h4>
+              <p className="project-problem">{project.problemSolved}</p>
+            </div>
+          </section>
+
+          <section className="project-dossier__capabilities" aria-labelledby={`${project.id}-capabilities`}>
+            <div>
+              <p className="project-section-kicker">La solución</p>
+              <h4 id={`${project.id}-capabilities`}>Capacidades principales</h4>
+              <ul className="project-list project-feature-grid">
                 {project.features.map((feature) => (
                   <li key={feature}>{feature}</li>
                 ))}
               </ul>
-            </section>
-            <section>
-              <h4>Tecnologías</h4>
+            </div>
+          </section>
+
+          <section className="project-dossier__stack" aria-labelledby={`${project.id}-stack`}>
+            <div>
+              <p className="project-section-kicker">Construcción</p>
+              <h4 id={`${project.id}-stack`}>Tecnologías</h4>
               {technologies.length > 0 ? (
-                <ul className="tag-list">
+                <ul className="tag-list project-stack-list">
                   {technologies.map((technology) => (
                     <li key={technology.id}>{technology.name}</li>
                   ))}
@@ -66,45 +119,35 @@ export function ProjectModal({
               ) : (
                 <p className="status-copy">{project.technologyNote}</p>
               )}
-            </section>
-          </div>
+            </div>
+          </section>
+        </div>
 
-          <p className="project-status">
-            <span aria-hidden="true">● </span>
-            Estado: {project.status.label}
+        <footer className="project-dossier__footer">
+          <p className="project-dossier__footer-note">
+            <span aria-hidden="true">✦</span>
+            Producto real, documentación en evolución.
           </p>
-
-          <div className="project-actions">
-            {[project.links.demo, project.links.repository].map((link) =>
-              link.availability === "available" ? (
+          <div className="project-actions project-dossier__actions">
+            {availableLinks.map((link, index) =>
                 <a
                   key={link.id}
-                  className="pixel-button pixel-button--primary"
+                  className={`pixel-button${index === 0 ? " pixel-button--primary" : ""}`}
                   href={link.href}
                   target="_blank"
                   rel="noreferrer"
                   aria-label={link.ariaLabel}
                 >
                   {link.label}
+                  <span aria-hidden="true">↗</span>
                 </a>
-              ) : (
-                <button
-                  key={link.id}
-                  className="pixel-button"
-                  type="button"
-                  onClick={() => onPlaceholder(link.placeholderMessage)}
-                  aria-label={link.ariaLabel}
-                >
-                  {link.label}
-                </button>
-              ),
             )}
             <button className="pixel-button" type="button" onClick={onClose}>
-              Cerrar
+              Volver al laboratorio
             </button>
           </div>
-        </article>
-      </div>
+        </footer>
+      </article>
     </ModalShell>
   );
 }

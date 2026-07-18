@@ -3,6 +3,7 @@
 import {
   type PropsWithChildren,
   type RefObject,
+  useCallback,
   useEffect,
   useId,
   useRef,
@@ -12,6 +13,7 @@ interface ModalShellProps extends PropsWithChildren {
   title: string;
   eyebrow?: string;
   wide?: boolean;
+  variant?: "default" | "project" | "contact" | "library" | "elevator";
   onClose: () => void;
   initialFocusRef?: RefObject<HTMLElement | null>;
 }
@@ -23,6 +25,7 @@ export function ModalShell({
   title,
   eyebrow,
   wide = false,
+  variant = "default",
   onClose,
   initialFocusRef,
   children,
@@ -30,16 +33,25 @@ export function ModalShell({
   const titleId = useId();
   const windowRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const closeRequestedRef = useRef(false);
+
+  const requestClose = useCallback(() => {
+    if (closeRequestedRef.current) return;
+    closeRequestedRef.current = true;
+    onClose();
+  }, [onClose]);
 
   useEffect(() => {
     const previouslyFocused = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const target = initialFocusRef?.current ?? closeRef.current;
     target?.focus();
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        if (!event.repeat) requestClose();
         return;
       }
 
@@ -63,32 +75,37 @@ export function ModalShell({
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
       previouslyFocused?.focus();
     };
-  }, [initialFocusRef, onClose]);
+  }, [initialFocusRef, requestClose]);
 
   return (
     <div
       className="modal-backdrop"
       role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
+      data-modal-variant={variant}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) requestClose();
       }}
     >
       <div
         ref={windowRef}
-        className={`modal-window${wide ? " modal-window--wide" : ""}`}
+        className={`modal-window modal-window--${variant}${wide ? " modal-window--wide" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
       >
         <div className="modal-titlebar">
-          <h2 id={titleId}>{eyebrow ? `${eyebrow} / ${title}` : title}</h2>
+          <div className="modal-heading">
+            {eyebrow ? <span className="modal-eyebrow">{eyebrow}</span> : null}
+            <h2 id={titleId}>{title}</h2>
+          </div>
           <button
             ref={closeRef}
             className="modal-close"
             type="button"
-            onClick={onClose}
+            onClick={requestClose}
             aria-label={`Cerrar ${title}`}
           >
             ×

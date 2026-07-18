@@ -153,6 +153,7 @@ export const GameCanvas = forwardRef<GameCanvasHandle, GameCanvasProps>(
           "KeyD",
           "Space",
           "KeyE",
+          "KeyQ",
           "Enter",
         ]);
         const preventGameplayScroll = (event: KeyboardEvent) => {

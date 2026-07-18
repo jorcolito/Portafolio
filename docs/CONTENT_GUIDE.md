@@ -41,11 +41,14 @@ Estos datos son la fuente editorial del MVP. Cualquier cambio debe hacerse en lo
 | Perfil | Estudiante de Ingeniería en Ciencias de la Computación en la UEES |
 | Graduación estimada | Diciembre de 2027 |
 | Idiomas | Español nativo; inglés C1 |
-| Experiencia internacional | Rush Creek Lodge and Spa, California, Estados Unidos, 2025 |
-| Aprendizajes de esa experiencia | Comunicación, adaptación, trabajo en equipo y atención al cliente |
 | Intereses | Full stack, IA aplicada, SaaS, diseño de experiencias, automatización y productos digitales reales |
+| Chess.com | Perfil público `jorcolito`; sus cifras se consultan desde la API y no se fijan manualmente |
+| Cambridge | C1 Advanced, Statement of Results de marzo de 2023; overall score 180 y Pass at Grade C. No es el certificado formal |
+| Correo | `jorgecolamarco03@gmail.com` |
+| GitHub | `https://github.com/jorcolito` |
+| LinkedIn | `https://www.linkedin.com/in/jorge-colamarco-a82456266/` |
 
-No se añade empresa cliente, cargo, duración exacta, métrica, URL o certificación específica sin confirmación de Jorge.
+No se añade empresa cliente, cargo, duración exacta, métrica, repositorio, URL o credencial específica sin confirmación de Jorge, documento verificable o una respuesta vigente de la fuente pública indicada.
 
 ## Presentación principal
 
@@ -77,19 +80,9 @@ Ejemplos:
 - “El laboratorio no pudo iniciar. Puedes reintentar o abrir Quick View.”
 - “Demo aún no disponible.”
 
-### Robot del Lobby
+### Bitácora del Lobby
 
-Voz literal, amable y ligeramente confundida por costumbres de desarrollo. Sus chistes son autocontenidos.
-
-Texto canónico inicial:
-
-```text
-Bienvenido.
-Jorge me construyó durante una noche larga.
-Todavía no entiendo Git.
-```
-
-No convertir al robot en narrador constante. Una intervención breve es suficiente para introducir interacción.
+Presenta de inmediato a Jorge y ofrece dos salidas claras: elegir una puerta o abrir Quick View. No contiene bromas sobre memoria, guardado ni un tutorial largo.
 
 ### Voz de objetos
 
@@ -101,20 +94,15 @@ Los IDs son estables y recomendados para `data/dialogues.ts`.
 
 | ID | Hablante | Líneas |
 | --- | --- | --- |
-| `lobby.robot.welcome` | Robot | “Bienvenido.” / “Jorge me construyó durante una noche larga.” / “Todavía no entiendo Git.” |
-| `lobby.terminal.welcome` | Sistema | “JORGE LABS en línea.” / “Explora el laboratorio o abre Quick View cuando quieras.” |
-| `lobby.save-point` | Punto de guardado | “El progreso no se guarda.” / “Pero los recuerdos sí. Eso dice el manual.” |
-| `projects.cardrive.intro` | Terminal de garaje | “Un sistema para administrar vehículos, contratos, pagos y caja diaria.” / “Este prototipo responde a una operación real.” |
-| `projects.shiko.intro` | Terminal SHIKO | “Aquí los pedidos y los anuncios intentan contar la misma historia.” / “El MVP todavía está en diseño y arquitectura.” |
-| `projects.comernova.intro` | Terminal Comernova | “Cada producto tiene un lugar.” / “El inventario también debería tenerlo.” |
-| `education.uees` | Archivo académico | “Ingeniería en Ciencias de la Computación.” / “UEES.” / “Graduación estimada: diciembre de 2027.” |
-| `education.english` | Certificado | “Inglés C1.” / “Útil para documentación, equipos y conversaciones fuera del laboratorio.” |
-| `education.projects` | Terminal académica | “Desarrollo web, redes, HCI y sistemas.” / “Cada curso dejó algo que construir mejor.” |
-| `about.laptop` | Laptop | “Parece que Jorge pasa demasiado tiempo aquí.” / “Algunos proyectos incluso llegaron a producción.” |
-| `about.chess` | Tablero de ajedrez | “Su ELO también está en desarrollo.” |
-| `about.map` | Mapa | “Guayaquil, Ecuador.” / “Aquí comenzó esta partida.” |
-| `about.suitcase` | Maleta | “Esta maleta viajó a California en 2025.” / “Volvió con experiencia, historias y menos miedo a hablar con desconocidos.” |
-| `contact.terminal` | Sistema | “Gracias por llegar hasta aquí.” / “Ahora sí.” / “Hablemos.” |
+| `lobby.terminal.welcome` | JORGE.EXE | “Jorge Colamarco — desarrollador de software orientado a producto.” / “Elige una puerta o abre Quick View para ver lo esencial.” |
+| `projects.*` | Expediente directo | La interacción abre la ficha; el diorama comunica el contexto. |
+| `education.uees` | Libro académico | “Ingeniería en Ciencias de la Computación.” / “UEES.” / “Graduación estimada: diciembre de 2027.” |
+| `education.english` | Libro de idiomas | “Cambridge C1 Advanced.” / “Statement of Results verificable; no es el certificado formal.” |
+| `education.aws` | Libro cloud | “Credencial AWS.” / “Documento pendiente de verificar.” |
+| `about.chess` | Tablero de ajedrez | “Abrir actividad reciente de jorcolito en Chess.com.” |
+| `about.map` | Mapa | “Guayaquil, Ecuador.” / “Desde aquí estudio, construyo productos y colaboro con equipos remotos.” |
+| `about.notebook` | Método | “Primero aclaro el problema y el criterio de éxito.” / “Después diseño, construyo y mejoro con evidencia.” |
+| `contact.jorge` | JORGE.EXE | “¿Buscas a alguien que convierta un problema real en software útil? Hablemos.” |
 
 ## Proyectos
 
@@ -173,8 +161,8 @@ Los IDs son estables y recomendados para `data/dialogues.ts`.
   - Diseño mobile-first.
 - **Tecnologías:** React, TypeScript, Vite, Supabase y Vercel.
 - **Estado exacto:** En desarrollo.
-- **Representación:** habitación tecnológica perfectamente organizada.
-- **Alt de placeholder:** “Ilustración provisional de Comernova con estantes modulares y productos organizados.”
+- **Representación:** boutique digital compacta con catálogo, paquetes, inventario y pantallas de producto.
+- **Alt de placeholder:** “Diorama de Comernova con catálogo digital, paquetes y panel de inventario.”
 
 ### Estructura de una ficha
 
@@ -192,79 +180,80 @@ Usar “Funciones previstas” para SHIKO. No homogenizar las etiquetas si eso c
 
 ## Educación
 
-La información se descubre en el juego, pero Quick View la presenta reunida:
+La información se descubre como una biblioteca en el juego y Quick View la presenta reunida:
 
 - Ingeniería en Ciencias de la Computación, UEES.
 - Graduación estimada: diciembre de 2027.
-- Inglés C1.
-- Experiencia académica con desarrollo web, redes, HCI y sistemas.
+- Cambridge C1 Advanced: Statement of Results, overall score 180, Pass at Grade C, marzo de 2023.
+- Credencial AWS pendiente de documento verificable.
 
-No llamar “certificación” al nivel C1 si no existe un certificado identificable. El objeto del mundo puede ser un “registro de inglés” hasta confirmar la credencial.
+Cada registro se representa como un libro. Al interactuar, el libro abre con una animación breve y muestra su ficha. El archivo de Cambridge es verificable, pero se nombra siempre como **Statement of Results**, no como certificado formal. AWS conserva “Documento pendiente” hasta que Jorge proporcione nombre, nivel, fecha y archivo verificables.
 
-## Sobre mí y experiencia
+## Sobre mí y ajedrez
 
 Objetos y función narrativa:
 
 | Objeto | Información | Tono |
 | --- | --- | --- |
-| Laptop | Construcción constante de productos | Observador |
-| Ajedrez | Interés personal y mejora continua | Humor breve |
+| Método de trabajo | Comprender, simplificar y entregar con evidencia | Profesional |
+| Ajedrez | Interés personal, mejora continua y actividad pública real | Preciso |
 | Mapa de Ecuador | Guayaquil como origen | Cálido |
-| Maleta | Trabajo en Estados Unidos en 2025 | Humano y profesional |
-| Cuaderno | Intereses en IA aplicada, SaaS, automatización y diseño | Curioso |
+| Panel de intereses | Full stack, IA aplicada, SaaS y diseño | Profesional |
 
-Texto para Quick View sobre experiencia:
+### Datos de Chess.com
 
-> En 2025 trabajé en Rush Creek Lodge and Spa, en California, Estados Unidos. La experiencia fortaleció mi comunicación, adaptación, trabajo en equipo y atención al cliente.
+- Usuario canónico: `jorcolito`.
+- Rapid se etiqueta como valor actual cuando la API entrega `chess_rapid.last.rating`.
+- Tactics se etiqueta como mejor rating histórico cuando la API entrega `tactics.highest.rating`; no se presenta como rating actual.
+- Puzzle Rush se etiqueta como puntuación, nunca como ELO.
+- Las partidas recientes muestran rival, resultado, color, modalidad, rating y enlace solo cuando esos campos existen.
+- Ante error, timeout o campo ausente, ocultar la cifra y conservar el enlace al perfil público; nunca usar una cifra escrita a mano como fallback.
 
-No inferir ciudad, puesto, duración exacta ni funciones concretas a partir del nombre del lugar.
+En la sala Sobre mí, cada objeto debe revelar una señal concreta sobre Jorge; los muebles sin función narrativa se omiten. Chess.com se abre únicamente desde el tablero y no se replica en Quick View ni en la ficha “Cómo trabajo”.
 
 ## Tecnologías
 
 Lista canónica general, agrupable sin añadir nivel de dominio:
 
 - **Frontend:** React, TypeScript, JavaScript, Vite, HTML y CSS.
-- **Backend y datos:** Python, FastAPI, Java, SQL, PostgreSQL, Supabase y Firebase.
+- **Backend:** Python, FastAPI y Java.
+- **Datos y servicios:** SQL, PostgreSQL, Supabase y Firebase.
 - **Herramientas y despliegue:** Git, GitHub y Vercel.
 
-Evitar barras de porcentaje o etiquetas como “avanzado” si no existe un criterio verificable.
+La interfaz revela los grupos mediante una animación corta y derivada de la colección tipada. No escribir conteos manuales, barras de porcentaje o etiquetas como “avanzado” si no existe un criterio verificable.
 
 ## Contacto
 
-El panel contiene:
+La escena usa el escritorio y la silla como ancla provisional. No muestra una persona genérica ni un punto luminoso sin función; el avatar final espera una fotografía real de Jorge. Al interactuar, la invitación es “¿Buscas a alguien que convierta un problema real en software útil? Hablemos.”
 
-- correo;
-- copiar correo;
-- GitHub;
-- LinkedIn;
-- descargar CV;
-- formulario visual sin envío en el MVP.
+El panel contiene únicamente destinos confirmados:
 
-El brief no proporciona correo ni URLs. Hasta recibirlos:
+- `mailto:jorgecolamarco03@gmail.com`;
+- `https://github.com/jorcolito`;
+- `https://www.linkedin.com/in/jorge-colamarco-a82456266/`.
 
-- mostrar una etiqueta como “Correo pendiente de configurar”;
-- deshabilitar copiar correo;
-- marcar GitHub, LinkedIn y CV como “Enlace pendiente”;
-- no inventar nombres de usuario, rutas, archivos o correos;
-- el formulario debe decir “Vista previa: el envío se habilitará próximamente” y no simular éxito.
+El CV permanece pendiente y no se presenta como acción disponible. No existe formulario visual ni envío simulado.
 
 ## Quick View
 
-Orden recomendado de navegación:
+Navegación compacta, sin prefijos numéricos:
 
-1. Presentación.
-2. Proyectos destacados.
-3. Tecnologías.
-4. Educación.
-5. Experiencia.
-6. Contacto.
-7. CV.
+- Presentación.
+- Proyectos.
+- Tecnologías.
+- Credenciales.
+- Cómo trabajo.
+- Contacto.
+
+Chess.com no forma parte de Quick View; vive en el tablero. El CV pendiente tampoco se muestra como llamada a la acción.
 
 Requisitos editoriales:
 
 - Cada sección tiene `h2` y puede enlazarse por ancla.
 - Los proyectos conservan resumen, problema, estado y funciones; no se reducen a logos.
 - Un bloque inicial permite saltar directamente a proyectos o contacto.
+- Tecnologías se presentan por Frontend, Backend, Datos y servicios, y Herramientas y despliegue mediante una animación corta; los conteos se derivan o se omiten.
+- La biblioteca contiene solo UEES, Cambridge C1 y AWS; no se rellena con volúmenes ficticios.
 - Los mismos placeholders y estados se usan en juego y Quick View.
 - El cierre o regreso al juego es siempre visible, pero Quick View puede leerse sin cerrarlo.
 
@@ -274,11 +263,11 @@ Requisitos editoriales:
 | --- | --- | --- |
 | Interacción escritorio | `E / Enter · Interactuar` | “Interactuar con {objeto}” |
 | Interacción táctil | `Interactuar` | “Interactuar con {objeto}” |
+| Llamar elevador | `Q · Elevador` | “Llamar al elevador” |
 | Abrir recorrido directo | `Quick View` | “Abrir vista rápida del portafolio” |
 | Cerrar modal | `Cerrar` | “Cerrar {nombre del panel}” |
 | Demo faltante | `Demo · Próximamente` | Botón deshabilitado; explicación asociada |
 | GitHub faltante | `GitHub · Enlace pendiente` | Botón deshabilitado; explicación asociada |
-| Copia correcta | `Correo copiado` | Región viva no intrusiva |
 | Carga de piso | `Descendiendo al piso -1…` | Estado vivo `polite` |
 | Error de juego | `No pudimos iniciar el laboratorio.` | Mensaje con “Reintentar” y “Abrir Quick View” |
 
@@ -306,8 +295,11 @@ Requisitos editoriales:
 - **CG-02:** Cada proyecto tiene resumen, problema, funciones, estado, representación y alt de placeholder.
 - **CG-03:** SHIKO distingue funciones previstas de funciones implementadas.
 - **CG-04:** Juego y Quick View muestran el mismo estado y tecnologías para cada proyecto.
-- **CG-05:** Ningún enlace, correo, CV o resultado se inventa; los faltantes se señalan y deshabilitan.
+- **CG-05:** Correo, GitHub y LinkedIn coinciden con los destinos confirmados; CV y otros faltantes no se muestran como acciones disponibles.
 - **CG-06:** Los diálogos esenciales pueden leerse con efecto de escritura desactivado.
 - **CG-07:** Los botones y enlaces tienen etiquetas específicas, no una colección ambigua de “Ver más”.
 - **CG-08:** Todo texto profesional esencial tiene equivalente HTML fuera del canvas.
 - **CG-09:** El contenido y los assets son originales y no imitan material protegido.
+- **CG-10:** Cambridge se presenta como Statement of Results verificable, nunca como certificado formal; AWS ausente permanece pendiente.
+- **CG-11:** Las cifras de Chess.com conservan la semántica de la API, solo aparecen desde el tablero y desaparecen de forma segura cuando no están disponibles.
+- **CG-12:** Quick View no usa prefijos numéricos, conteos decorativos, formularios falsos ni contenido de Chess.com duplicado.

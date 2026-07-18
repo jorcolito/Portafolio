@@ -1,6 +1,7 @@
 export type ResourceLinkKind =
   | "demo"
   | "repository"
+  | "certificate"
   | "email"
   | "github"
   | "linkedin"

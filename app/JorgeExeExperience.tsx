@@ -7,15 +7,17 @@ import {
   type GameCanvasHandle,
 } from "@/src/components/game/GameCanvas";
 import { TouchControls } from "@/src/components/game/TouchControls";
+import { ChessModal } from "@/src/components/ui/ChessModal";
 import { ContactModal } from "@/src/components/ui/ContactModal";
 import { DialogueBox } from "@/src/components/ui/DialogueBox";
 import { ElevatorModal } from "@/src/components/ui/ElevatorModal";
 import { IntroSequence } from "@/src/components/ui/IntroSequence";
+import { LibraryBookModal } from "@/src/components/ui/LibraryBookModal";
 import { ProjectModal } from "@/src/components/ui/ProjectModal";
 import { QuickView } from "@/src/components/ui/QuickView";
 import { SettingsModal } from "@/src/components/ui/SettingsModal";
 import { StartScreen } from "@/src/components/ui/StartScreen";
-import { FLOORS, PROJECTS_BY_ID } from "@/src/data";
+import { EDUCATION_LIBRARY, FLOORS, PROJECTS_BY_ID } from "@/src/data";
 import type {
   DialogueFollowUp,
   FloorOption,
@@ -38,7 +40,9 @@ type OverlayState =
       followUp?: DialogueFollowUp;
     }
   | { type: "project"; projectId: ProjectId }
+  | { type: "library"; itemId: string }
   | { type: "quick-view" }
+  | { type: "chess" }
   | {
       type: "elevator";
       currentFloor: PortfolioFloor;
@@ -57,8 +61,10 @@ export function JorgeExeExperience() {
   const [gameReady, setGameReady] = useState(false);
   const [muted, setMuted] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [inputCooldown, setInputCooldown] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const gameRef = useRef<GameCanvasHandle>(null);
+  const inputCooldownTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -82,10 +88,31 @@ export function JorgeExeExperience() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
+  useEffect(
+    () => () => {
+      if (inputCooldownTimerRef.current !== null) {
+        window.clearTimeout(inputCooldownTimerRef.current);
+      }
+    },
+    [],
+  );
+
+  const armInputCooldown = useCallback(() => {
+    if (inputCooldownTimerRef.current !== null) {
+      window.clearTimeout(inputCooldownTimerRef.current);
+    }
+    setInputCooldown(true);
+    inputCooldownTimerRef.current = window.setTimeout(() => {
+      inputCooldownTimerRef.current = null;
+      setInputCooldown(false);
+      gameRef.current?.focus();
+    }, 420);
+  }, []);
+
   const closeOverlay = useCallback(() => {
     setOverlay(NO_OVERLAY);
-    window.setTimeout(() => gameRef.current?.focus(), 0);
-  }, []);
+    armInputCooldown();
+  }, [armInputCooldown]);
 
   const showNotice = useCallback((message: string) => {
     setToast(message);
@@ -109,6 +136,14 @@ export function JorgeExeExperience() {
         setPrompt(event.prompt);
         break;
       case "dialogue-requested":
+        if (event.after?.type === "project") {
+          setOverlay({ type: "project", projectId: event.after.projectId });
+          break;
+        }
+        if (event.after?.type === "library") {
+          setOverlay({ type: "library", itemId: event.after.itemId });
+          break;
+        }
         setOverlay({
           type: "dialogue",
           dialogue: event.dialogue,
@@ -128,6 +163,9 @@ export function JorgeExeExperience() {
       case "quick-view-requested":
         setOverlay({ type: "quick-view" });
         break;
+      case "chess-requested":
+        setOverlay({ type: "chess" });
+        break;
       case "contact-requested":
         setOverlay({ type: "contact" });
         break;
@@ -139,18 +177,20 @@ export function JorgeExeExperience() {
   const finishDialogue = useCallback((followUp?: DialogueFollowUp) => {
     if (!followUp) {
       setOverlay(NO_OVERLAY);
-      window.setTimeout(() => gameRef.current?.focus(), 0);
+      armInputCooldown();
       return;
     }
 
     if (followUp.type === "project") {
       setOverlay({ type: "project", projectId: followUp.projectId });
+    } else if (followUp.type === "library") {
+      setOverlay({ type: "library", itemId: followUp.itemId });
     } else if (followUp.type === "quick-view") {
       setOverlay({ type: "quick-view" });
     } else {
       setOverlay({ type: "contact" });
     }
-  }, []);
+  }, [armInputCooldown]);
 
   const selectFloor = useCallback((floor: PortfolioFloor) => {
     setOverlay(NO_OVERLAY);
@@ -166,6 +206,7 @@ export function JorgeExeExperience() {
   const currentFloorData =
     FLOORS.find((floor) => floor.level === currentFloor) ?? FLOORS[0];
   const anyOverlayOpen = overlay.type !== "none";
+  const gameInputBlocked = anyOverlayOpen || inputCooldown;
 
   return (
     <div data-reduced-motion={reducedMotion ? "true" : "false"}>
@@ -203,6 +244,21 @@ export function JorgeExeExperience() {
               <button
                 className="pixel-button pixel-button--ghost"
                 type="button"
+                onClick={() =>
+                  setOverlay({
+                    type: "elevator",
+                    currentFloor,
+                    floors: PORTFOLIO_FLOORS,
+                  })
+                }
+                aria-label="Abrir elevador"
+              >
+                <span>Elevador</span>
+                <span className="keycap" aria-hidden="true">Q</span>
+              </button>
+              <button
+                className="pixel-button pixel-button--ghost"
+                type="button"
                 onClick={() => setOverlay({ type: "quick-view" })}
                 aria-label="Abrir Quick View"
               >
@@ -235,11 +291,11 @@ export function JorgeExeExperience() {
               <h1 id="game-region-title" className="sr-only">
                 Mundo interactivo de JORGE LABS
               </h1>
-              <div className="game-stage">
+              <div className="game-stage" data-game-ready={gameReady ? "true" : "false"}>
                 <div className="stage-label">
                   Piso {currentFloor} / {currentFloorData.label}
                 </div>
-                {prompt && overlay.type === "none" ? (
+                {prompt && overlay.type === "none" && !inputCooldown ? (
                   <div className="interaction-prompt" aria-live="polite">
                     <span className="keycap">E</span>
                     <span>{prompt.label}</span>
@@ -250,11 +306,11 @@ export function JorgeExeExperience() {
                   ref={gameRef}
                   className="game-canvas-host"
                   active={phase === "game"}
-                  modalOpen={anyOverlayOpen}
+                  modalOpen={gameInputBlocked}
                   reducedMotion={reducedMotion}
                   muted={muted}
                   onEvent={handleGameEvent}
-                  ariaLabel={`Escenario jugable: ${currentFloorData.label}. Usa A y D o flechas para moverte, Espacio para saltar y E para interactuar.`}
+                  ariaLabel={`Escenario jugable: ${currentFloorData.label}. Usa A y D o flechas para moverte, E para interactuar y Q para abrir el elevador.`}
                 />
 
                 {anyOverlayOpen ? (
@@ -270,19 +326,12 @@ export function JorgeExeExperience() {
                     onFinish={finishDialogue}
                   />
                 ) : null}
-              </div>
 
-              <div className="game-hud">
-                <div className="hud-vitals">
-                  <span className="hud-hearts" aria-label="Cinco corazones decorativos">
-                    ♥ ♥ ♥ ♥ ♥
-                  </span>
-                  <span>LVL 01</span>
-                  <span>{gameReady ? "Sistema listo" : "Cargando mundo…"}</span>
+                <div className="stage-controls-hint" aria-hidden="true">
+                  <span>A/D mover</span>
+                  <span>E interactuar</span>
+                  <span>Q elevador</span>
                 </div>
-                <span className="hud-tip">
-                  A/D mover · Espacio saltar · E interactuar · Esc cerrar
-                </span>
               </div>
 
               <TouchControls
@@ -297,49 +346,6 @@ export function JorgeExeExperience() {
                 }
               />
             </section>
-
-            <aside className="side-console" aria-label="Panel del ascensor">
-              <section className="console-card">
-                <div className="console-card__header">
-                  <h2>Ascensor</h2>
-                  <span className="keycap" aria-hidden="true">S</span>
-                </div>
-                <div className="console-card__body">
-                  <ul className="floor-list">
-                    {FLOORS.map((floor) => (
-                      <li key={floor.id}>
-                        <button
-                          className="floor-button"
-                          type="button"
-                          aria-current={floor.level === currentFloor}
-                          onClick={() => selectFloor(floor.level)}
-                        >
-                          <span className="floor-number">{floor.level}</span>
-                          <span className="floor-name">{floor.label}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </section>
-
-              <section className="console-card">
-                <div className="console-card__header">
-                  <h2>Punto de guardado</h2>
-                  <span aria-hidden="true">◇</span>
-                </div>
-                <div className="console-card__body">
-                  <p className="status-copy">
-                    El progreso no se guarda, pero Quick View siempre mantiene
-                    la información al alcance.
-                  </p>
-                  <div className="status-row">
-                    <span>Estado</span>
-                    <span className="status-online">● En línea</span>
-                  </div>
-                </div>
-              </section>
-            </aside>
           </div>
         </main>
       ) : null}
@@ -352,6 +358,17 @@ export function JorgeExeExperience() {
         />
       ) : null}
 
+      {overlay.type === "library" ? (
+        <LibraryBookModal
+          item={
+            EDUCATION_LIBRARY.find((item) => item.id === overlay.itemId) ??
+            EDUCATION_LIBRARY[0]
+          }
+          onClose={closeOverlay}
+          onPlaceholder={showNotice}
+        />
+      ) : null}
+
       {overlay.type === "quick-view" ? (
         <QuickView
           onClose={closeOverlay}
@@ -359,6 +376,10 @@ export function JorgeExeExperience() {
           onContact={() => setOverlay({ type: "contact" })}
           onPlaceholder={showNotice}
         />
+      ) : null}
+
+      {overlay.type === "chess" ? (
+        <ChessModal onClose={closeOverlay} />
       ) : null}
 
       {overlay.type === "elevator" ? (

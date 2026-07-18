@@ -64,8 +64,8 @@ export const PROJECTS = [
     },
     media: {
       kind: "placeholder",
-      label: "Captura pendiente",
-      alt: "Espacio reservado para una captura de CarDrive",
+      label: "Entorno interactivo",
+      alt: "Representación visual del entorno de CarDrive",
     },
     links: {
       demo: projectPlaceholderLink("CarDrive", "demo"),
@@ -111,8 +111,8 @@ export const PROJECTS = [
     },
     media: {
       kind: "placeholder",
-      label: "Captura pendiente",
-      alt: "Espacio reservado para una captura de SHIKO",
+      label: "Entorno interactivo",
+      alt: "Representación visual del entorno de SHIKO",
     },
     links: {
       demo: projectPlaceholderLink("SHIKO", "demo"),
@@ -153,8 +153,8 @@ export const PROJECTS = [
     },
     media: {
       kind: "placeholder",
-      label: "Captura pendiente",
-      alt: "Espacio reservado para una captura de Comernova",
+      label: "Entorno interactivo",
+      alt: "Representación visual del entorno de Comernova",
     },
     links: {
       demo: projectPlaceholderLink("Comernova", "demo"),
