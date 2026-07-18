@@ -1,0 +1,42 @@
+export type {
+  AvailableResourceLink,
+  PlaceholderResourceLink,
+  ResourceLink,
+  ResourceLinkKind,
+} from "./links";
+export type {
+  PortfolioProject,
+  ProjectId,
+  ProjectLinks,
+  ProjectMediaPlaceholder,
+  ProjectScene,
+  ProjectStatus,
+  ProjectStatusId,
+} from "./projects";
+export type {
+  EducationRecord,
+  ExperienceRecord,
+  PortfolioProfile,
+  ProfessionalInterest,
+  ProfessionalInterestId,
+  SpokenLanguage,
+  Technology,
+  TechnologyCategory,
+  TechnologyCategoryId,
+  TechnologyGroup,
+  TechnologyId,
+} from "./profile";
+export type {
+  AboutObject,
+  DialogueCompletion,
+  DialogueDefaults,
+  DialogueId,
+  DialogueLine,
+  DialoguePortrait,
+  DialogueSequence,
+  DialogueSoundCue,
+  FloorDefinition,
+  FloorId,
+  FloorLevel,
+  InteractionId,
+} from "./game";
