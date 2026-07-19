@@ -106,7 +106,7 @@ export function JorgeExeExperience() {
       inputCooldownTimerRef.current = null;
       setInputCooldown(false);
       gameRef.current?.focus();
-    }, 420);
+    }, 120);
   }, []);
 
   const closeOverlay = useCallback(() => {
@@ -117,6 +117,15 @@ export function JorgeExeExperience() {
   const showNotice = useCallback((message: string) => {
     setToast(message);
   }, []);
+
+  const openElevator = useCallback(() => {
+    setPhase("game");
+    setOverlay({
+      type: "elevator",
+      currentFloor,
+      floors: PORTFOLIO_FLOORS,
+    });
+  }, [currentFloor]);
 
   const openProject = useCallback((project: PortfolioProject) => {
     setOverlay({ type: "project", projectId: project.id });
@@ -193,10 +202,16 @@ export function JorgeExeExperience() {
   }, [armInputCooldown]);
 
   const selectFloor = useCallback((floor: PortfolioFloor) => {
+    if (floor === -4) {
+      setPrompt(null);
+      setOverlay({ type: "contact" });
+      return;
+    }
+
     setOverlay(NO_OVERLAY);
     setPrompt(null);
     gameRef.current?.selectFloor(floor);
-    window.setTimeout(() => gameRef.current?.focus(), 220);
+    window.setTimeout(() => gameRef.current?.focus(), 80);
   }, []);
 
   const sendGameCommand = useCallback((command: ReactToGameCommand) => {
@@ -244,13 +259,7 @@ export function JorgeExeExperience() {
               <button
                 className="pixel-button pixel-button--ghost"
                 type="button"
-                onClick={() =>
-                  setOverlay({
-                    type: "elevator",
-                    currentFloor,
-                    floors: PORTFOLIO_FLOORS,
-                  })
-                }
+                onClick={openElevator}
                 aria-label="Abrir elevador"
               >
                 <span>Elevador</span>
@@ -337,13 +346,7 @@ export function JorgeExeExperience() {
               <TouchControls
                 disabled={anyOverlayOpen}
                 send={sendGameCommand}
-                onMenu={() =>
-                  setOverlay({
-                    type: "elevator",
-                    currentFloor,
-                    floors: PORTFOLIO_FLOORS,
-                  })
-                }
+                onMenu={openElevator}
               />
             </section>
           </div>
@@ -392,7 +395,11 @@ export function JorgeExeExperience() {
       ) : null}
 
       {overlay.type === "contact" ? (
-        <ContactModal onClose={closeOverlay} onNotice={showNotice} />
+        <ContactModal
+          onClose={closeOverlay}
+          onElevator={openElevator}
+          onNotice={showNotice}
+        />
       ) : null}
 
       {overlay.type === "settings" ? (

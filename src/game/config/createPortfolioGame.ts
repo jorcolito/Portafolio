@@ -10,8 +10,10 @@ import type {
   PortfolioGameController,
 } from "../types/contracts";
 
-function createScenes(bridge: GameBridge, initialFloor: PortfolioFloor): Phaser.Scene[] {
-  const scenes: Array<{ floor: PortfolioFloor; scene: Phaser.Scene }> = [
+type PlayableFloor = Exclude<PortfolioFloor, -4>;
+
+function createScenes(bridge: GameBridge, initialFloor: PlayableFloor): Phaser.Scene[] {
+  const scenes: Array<{ floor: PlayableFloor; scene: Phaser.Scene }> = [
     { floor: 0, scene: new LobbyScene(bridge) },
     { floor: -1, scene: new ProjectsScene(bridge) },
     {
@@ -30,14 +32,6 @@ function createScenes(bridge: GameBridge, initialFloor: PortfolioFloor): Phaser.
         accent: 0xb96cff,
       }),
     },
-    {
-      floor: -4,
-      scene: new InfoFloorScene(bridge, {
-        key: "ContactScene",
-        floor: -4,
-        accent: 0x27d6ef,
-      }),
-    },
   ];
 
   // Phaser auto-starts the first scene in this array.
@@ -50,7 +44,8 @@ function createScenes(bridge: GameBridge, initialFloor: PortfolioFloor): Phaser.
 export function createPortfolioGame(
   options: CreatePortfolioGameOptions,
 ): PortfolioGameController {
-  const initialFloor = options.initialFloor ?? 0;
+  const requestedFloor = options.initialFloor ?? 0;
+  const initialFloor: PlayableFloor = requestedFloor === -4 ? 0 : requestedFloor;
   const bridge = new GameBridge((event) => options.onEvent?.(event));
 
   const game = new Phaser.Game({

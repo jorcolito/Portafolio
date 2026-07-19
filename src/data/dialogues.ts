@@ -5,7 +5,7 @@ import type {
 } from "../types";
 
 export const DEFAULT_DIALOGUE_SETTINGS = {
-  charactersPerSecond: 38,
+  charactersPerSecond: 64,
   allowInstantReveal: true,
   soundCue: "soft-type",
   locksPlayer: true,
@@ -231,23 +231,6 @@ export const DIALOGUES = [
       },
     ],
   },
-  {
-    id: "contact-invitation",
-    floorId: "contact",
-    interactionId: "contact-terminal",
-    defaults: {
-      ...DEFAULT_DIALOGUE_SETTINGS,
-      charactersPerSecond: 30,
-      soundCue: "terminal-key",
-    },
-    lines: [
-      {
-        speaker: "JORGE.EXE",
-        text: "¿Buscas a alguien que convierta un problema real en software útil? Hablemos.",
-      },
-    ],
-    completion: { type: "open-contact" },
-  },
 ] as const satisfies readonly DialogueSequence[];
 
 type DialogueIndex = {
@@ -274,5 +257,4 @@ export const DIALOGUES_BY_ID = {
   "ecuador-map": DIALOGUES[13],
   "travel-bag": DIALOGUES[14],
   "ideas-notebook": DIALOGUES[15],
-  "contact-invitation": DIALOGUES[16],
 } as const satisfies DialogueIndex;

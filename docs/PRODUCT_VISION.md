@@ -148,7 +148,7 @@ Las reglas de escritura y el inventario de contenido viven en [CONTENT_GUIDE.md]
 ## Criterios de aceptación de visión
 
 - **PV-01:** La portada ofrece dos acciones distinguibles: comenzar y abrir Quick View.
-- **PV-02:** Las cinco áreas del perfil se representan como pisos conectados por un elevador global invocable con `Q`.
+- **PV-02:** Cuatro áreas del perfil se representan como pisos; Contacto es una acción directa del elevador global invocable con `Q`.
 - **PV-03:** CarDrive, SHIKO y Comernova aparecen en juego y Quick View desde una misma fuente de datos.
 - **PV-04:** Quick View contiene presentación, proyectos, tecnologías, credenciales, método de trabajo y contacto; Chess.com aparece únicamente al abrir el tablero.
 - **PV-05:** Ningún recurso visual o sonoro depende de propiedad intelectual de otro videojuego.

@@ -298,7 +298,7 @@ button {
   box-shadow:
     0 0 0 3px #050709,
     0 0 3rem rgba(65, 217, 244, 0.12);
-  animation: elevator-arrive 1.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: elevator-arrive 550ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 .intro-elevator::before {
@@ -323,12 +323,12 @@ button {
 
 .intro-door--left {
   left: 0;
-  animation: door-left 0.7s 1.55s ease-in-out forwards;
+  animation: door-left 360ms 580ms ease-in-out forwards;
 }
 
 .intro-door--right {
   right: 0;
-  animation: door-right 0.7s 1.55s ease-in-out forwards;
+  animation: door-right 360ms 580ms ease-in-out forwards;
 }
 
 .intro-label {
@@ -350,7 +350,7 @@ button {
   height: 100%;
   background: linear-gradient(90deg, var(--cyan), var(--green));
   transform-origin: left;
-  animation: load-progress 2.25s ease-in-out forwards;
+  animation: load-progress 950ms ease-in-out forwards;
 }
 
 .intro-skip {
@@ -1856,7 +1856,7 @@ body {
     inset 0 0 0 5px rgba(5, 10, 13, 0.95),
     inset 0 0 0 6px rgba(245, 237, 219, 0.12),
     0 1.5rem 5rem rgba(0, 0, 0, 0.72);
-  animation: dialogue-arrive 220ms ease-out both;
+  animation: dialogue-arrive 140ms ease-out both;
 }
 
 .dialogue-header {
@@ -2387,7 +2387,7 @@ body {
 }
 
 .quick-panel-section {
-  animation: panel-reveal 300ms ease-out both;
+  animation: panel-reveal 160ms ease-out both;
 }
 
 .quick-section-heading {
@@ -3649,7 +3649,7 @@ body {
   overflow: hidden;
   border-color: rgba(232, 203, 125, 0.62);
   background: #070a0c;
-  animation: elevator-shell-in 260ms ease-out both;
+  animation: elevator-shell-in 160ms ease-out both;
 }
 
 .elevator-console {
@@ -3692,13 +3692,13 @@ body {
 .elevator-arrival__door--left {
   left: 1rem;
   transform-origin: left;
-  animation: elevator-door-left 940ms cubic-bezier(0.24, 0.8, 0.2, 1) both;
+  animation: elevator-door-left 480ms cubic-bezier(0.24, 0.8, 0.2, 1) both;
 }
 
 .elevator-arrival__door--right {
   right: 1rem;
   transform-origin: right;
-  animation: elevator-door-right 940ms cubic-bezier(0.24, 0.8, 0.2, 1) both;
+  animation: elevator-door-right 480ms cubic-bezier(0.24, 0.8, 0.2, 1) both;
 }
 
 .elevator-arrival__indicator {
@@ -3735,7 +3735,7 @@ body {
 .elevator-console__destinations {
   align-self: center;
   padding: clamp(1.25rem, 3vw, 2.2rem);
-  animation: elevator-controls-in 360ms 460ms ease-out both;
+  animation: elevator-controls-in 160ms 120ms ease-out both;
 }
 
 .elevator-console__copy {

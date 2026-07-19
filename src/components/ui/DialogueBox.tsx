@@ -232,7 +232,7 @@ export function DialogueBox({
       if (finishedRef.current) return;
       finishedRef.current = true;
       onFinish(state.completion === "follow-up" ? followUp : undefined);
-    }, 220);
+    }, 100);
 
     return () => window.clearTimeout(timer);
   }, [

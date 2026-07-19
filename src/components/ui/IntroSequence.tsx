@@ -12,7 +12,7 @@ export function IntroSequence({
   onComplete,
 }: IntroSequenceProps) {
   useEffect(() => {
-    const timer = window.setTimeout(onComplete, reducedMotion ? 180 : 2550);
+    const timer = window.setTimeout(onComplete, reducedMotion ? 120 : 1100);
     return () => window.clearTimeout(timer);
   }, [onComplete, reducedMotion]);
 

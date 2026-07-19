@@ -6,42 +6,23 @@ import { BasePortfolioScene } from "./BasePortfolioScene";
 
 interface InfoFloorConfig {
   key: string;
-  floor: Exclude<PortfolioFloor, 0 | -1>;
+  floor: Exclude<PortfolioFloor, 0 | -1 | -4>;
   accent: number;
 }
-
-const CONTACT_SEATED_TEXTURE = "jorge-contact-seated-v1";
-const CONTACT_SEATED_SPRITE_URL = "/portraits/jorge-seated-sprite-v1.png";
 
 export class InfoFloorScene extends BasePortfolioScene {
   constructor(bridge: GameBridge, config: InfoFloorConfig) {
     super(config.key, config.floor, bridge, config.accent);
   }
 
-  preload(): void {
-    super.preload();
-    if (
-      this.floor === -4 &&
-      !this.textures.exists(CONTACT_SEATED_TEXTURE)
-    ) {
-      this.load.image(CONTACT_SEATED_TEXTURE, CONTACT_SEATED_SPRITE_URL);
-    }
-  }
-
   protected getPlayerSpawn(): Phaser.Types.Math.Vector2Like {
     if (this.floor === -2) return { x: 520, y: 420 };
-    if (this.floor === -4) return { x: 430, y: 420 };
     return { x: 470, y: 420 };
-  }
-
-  protected shouldShowWalkingPlayer(): boolean {
-    return this.floor !== -4;
   }
 
   protected buildWorld(): void {
     if (this.floor === -2) this.buildEducation();
     if (this.floor === -3) this.buildAbout();
-    if (this.floor === -4) this.buildContact();
   }
 
   private buildEducation(): void {
@@ -188,92 +169,4 @@ export class InfoFloorScene extends BasePortfolioScene {
     }, { x: 712, y: 327, width: 150, height: 64 });
   }
 
-  private buildContact(): void {
-    this.drawAnimatedRain();
-    this.drawContactWorkspace();
-  }
-
-  private drawAnimatedRain(): void {
-    // Rain is restricted to the window; unlike the old particles it belongs to
-    // an object in the scene and reinforces the after-hours atmosphere.
-    for (let index = 0; index < 14; index += 1) {
-      const x = 472 + ((index * 43) % 365);
-      const y = 92 + ((index * 47) % 245);
-      const rain = this.add
-        .rectangle(x, y, 1, 14, 0x91e6f3, 0.26)
-        .setAngle(11)
-        .setDepth(7);
-      this.tweens.add({
-        targets: rain,
-        y: y + 64,
-        x: x + 11,
-        alpha: { from: 0.3, to: 0 },
-        duration: 760 + (index % 5) * 140,
-        delay: index * 80,
-        repeat: -1,
-      });
-    }
-  }
-
-  private drawContactWorkspace(): void {
-    this.drawSeatedJorgeAtDesk();
-    this.addInteractiveOutline(
-      "contact-terminal",
-      [
-        { x: 292, y: 260 },
-        { x: 477, y: 260 },
-        { x: 477, y: 302 },
-        { x: 465, y: 302 },
-        { x: 465, y: 409 },
-        { x: 362, y: 409 },
-        { x: 362, y: 305 },
-        { x: 292, y: 305 },
-      ],
-      120,
-    );
-    this.addInteraction("contact-terminal", 430, 270, "¿Listo para trabajar?", {
-      type: "dialogue",
-      dialogueId: "contact-invitation",
-    }, { x: 384, y: 334, width: 190, height: 152 });
-  }
-
-  private drawSeatedJorgeAtDesk(): void {
-    // If the asset is still being generated, keep the workspace clean instead
-    // of rendering Phaser's missing-texture placeholder or a generic person.
-    if (!this.textures.exists(CONTACT_SEATED_TEXTURE)) return;
-
-    const source = this.textures
-      .get(CONTACT_SEATED_TEXTURE)
-      .getSourceImage() as { width: number; height: number };
-    const baseScale = Math.min(104 / source.height, 88 / source.width);
-    const screenLight = this.add
-      .ellipse(364, 333, 118, 94, 0x65dff2, 0.035)
-      .setDepth(19)
-      .setBlendMode(Phaser.BlendModes.ADD);
-    const seatedJorge = this.add
-      .image(422, 420, CONTACT_SEATED_TEXTURE)
-      .setOrigin(0.5, 1)
-      .setScale(baseScale)
-      .setDepth(21);
-
-    // Breathing changes the silhouette by barely one percent while the laptop
-    // light responds independently. Neither tween moves the avatar in space.
-    this.tweens.add({
-      targets: seatedJorge,
-      scaleX: { from: baseScale * 0.996, to: baseScale * 1.004 },
-      scaleY: { from: baseScale * 1.004, to: baseScale * 0.996 },
-      duration: 1450,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.InOut",
-    });
-    this.tweens.add({
-      targets: screenLight,
-      alpha: { from: 0.02, to: 0.075 },
-      duration: 1850,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.InOut",
-    });
-  }
 }

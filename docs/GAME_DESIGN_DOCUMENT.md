@@ -36,11 +36,11 @@ flowchart TD
   E -->|Piso -1| P["ProjectsScene"]
   E -->|Piso -2| D["EducationScene"]
   E -->|Piso -3| S["AboutScene"]
-  E -->|Piso -4| T["ContactScene"]
+  E -->|Contacto| T["Panel de contacto HTML"]
   P -->|Q| E
   D -->|Q| E
   S -->|Q| E
-  T -->|Q| E
+  T -->|Volver al ascensor| E
   L -.->|En cualquier momento| Q
   P -.-> Q
   D -.-> Q
@@ -58,7 +58,7 @@ flowchart TD
 | `ProjectsScene` | Probar capacidad de producto con evidencia | Garaje CarDrive, mesa operativa SHIKO y boutique Comernova | Ficha directa de proyecto o elevador |
 | `EducationScene` | Comunicar formación mediante exploración | Libros UEES, Cambridge C1 y AWS | Libro abierto, diálogo o elevador |
 | `AboutScene` | Dar contexto profesional y humano sin rellenar espacio | Método de trabajo, mapa de Ecuador con Guayaquil y tablero de ajedrez | Diálogo, modal Chess.com o elevador |
-| `ContactScene` | Cerrar el recorrido y facilitar acción | Retrato/sprite pixel-art basado en foto real y escritorio activo | Presentación de contacto o elevador |
+| Panel de contacto | Cerrar el recorrido y facilitar acción sin una escena intermedia | Fotografía profesional, correo, GitHub, LinkedIn y CV | Cierre o regreso al elevador |
 
 `ElevatorScene` puede ser una escena visual única y parametrizada; no debe duplicarse por destino. Las superposiciones de diálogo, proyecto, elevador, Chess y Quick View son HTML/React, no escenas Phaser.
 
@@ -172,7 +172,7 @@ cerrado → escribiendo → línea visible → siguiente línea → completado �
 El elevador es el navegador global entre pisos y no exige volver a un punto físico.
 
 - `Q`, el botón superior o el control táctil lo llaman desde cualquier posición.
-- La llamada abre un panel HTML con los cinco pisos y marca el actual.
+- La llamada abre un panel HTML con cuatro pisos jugables y un acceso directo a Contacto; marca el piso actual.
 - El piso actual queda deshabilitado; los demás son botones reales.
 - Al elegir destino, se cierra el panel, se conserva el bloqueo y unas puertas animadas aparecen para acompañar la transición.
 - Con movimiento reducido o “Omitir transiciones”, se hace un fundido breve o cambio inmediato.
@@ -287,9 +287,9 @@ Los eventos de teclado se ignoran si el foco está en un campo, enlace o botón,
 - **GDD-05:** `E`, Enter o el control táctil activan una interacción una sola vez por pulsación.
 - **GDD-06:** Un diálogo admite varias líneas, revelado inmediato, avance y cierre con devolución de control.
 - **GDD-07:** Abrir una superposición congela al jugador en suelo o aire; cerrarla restaura su estado y entrada.
-- **GDD-08:** `Q` llama al elevador desde cualquier punto, permite visitar los cinco pisos y regresar al Lobby.
+- **GDD-08:** `Q` llama al elevador desde cualquier punto, permite visitar cuatro pisos jugables, abrir Contacto directamente y regresar al Lobby.
 - **GDD-09:** CarDrive, SHIKO y Comernova abren fichas con datos distintos y estado correcto.
-- **GDD-10:** Educación, Sobre mí y Contacto tienen al menos una interacción esencial visible al entrar y accesible en pocos segundos.
+- **GDD-10:** Educación y Sobre mí tienen interacciones esenciales visibles; Contacto abre su panel profesional directamente desde el elevador.
 - **GDD-11:** Quick View abre desde portada y desde el juego, y al cerrarse conserva escena y posición.
 - **GDD-12:** Los controles táctiles no cubren acciones críticas y desaparecen cuando no son necesarios.
 - **GDD-13:** Con movimiento reducido no hay escritura letra por letra, parpadeo intenso ni transición prolongada.

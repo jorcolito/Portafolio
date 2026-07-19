@@ -1,6 +1,6 @@
 # Roadmap del MVP — JORGE.EXE
 
-**Objetivo de entrega:** una experiencia jugable y accesible formada por cinco dioramas compactos, con proyectos directos, biblioteca académica, señales personales reales y Quick View como ruta equivalente.
+**Objetivo de entrega:** una experiencia jugable y accesible formada por cuatro dioramas compactos y un contacto directo, con proyectos, biblioteca académica, señales personales reales y Quick View como ruta equivalente.
 
 ## Estado actual del rediseño
 
@@ -16,7 +16,7 @@
 
 | Tema | Decisión del MVP | Evolución posterior |
 | --- | --- | --- |
-| Mundo | Un diorama compacto por cada uno de cinco pisos | Variaciones ambientales o secretos breves |
+| Mundo | Cuatro dioramas compactos y Contacto como panel directo | Variaciones ambientales o secretos breves |
 | Nivel de detalle | Todos los pisos densos; Lobby y Proyectos marcan el acabado | Igualar animaciones y profundidad por piso |
 | Proyecto de referencia | CarDrive | Demos integradas de SHIKO y Comernova |
 | Contenido | Datos TypeScript estáticos e inmutables | CMS solo si existe necesidad real |
@@ -105,13 +105,13 @@
 
 ### M4 — Contenido inicial completo
 
-**Resultado:** los cinco pisos forman una colección coherente de escenas densas, cada una con una interacción memorable.
+**Resultado:** los cuatro pisos jugables forman una colección coherente de escenas densas; Contacto evita una escena artificial y abre la acción profesional directamente.
 
 - Añadir estaciones SHIKO y Comernova con fichas distintas.
 - Crear `EducationScene` como biblioteca compacta, con UEES, Cambridge C1 verificable y formación completada `AWS Academy Data Engineering Trained`.
 - Añadir apertura animada de libro y panel reutilizable para documentos.
 - Crear `AboutScene` con Guayaquil correctamente situado, método de trabajo y tablero conectado a datos públicos de Chess.com.
-- Crear `ContactScene` con retrato/sprite pixel-art derivado de una foto real de Jorge, escritorio y panel de contacto directo.
+- Abrir Contacto como panel HTML directo, con fotografía profesional y regreso explícito al elevador.
 - Añadir ruta server-side de Chess.com con caché, timeout y fallback sin cifras ficticias.
 - Conectar todos los pisos al mismo elevador global.
 - Reflejar lo esencial en Quick View sin duplicar Chess.com ni añadir contadores decorativos.
@@ -119,7 +119,7 @@
 
 **Definition of Done:**
 
-- Se visitan los cinco pisos y se regresa al Lobby.
+- Se visitan los cuatro pisos jugables, se abre Contacto y se regresa al Lobby.
 - Cada objeto esencial se reconoce al entrar o se alcanza en pocos segundos.
 - Los tres proyectos muestran contenido y estados correctos.
 - Contacto no simula un envío y usa correo/URLs confirmados.
@@ -194,7 +194,7 @@ Cada fila debe tener evidencia: prueba automatizada, revisión manual reproducib
 | MVP-16 | El control vuelve sin recrear juego | Contador de instancias + prueba manual |
 | MVP-17 | Quick View funciona desde portada y juego | Prueba de navegación/teclado |
 | MVP-18 | SHIKO y Comernova muestran estado correcto | Prueba de datos/render |
-| MVP-19 | Biblioteca, Sobre mí, tablero Chess.com y Contacto son navegables | Recorrido de cinco pisos y fallback de API |
+| MVP-19 | Biblioteca, Sobre mí, tablero Chess.com y Contacto son navegables | Recorrido de cuatro pisos, contacto directo y fallback de API |
 | MVP-20 | Controles táctiles básicos responden y se liberan | Prueba Pointer Events |
 | MVP-21 | No hay errores importantes en consola | Revisión de recorrido completo |
 | MVP-22 | README explica ejecutar, validar, limitar y desplegar | Revisión documental |
@@ -210,7 +210,7 @@ No se avanza a la siguiente puerta si falla un criterio previo que invalida el f
 2. **Shell:** portada y Quick View disponibles sin Phaser.
 3. **Juego:** dioramas densos, movimiento corto, colisión e interacción estables.
 4. **Slice:** CarDrive completo con bloqueo/restauración.
-5. **Mundo:** cinco pisos y contenido básico.
+5. **Mundo:** cuatro pisos jugables, contacto directo y contenido básico.
 6. **Acceso:** teclado, táctil, movimiento reducido y responsive.
 7. **Release:** lint, TypeScript, pruebas, build y revisión visual.
 

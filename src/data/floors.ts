@@ -74,12 +74,12 @@ export const FLOORS = [
     level: -4,
     label: "Contacto",
     elevatorLabel: "Contacto",
-    sceneKey: "ContactScene",
+    sceneKey: "ContactModal",
     sectionAnchor: "contacto",
     description:
-      "Estación final para consultar los canales de contacto y el CV.",
+      "Acceso directo a los canales profesionales y al CV, sin una escena intermedia.",
     accentColor: "#f2c84b",
-    interactionIds: ["contact-terminal"],
+    interactionIds: [],
   },
 ] as const satisfies readonly FloorDefinition[];
 

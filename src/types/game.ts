@@ -25,8 +25,7 @@ export type InteractionId =
   | "about-chess"
   | "about-map"
   | "about-suitcase"
-  | "about-notebook"
-  | "contact-terminal";
+  | "about-notebook";
 
 export type DialogueId =
   | "welcome-terminal"
@@ -44,8 +43,7 @@ export type DialogueId =
   | "chessboard"
   | "ecuador-map"
   | "travel-bag"
-  | "ideas-notebook"
-  | "contact-invitation";
+  | "ideas-notebook";
 
 export interface FloorDefinition {
   readonly id: FloorId;

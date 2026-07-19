@@ -9,6 +9,7 @@ import { ModalShell } from "./ModalShell";
 
 interface ContactModalProps {
   onClose: () => void;
+  onElevator: () => void;
   onNotice: (message: string) => void;
 }
 
@@ -50,7 +51,11 @@ function ContactAction({
   );
 }
 
-export function ContactModal({ onClose, onNotice }: ContactModalProps) {
+export function ContactModal({
+  onClose,
+  onElevator,
+  onNotice,
+}: ContactModalProps) {
   const emailLink = CONTACT_LINKS.find((link) => link.kind === "email");
   const cvLink = CONTACT_LINKS.find((link) => link.kind === "cv");
 
@@ -138,6 +143,13 @@ export function ContactModal({ onClose, onNotice }: ContactModalProps) {
                 Descargar CV · próximamente
               </button>
             ) : null}
+            <button
+              className="pixel-button"
+              type="button"
+              onClick={onElevator}
+            >
+              Volver al ascensor
+            </button>
           </div>
         </section>
       </div>

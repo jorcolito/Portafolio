@@ -37,7 +37,7 @@ export function ElevatorModal({
         <div className="elevator-console__destinations">
           <p className="eyebrow">¿A dónde quieres ir?</p>
           <p className="elevator-console__copy">
-            Elige un destino. No necesitas caminar hasta otra puerta.
+            Elige un piso o abre Contacto directamente.
           </p>
           <ul className="floor-list elevator-floor-list">
           {floors.map((floor) => (
@@ -56,7 +56,11 @@ export function ElevatorModal({
                   </span>
                 </span>
                 <span className="elevator-floor-state" aria-hidden="true">
-                  {floor.floor === currentFloor ? "AHORA" : "IR →"}
+                  {floor.floor === currentFloor
+                    ? "AHORA"
+                    : floor.floor === -4
+                      ? "ABRIR →"
+                      : "IR →"}
                 </span>
               </button>
             </li>

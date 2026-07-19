@@ -47,12 +47,11 @@ interface GameKeys {
   space: Phaser.Input.Keyboard.Key;
 }
 
-const FLOOR_SCENES: Record<PortfolioFloor, string> = {
+const FLOOR_SCENES: Record<Exclude<PortfolioFloor, -4>, string> = {
   0: "LobbyScene",
   [-1]: "ProjectsScene",
   [-2]: "EducationScene",
   [-3]: "AboutScene",
-  [-4]: "ContactScene",
 };
 
 const FLOOR_BACKGROUNDS: Record<
@@ -83,7 +82,7 @@ const CAPTURED_KEYS = [
 ];
 
 /**
- * Shared stage for the five compact dioramas.
+ * Shared stage for the four playable dioramas.
  *
  * The world is deliberately the same size as the camera. Every room presents
  * its meaningful objects immediately instead of asking the visitor to cross a
@@ -444,20 +443,20 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     this.player.setVelocity(0, 0).setTexture("jorge-idle");
     const left = this.createElevatorDoor("left", true);
     const right = this.createElevatorDoor("right", true);
-    const duration = 480;
+    const duration = 240;
 
     this.tweens.add({
       targets: left,
       x: -480,
       duration,
-      delay: 110,
+      delay: 40,
       ease: "Cubic.InOut",
     });
     this.tweens.add({
       targets: right,
       x: 960,
       duration,
-      delay: 110,
+      delay: 40,
       ease: "Cubic.InOut",
       onComplete: () => {
         left.destroy(true);
@@ -475,7 +474,7 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
 
     const left = this.createElevatorDoor("left", false);
     const right = this.createElevatorDoor("right", false);
-    const duration = 430;
+    const duration = 220;
     this.tweens.add({
       targets: left,
       x: 0,
@@ -635,6 +634,12 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
   }
 
   private changeFloor(floor: PortfolioFloor): void {
+    if (floor === -4) {
+      this.setUiBlocked(true);
+      this.bridge.emit({ type: "contact-requested" });
+      return;
+    }
+
     if (floor === this.floor) {
       this.setUiBlocked(false);
       return;
