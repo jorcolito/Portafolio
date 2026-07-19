@@ -13,59 +13,6 @@ export const DEFAULT_DIALOGUE_SETTINGS = {
 
 export const DIALOGUES = [
   {
-    id: "welcome-terminal",
-    floorId: "lobby",
-    interactionId: "lobby-welcome-terminal",
-    defaults: DEFAULT_DIALOGUE_SETTINGS,
-    lines: [
-      {
-        speaker: "JORGE.EXE",
-        text: "Jorge Colamarco — desarrollador de software orientado a producto.",
-        soundCue: "terminal-key",
-      },
-      {
-        speaker: "JORGE.EXE",
-        text: "Construyo soluciones web para operaciones reales: gestión, analítica y comercio. Elige una puerta o abre Quick View para ver lo esencial.",
-      },
-    ],
-  },
-  {
-    id: "robot-welcome",
-    floorId: "lobby",
-    interactionId: "lobby-robot",
-    defaults: {
-      ...DEFAULT_DIALOGUE_SETTINGS,
-      soundCue: "robot-chirp",
-    },
-    lines: [
-      {
-        speaker: "BOT-01",
-        portrait: { id: "robot", alt: "Retrato del robot BOT-01" },
-        text: "Bienvenido.",
-      },
-      {
-        speaker: "BOT-01",
-        portrait: { id: "robot", alt: "Retrato del robot BOT-01" },
-        text: "Jorge me dejó aquí para orientar visitas.",
-      },
-      {
-        speaker: "BOT-01",
-        portrait: { id: "robot", alt: "Retrato del robot BOT-01" },
-        text: "Las puertas llevan directo a su trabajo.",
-      },
-    ],
-  },
-  {
-    id: "save-point",
-    floorId: "lobby",
-    interactionId: "lobby-save-point",
-    defaults: DEFAULT_DIALOGUE_SETTINGS,
-    lines: [
-      { text: "El progreso no se guarda, pero los recuerdos sí." },
-      { text: "Parece suficiente para un portafolio." },
-    ],
-  },
-  {
     id: "cardrive-introduction",
     floorId: "projects",
     interactionId: "project-cardrive",
@@ -128,32 +75,32 @@ export const DIALOGUES = [
     interactionId: "education-english",
     defaults: DEFAULT_DIALOGUE_SETTINGS,
     lines: [
-      { text: "Inglés: nivel C1." },
       {
-        text: "Útil para documentación, equipos internacionales y mensajes de error a las tres de la mañana.",
+        speaker: "ARCHIVO ACADÉMICO",
+        text: "Cambridge C1 Advanced · Statement of Results.",
+        soundCue: "terminal-key",
+      },
+      {
+        speaker: "ARCHIVO ACADÉMICO",
+        text: "Resultado oficial con nivel CEFR C1, Overall Score 180 y Grade C. El documento mostrado es el Statement of Results, no el certificado formal.",
       },
     ],
   },
   {
-    id: "academic-projects",
+    id: "aws-certificate",
     floorId: "education",
-    interactionId: "education-academic-projects",
+    interactionId: "education-aws",
     defaults: DEFAULT_DIALOGUE_SETTINGS,
     lines: [
       {
-        text: "El archivo reúne proyectos académicos de desarrollo web, redes, HCI y sistemas.",
+        speaker: "ARCHIVO ACADÉMICO",
+        text: "Entrenamiento AWS Academy Data Engineering completado.",
+        soundCue: "terminal-key",
       },
-      { text: "Cada entrega dejó una herramienta nueva y una pregunta mejor." },
-    ],
-  },
-  {
-    id: "academic-timeline",
-    floorId: "education",
-    interactionId: "education-timeline",
-    defaults: DEFAULT_DIALOGUE_SETTINGS,
-    lines: [
-      { text: "La línea continúa hasta diciembre de 2027." },
-      { text: "El aprendizaje, por suerte, no tiene fecha de cierre." },
+      {
+        speaker: "ARCHIVO ACADÉMICO",
+        text: "La evidencia disponible es la insignia AWS Academy Data Engineering Trained: acredita la formación completada, pero no es una certificación profesional de AWS.",
+      },
     ],
   },
   {
@@ -171,26 +118,19 @@ export const DIALOGUES = [
     ],
   },
   {
-    id: "laptop",
+    id: "work-method",
     floorId: "about",
-    interactionId: "about-laptop",
-    defaults: DEFAULT_DIALOGUE_SETTINGS,
-    lines: [
-      { text: "Parece que Jorge pasa demasiado tiempo aquí." },
-      { text: "Algunos proyectos incluso llegaron a resolver problemas reales." },
-    ],
-  },
-  {
-    id: "chessboard",
-    floorId: "about",
-    interactionId: "about-chess",
+    interactionId: "about-method",
     defaults: DEFAULT_DIALOGUE_SETTINGS,
     lines: [
       {
-        text: "Cuando no estoy programando, normalmente estoy estudiando ajedrez.",
+        text: "No empiezo por el framework: primero entiendo a la persona, la operación y qué resultado haría que el trabajo valga la pena.",
       },
       {
-        text: "Este tablero abre mi actividad reciente y mis estadísticas públicas de @jorcolito en Chess.com.",
+        text: "Después convierto esa claridad en un flujo simple, una base técnica mantenible y entregas pequeñas que el equipo puede revisar.",
+      },
+      {
+        text: "Me importa tanto construir bien como explicar por qué: documento decisiones, pido feedback temprano y dejo el producto preparado para crecer.",
       },
     ],
   },
@@ -204,33 +144,6 @@ export const DIALOGUES = [
       { text: "Desde aquí estudio, construyo productos y colaboro con equipos remotos." },
     ],
   },
-  {
-    id: "travel-bag",
-    floorId: "about",
-    interactionId: "about-suitcase",
-    defaults: DEFAULT_DIALOGUE_SETTINGS,
-    lines: [
-      { text: "Una caja llena de versiones que nunca llegaron a producción." },
-      { text: "Cada prototipo descartado dejó una decisión mejor para el siguiente." },
-    ],
-  },
-  {
-    id: "ideas-notebook",
-    floorId: "about",
-    interactionId: "about-notebook",
-    defaults: DEFAULT_DIALOGUE_SETTINGS,
-    lines: [
-      {
-        text: "No empiezo por el framework: primero entiendo a la persona, la operación y qué resultado haría que el trabajo valga la pena.",
-      },
-      {
-        text: "Después convierto esa claridad en un flujo simple, una base técnica mantenible y entregas pequeñas que el equipo puede revisar.",
-      },
-      {
-        text: "Me importa tanto construir bien como explicar por qué: documento decisiones, pido feedback temprano y dejo el producto mejor preparado para crecer.",
-      },
-    ],
-  },
 ] as const satisfies readonly DialogueSequence[];
 
 type DialogueIndex = {
@@ -241,20 +154,13 @@ type DialogueIndex = {
 };
 
 export const DIALOGUES_BY_ID = {
-  "welcome-terminal": DIALOGUES[0],
-  "robot-welcome": DIALOGUES[1],
-  "save-point": DIALOGUES[2],
-  "cardrive-introduction": DIALOGUES[3],
-  "shiko-introduction": DIALOGUES[4],
-  "comernova-introduction": DIALOGUES[5],
-  "uees-record": DIALOGUES[6],
-  "english-certificate": DIALOGUES[7],
-  "academic-projects": DIALOGUES[8],
-  "academic-timeline": DIALOGUES[9],
-  "studied-technologies": DIALOGUES[10],
-  laptop: DIALOGUES[11],
-  chessboard: DIALOGUES[12],
-  "ecuador-map": DIALOGUES[13],
-  "travel-bag": DIALOGUES[14],
-  "ideas-notebook": DIALOGUES[15],
+  "cardrive-introduction": DIALOGUES[0],
+  "shiko-introduction": DIALOGUES[1],
+  "comernova-introduction": DIALOGUES[2],
+  "uees-record": DIALOGUES[3],
+  "english-certificate": DIALOGUES[4],
+  "aws-certificate": DIALOGUES[5],
+  "studied-technologies": DIALOGUES[6],
+  "work-method": DIALOGUES[7],
+  "ecuador-map": DIALOGUES[8],
 } as const satisfies DialogueIndex;

@@ -53,6 +53,16 @@ type OverlayState =
 
 const NO_OVERLAY: OverlayState = { type: "none" };
 
+const MOBILE_FLOOR_SIGNALS: Readonly<
+  Record<PortfolioFloor, readonly [string, string, string]>
+> = {
+  0: ["3 productos", "Credenciales verificables", "Contacto directo"],
+  [-1]: ["CarDrive", "SHIKO", "Comernova"],
+  [-2]: ["UEES", "Cambridge C1", "AWS Academy"],
+  [-3]: ["Visión de producto", "Guayaquil", "Chess.com"],
+  [-4]: ["GitHub", "LinkedIn", "Correo"],
+};
+
 export function JorgeExeExperience() {
   const [phase, setPhase] = useState<ExperiencePhase>("boot");
   const [overlay, setOverlay] = useState<OverlayState>(NO_OVERLAY);
@@ -257,40 +267,43 @@ export function JorgeExeExperience() {
             </div>
             <div className="topbar-actions">
               <button
-                className="pixel-button pixel-button--ghost"
+                className="pixel-button pixel-button--ghost topbar-action topbar-action--elevator"
                 type="button"
                 onClick={openElevator}
                 aria-label="Abrir elevador"
               >
-                <span>Elevador</span>
-                <span className="keycap" aria-hidden="true">Q</span>
+                <span className="topbar-action__icon keycap" aria-hidden="true">Q</span>
+                <span className="topbar-action__label">Elevador</span>
               </button>
               <button
-                className="pixel-button pixel-button--ghost"
+                className="pixel-button pixel-button--ghost topbar-action topbar-action--quick"
                 type="button"
                 onClick={() => setOverlay({ type: "quick-view" })}
                 aria-label="Abrir Quick View"
               >
-                <span>Quick View</span>
-                <span aria-hidden="true">▤</span>
+                <span className="topbar-action__icon" aria-hidden="true">QV</span>
+                <span className="topbar-action__label">Vista rápida</span>
               </button>
               <button
-                className="pixel-button pixel-button--ghost"
+                className="pixel-button pixel-button--ghost topbar-action topbar-action--sound"
                 type="button"
                 onClick={() => setMuted((value) => !value)}
                 aria-label={muted ? "Activar sonido" : "Silenciar sonido"}
                 aria-pressed={!muted}
               >
-                <span>{muted ? "Sonido off" : "Sonido on"}</span>
-                <span aria-hidden="true">{muted ? "◯" : "◉"}</span>
+                <span className="topbar-action__icon" aria-hidden="true">
+                  {muted ? "OFF" : "ON"}
+                </span>
+                <span className="topbar-action__label">Sonido</span>
               </button>
               <button
-                className="pixel-button pixel-button--ghost"
+                className="pixel-button pixel-button--ghost topbar-action topbar-action--settings"
                 type="button"
                 onClick={() => setOverlay({ type: "settings" })}
                 aria-label="Abrir ajustes"
               >
-                ⚙
+                <span className="topbar-action__icon" aria-hidden="true">⚙</span>
+                <span className="topbar-action__label">Ajustes</span>
               </button>
             </div>
           </header>
@@ -303,6 +316,18 @@ export function JorgeExeExperience() {
               <div className="game-stage" data-game-ready={gameReady ? "true" : "false"}>
                 <div className="stage-label">
                   Piso {currentFloor} / {currentFloorData.label}
+                </div>
+                <div
+                  className="stage-live-status"
+                  data-state={!gameReady ? "loading" : prompt ? "action" : "ready"}
+                  aria-live="polite"
+                >
+                  <span aria-hidden="true" />
+                  {!gameReady
+                    ? "Preparando escena"
+                    : prompt
+                      ? "Objeto disponible"
+                      : "Escena activa"}
                 </div>
                 {prompt && overlay.type === "none" && !inputCooldown ? (
                   <div className="interaction-prompt" aria-live="polite">
@@ -344,10 +369,37 @@ export function JorgeExeExperience() {
               </div>
 
               <TouchControls
-                disabled={anyOverlayOpen}
+                disabled={gameInputBlocked}
+                canInteract={Boolean(prompt) && !gameInputBlocked}
+                floorLabel={currentFloorData.label}
+                promptLabel={prompt?.label}
+                ready={gameReady}
                 send={sendGameCommand}
                 onMenu={openElevator}
               />
+
+              <aside className="mobile-briefing" aria-label="Guía del piso actual">
+                <div className="mobile-briefing__heading">
+                  <span>Ruta activa</span>
+                  <strong>{currentFloorData.label}</strong>
+                </div>
+                <p>
+                  {prompt
+                    ? `Estás cerca de una interacción: ${prompt.label}.`
+                    : currentFloorData.description}
+                </p>
+                <div className="mobile-briefing__signals" aria-label="Contenido destacado del piso">
+                  {MOBILE_FLOOR_SIGNALS[currentFloor].map((signal, index) => (
+                    <span key={signal}>
+                      <small>{String(index + 1).padStart(2, "0")}</small>
+                      <strong>{signal}</strong>
+                    </span>
+                  ))}
+                </div>
+                <span className="mobile-briefing__tip">
+                  Los objetos interactivos se iluminan al acercarte.
+                </span>
+              </aside>
             </section>
           </div>
         </main>

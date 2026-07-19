@@ -215,8 +215,10 @@ export const GameCanvas = forwardRef<GameCanvasHandle, GameCanvasProps>(
       <div
         ref={hostRef}
         className={className}
-        role="img"
+        role="group"
         aria-label={ariaLabel}
+        aria-disabled={!active || modalOpen}
+        tabIndex={active && !modalOpen ? 0 : -1}
         data-game-active={active ? "true" : "false"}
         onPointerDown={() => controllerRef.current?.focus()}
         style={{

@@ -1,7 +1,11 @@
 import * as Phaser from "phaser";
 
 import { DIALOGUES_BY_ID } from "../../data";
-import type { DialogueId, DialogueSequence } from "../../types";
+import type {
+  DialogueId,
+  DialogueSequence,
+  InteractionId,
+} from "../../types";
 import { ensureGeneratedTextures } from "../entities/createTextures";
 import type { GameBridge } from "../events/GameBridge";
 import {
@@ -28,7 +32,7 @@ interface InteractionOutline {
 }
 
 interface InteractionZone {
-  id: string;
+  id: InteractionId;
   label: string;
   keyHint: string;
   area: Phaser.GameObjects.Zone;
@@ -97,7 +101,7 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private keys!: GameKeys;
   private zones: InteractionZone[] = [];
-  private outlines = new Map<string, InteractionOutline>();
+  private outlines = new Map<InteractionId, InteractionOutline>();
   private platforms: Phaser.GameObjects.Rectangle[] = [];
   private activeZone: InteractionZone | null = null;
   private unsubscribeCommands?: () => void;
@@ -246,7 +250,7 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
   }
 
   protected addInteraction(
-    id: string,
+    id: InteractionId,
     x: number,
     width: number,
     label: string,
@@ -301,7 +305,7 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
    * instead of adding unrelated icons on top of the art.
    */
   protected addInteractiveOutline(
-    interactionId: string,
+    interactionId: InteractionId,
     points: readonly Phaser.Types.Math.Vector2Like[],
     delay = 0,
   ): Phaser.GameObjects.Graphics {

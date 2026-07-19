@@ -8,6 +8,11 @@ import { ModalShell } from "./ModalShell";
 
 type ChessLoadState = "loading" | "ready" | "error";
 
+const CHESS_ENDPOINTS = [
+  { url: "/data/chess-snapshot.json", priority: 1 },
+  { url: "/api/chess", priority: 2 },
+] as const;
+
 const GAME_RESULT_LABELS: Record<
   ChessGameResult,
   { short: string; long: string }
@@ -28,23 +33,45 @@ export function ChessModal({ onClose }: ChessModalProps) {
 
   useEffect(() => {
     const controller = new AbortController();
+    let acceptedPriority = -1;
+    let completedRequests = 0;
 
-    void fetch("/api/chess", {
-      headers: { Accept: "application/json" },
-      signal: controller.signal,
-    })
-      .then(async (response) => {
+    const loadSnapshot = async ({
+      url,
+      priority,
+    }: (typeof CHESS_ENDPOINTS)[number]) => {
+      try {
+        const response = await fetch(url, {
+          headers: { Accept: "application/json" },
+          signal: controller.signal,
+        });
+
         if (!response.ok) throw new Error("Chess snapshot unavailable");
-        return (await response.json()) as ChessSnapshot;
-      })
-      .then((nextSnapshot) => {
-        setSnapshot(nextSnapshot);
-        setState("ready");
-      })
-      .catch((error: unknown) => {
+
+        const candidate: unknown = await response.json();
+        if (!isChessSnapshot(candidate)) {
+          throw new Error("Invalid Chess snapshot");
+        }
+
+        // A fresh server response wins when it contains useful data. An empty
+        // API fallback never erases the public snapshot bundled for static hosts.
+        const candidatePriority = hasChessData(candidate) ? priority : 0;
+        if (acceptedPriority < 0 || candidatePriority > acceptedPriority) {
+          acceptedPriority = candidatePriority;
+          setSnapshot(candidate);
+          setState("ready");
+        }
+      } catch (error: unknown) {
         if (error instanceof DOMException && error.name === "AbortError") return;
-        setState("error");
-      });
+      } finally {
+        completedRequests += 1;
+        if (completedRequests === CHESS_ENDPOINTS.length && acceptedPriority < 0) {
+          setState("error");
+        }
+      }
+    };
+
+    for (const endpoint of CHESS_ENDPOINTS) void loadSnapshot(endpoint);
 
     return () => controller.abort();
   }, []);
@@ -84,6 +111,76 @@ export function ChessModal({ onClose }: ChessModalProps) {
       </div>
     </ModalShell>
   );
+}
+
+function hasChessData(snapshot: ChessSnapshot): boolean {
+  return Boolean(
+    snapshot.rapid ||
+      snapshot.tactics ||
+      snapshot.puzzleRush ||
+      snapshot.recentGames.length,
+  );
+}
+
+function isChessSnapshot(value: unknown): value is ChessSnapshot {
+  if (!value || typeof value !== "object") return false;
+
+  const snapshot = value as Record<string, unknown>;
+  if (
+    typeof snapshot.username !== "string" ||
+    typeof snapshot.profileUrl !== "string" ||
+    !["live", "partial", "unavailable"].includes(String(snapshot.status)) ||
+    typeof snapshot.fetchedAt !== "string" ||
+    Number.isNaN(Date.parse(snapshot.fetchedAt)) ||
+    !Array.isArray(snapshot.recentGames)
+  ) {
+    return false;
+  }
+
+  const rapid = snapshot.rapid as Record<string, unknown> | null;
+  if (
+    rapid !== null &&
+    (!rapid ||
+      typeof rapid !== "object" ||
+      typeof rapid.rating !== "number" ||
+      !rapid.record ||
+      typeof rapid.record !== "object")
+  ) {
+    return false;
+  }
+
+  const tactics = snapshot.tactics as Record<string, unknown> | null;
+  if (
+    tactics !== null &&
+    (!tactics ||
+      typeof tactics !== "object" ||
+      typeof tactics.highestRating !== "number")
+  ) {
+    return false;
+  }
+
+  const puzzleRush = snapshot.puzzleRush as Record<string, unknown> | null;
+  if (
+    puzzleRush !== null &&
+    (!puzzleRush ||
+      typeof puzzleRush !== "object" ||
+      typeof puzzleRush.bestScore !== "number")
+  ) {
+    return false;
+  }
+
+  return snapshot.recentGames.every((game) => {
+    if (!game || typeof game !== "object") return false;
+    const entry = game as Record<string, unknown>;
+    return (
+      typeof entry.url === "string" &&
+      typeof entry.endedAt === "string" &&
+      typeof entry.opponent === "string" &&
+      ["win", "loss", "draw", "unknown"].includes(String(entry.result)) &&
+      ["white", "black"].includes(String(entry.color)) &&
+      typeof entry.timeClass === "string"
+    );
+  });
 }
 
 function ChessSnapshotView({ snapshot }: { snapshot: ChessSnapshot }) {

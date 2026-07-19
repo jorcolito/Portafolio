@@ -112,6 +112,10 @@ function normalizeGame(game: ApiGame): ChessRecentGame | null {
 
   const playedWhite =
     whiteUsername.toLocaleLowerCase() === CHESS_USERNAME.toLocaleLowerCase();
+  const playedBlack =
+    blackUsername.toLocaleLowerCase() === CHESS_USERNAME.toLocaleLowerCase();
+  if (!playedWhite && !playedBlack) return null;
+
   const player = playedWhite ? game.white : game.black;
   const opponent = playedWhite ? game.black : game.white;
 

@@ -26,8 +26,8 @@ export class InfoFloorScene extends BasePortfolioScene {
   }
 
   private buildEducation(): void {
-    // Each outline hugs one of the three authored books. The workstations and
-    // shelves remain atmosphere instead of pretending to be credentials.
+    // Each credential outline hugs one of the three authored books. The real
+    // workstation on the left is the separate technology interaction.
     this.addInteractiveOutline(
       "education-uees",
       [
@@ -84,9 +84,31 @@ export class InfoFloorScene extends BasePortfolioScene {
     );
     this.addInteraction("education-aws", 684, 108, "Abrir insignia AWS Academy", {
       type: "dialogue",
-      dialogueId: "academic-projects",
+      dialogueId: "aws-certificate",
       after: { type: "library", itemId: "aws-certificate-volume" },
     }, { x: 686, y: 333, width: 124, height: 108 });
+
+    this.addInteractiveOutline(
+      "education-technologies",
+      [
+        { x: 160, y: 258 },
+        { x: 343, y: 258 },
+        { x: 356, y: 300 },
+        { x: 349, y: 376 },
+        { x: 322, y: 388 },
+        { x: 188, y: 388 },
+        { x: 164, y: 362 },
+      ],
+      780,
+    );
+    this.addInteraction(
+      "education-technologies",
+      258,
+      188,
+      "Explorar tecnologías de trabajo",
+      { type: "dialogue", dialogueId: "studied-technologies" },
+      { x: 258, y: 323, width: 196, height: 132 },
+    );
   }
 
   private buildAbout(): void {
@@ -109,7 +131,7 @@ export class InfoFloorScene extends BasePortfolioScene {
     );
     this.addInteraction("about-method", 460, 230, "Ver método de trabajo", {
       type: "dialogue",
-      dialogueId: "ideas-notebook",
+      dialogueId: "work-method",
     }, { x: 472, y: 148, width: 296, height: 200 });
   }
 

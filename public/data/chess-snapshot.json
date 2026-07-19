@@ -1,0 +1,79 @@
+{
+  "username": "jorcolito",
+  "profileUrl": "https://www.chess.com/member/jorcolito",
+  "status": "live",
+  "fetchedAt": "2026-07-19T04:10:39.864Z",
+  "rapid": {
+    "rating": 377,
+    "bestRating": 992,
+    "record": {
+      "wins": 118,
+      "losses": 129,
+      "draws": 22
+    }
+  },
+  "tactics": {
+    "highestRating": 1464
+  },
+  "puzzleRush": {
+    "bestScore": 13,
+    "totalAttempts": 16
+  },
+  "recentGames": [
+    {
+      "url": "https://www.chess.com/game/live/171765903612",
+      "endedAt": "2026-07-19T02:47:26.000Z",
+      "opponent": "justacatplayingches",
+      "result": "loss",
+      "color": "white",
+      "timeClass": "rapid",
+      "timeControl": "600",
+      "playerRating": 377,
+      "opponentRating": 411
+    },
+    {
+      "url": "https://www.chess.com/game/live/171765859708",
+      "endedAt": "2026-07-19T02:42:25.000Z",
+      "opponent": "evo_berseker",
+      "result": "loss",
+      "color": "black",
+      "timeClass": "rapid",
+      "timeControl": "600",
+      "playerRating": 385,
+      "opponentRating": 394
+    },
+    {
+      "url": "https://www.chess.com/game/live/171765337788",
+      "endedAt": "2026-07-19T02:33:17.000Z",
+      "opponent": "GoldenHand00",
+      "result": "win",
+      "color": "black",
+      "timeClass": "rapid",
+      "timeControl": "600",
+      "playerRating": 393,
+      "opponentRating": 354
+    },
+    {
+      "url": "https://www.chess.com/game/live/171764648096",
+      "endedAt": "2026-07-19T01:54:03.000Z",
+      "opponent": "ZzzDream54",
+      "result": "win",
+      "color": "white",
+      "timeClass": "rapid",
+      "timeControl": "600",
+      "playerRating": 386,
+      "opponentRating": 390
+    },
+    {
+      "url": "https://www.chess.com/game/live/171763870918",
+      "endedAt": "2026-07-19T01:15:05.000Z",
+      "opponent": "0okba0",
+      "result": "win",
+      "color": "white",
+      "timeClass": "rapid",
+      "timeControl": "600",
+      "playerRating": 378,
+      "opponentRating": 376
+    }
+  ]
+}

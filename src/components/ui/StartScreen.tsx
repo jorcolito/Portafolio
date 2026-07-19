@@ -2,6 +2,32 @@
 
 import { useEffect } from "react";
 
+const INTERACTIVE_TARGETS = [
+  "button",
+  "a[href]",
+  "input",
+  "select",
+  "textarea",
+  "summary",
+  '[contenteditable]:not([contenteditable="false"])',
+  '[role="button"]',
+  '[role="link"]',
+  '[role="menuitem"]',
+  '[role="tab"]',
+  '[role="checkbox"]',
+  '[role="radio"]',
+  '[role="switch"]',
+  '[role="slider"]',
+].join(",");
+
+function belongsToInteractiveControl(target: EventTarget | null) {
+  return target instanceof Element && Boolean(target.closest(INTERACTIVE_TARGETS));
+}
+
+function hasActiveModal() {
+  return Boolean(document.querySelector('[role="dialog"][aria-modal="true"]'));
+}
+
 interface StartScreenProps {
   onStart: () => void;
   onSkipIntro: () => void;
@@ -17,10 +43,23 @@ export function StartScreen({
 }: StartScreenProps) {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        onStart();
+      if (
+        event.key !== "Enter" ||
+        event.defaultPrevented ||
+        event.repeat ||
+        event.isComposing ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        belongsToInteractiveControl(event.target) ||
+        hasActiveModal()
+      ) {
+        return;
       }
+
+      event.preventDefault();
+      onStart();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);

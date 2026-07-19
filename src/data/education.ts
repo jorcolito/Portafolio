@@ -1,7 +1,16 @@
 import type {
+  DialogueId,
   EducationLibraryItem,
   EducationRecord,
+  InteractionId,
 } from "../types";
+
+interface EducationInteraction {
+  readonly id: string;
+  readonly label: string;
+  readonly interactionId: Extract<InteractionId, `education-${string}`>;
+  readonly dialogueId: DialogueId;
+}
 
 export const EDUCATION = [
   {
@@ -116,4 +125,10 @@ export const EDUCATION_INTERACTIONS = [
     interactionId: "education-aws",
     dialogueId: "aws-certificate",
   },
-] as const;
+  {
+    id: "technologies-workstation",
+    label: "Estación: tecnologías de trabajo",
+    interactionId: "education-technologies",
+    dialogueId: "studied-technologies",
+  },
+] as const satisfies readonly EducationInteraction[];

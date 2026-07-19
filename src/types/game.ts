@@ -10,40 +10,28 @@ export type FloorId =
 export type FloorLevel = 0 | -1 | -2 | -3 | -4;
 
 export type InteractionId =
-  | "lobby-welcome-terminal"
-  | "lobby-robot"
-  | "lobby-save-point"
+  | "lobby-elevator"
   | "project-cardrive"
   | "project-shiko"
   | "project-comernova"
   | "education-uees"
   | "education-english"
-  | "education-academic-projects"
-  | "education-timeline"
+  | "education-aws"
   | "education-technologies"
-  | "about-laptop"
+  | "about-method"
   | "about-chess"
-  | "about-map"
-  | "about-suitcase"
-  | "about-notebook";
+  | "about-map";
 
 export type DialogueId =
-  | "welcome-terminal"
-  | "robot-welcome"
-  | "save-point"
   | "cardrive-introduction"
   | "shiko-introduction"
   | "comernova-introduction"
   | "uees-record"
   | "english-certificate"
-  | "academic-projects"
-  | "academic-timeline"
+  | "aws-certificate"
   | "studied-technologies"
-  | "laptop"
-  | "chessboard"
-  | "ecuador-map"
-  | "travel-bag"
-  | "ideas-notebook";
+  | "work-method"
+  | "ecuador-map";
 
 export interface FloorDefinition {
   readonly id: FloorId;
@@ -102,10 +90,20 @@ export interface DialogueSequence {
   readonly completion?: DialogueCompletion;
 }
 
-export interface AboutObject {
+interface AboutObjectBase {
   readonly id: string;
   readonly label: string;
   readonly interactionId: InteractionId;
-  readonly dialogueId: DialogueId;
   readonly accessibleDescription: string;
 }
+
+export type AboutObject =
+  | (AboutObjectBase & {
+      readonly action: {
+        readonly type: "dialogue";
+        readonly dialogueId: DialogueId;
+      };
+    })
+  | (AboutObjectBase & {
+      readonly action: { readonly type: "chess" };
+    });

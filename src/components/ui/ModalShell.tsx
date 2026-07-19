@@ -1,12 +1,14 @@
 "use client";
 
 import {
+  type CSSProperties,
   type PropsWithChildren,
   type RefObject,
   useCallback,
   useEffect,
   useId,
   useRef,
+  useState,
 } from "react";
 
 interface ModalShellProps extends PropsWithChildren {
@@ -21,6 +23,10 @@ interface ModalShellProps extends PropsWithChildren {
 const FOCUSABLE =
   'button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+type ModalProgressStyle = CSSProperties & {
+  "--modal-scroll-progress": number;
+};
+
 export function ModalShell({
   title,
   eyebrow,
@@ -32,8 +38,13 @@ export function ModalShell({
 }: ModalShellProps) {
   const titleId = useId();
   const windowRef = useRef<HTMLDivElement>(null);
+  const scrollRegionRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const closeRequestedRef = useRef(false);
+  const [scrollState, setScrollState] = useState({
+    canScroll: false,
+    progress: 0,
+  });
 
   const requestClose = useCallback(() => {
     if (closeRequestedRef.current) return;
@@ -41,10 +52,44 @@ export function ModalShell({
     onClose();
   }, [onClose]);
 
+  const updateScrollState = useCallback(() => {
+    const region = scrollRegionRef.current;
+    if (!region) return;
+
+    const scrollRange = Math.max(0, region.scrollHeight - region.clientHeight);
+    const canScroll = scrollRange > 2;
+    const progress = canScroll
+      ? Math.min(1, Math.max(0, region.scrollTop / scrollRange))
+      : 0;
+
+    setScrollState((current) =>
+      current.canScroll === canScroll &&
+      Math.abs(current.progress - progress) < 0.005
+        ? current
+        : { canScroll, progress },
+    );
+  }, []);
+
   useEffect(() => {
     const previouslyFocused = document.activeElement as HTMLElement | null;
-    const previousOverflow = document.body.style.overflow;
+    const scrollY = window.scrollY;
+    const previousBodyStyles = {
+      overflow: document.body.style.overflow,
+      position: document.body.style.position,
+      top: document.body.style.top,
+      right: document.body.style.right,
+      left: document.body.style.left,
+      width: document.body.style.width,
+    };
+    const previousOverscroll = document.documentElement.style.overscrollBehavior;
+
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.right = "0";
+    document.body.style.left = "0";
+    document.body.style.width = "100%";
+    document.documentElement.style.overscrollBehavior = "none";
     const target = initialFocusRef?.current ?? closeRef.current;
     target?.focus();
 
@@ -75,10 +120,36 @@ export function ModalShell({
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = previousBodyStyles.overflow;
+      document.body.style.position = previousBodyStyles.position;
+      document.body.style.top = previousBodyStyles.top;
+      document.body.style.right = previousBodyStyles.right;
+      document.body.style.left = previousBodyStyles.left;
+      document.body.style.width = previousBodyStyles.width;
+      document.documentElement.style.overscrollBehavior = previousOverscroll;
+      window.scrollTo(0, scrollY);
       previouslyFocused?.focus();
     };
   }, [initialFocusRef, requestClose]);
+
+  useEffect(() => {
+    const region = scrollRegionRef.current;
+    if (!region) return;
+
+    const frame = window.requestAnimationFrame(updateScrollState);
+    const resizeObserver = new ResizeObserver(updateScrollState);
+    resizeObserver.observe(region);
+    Array.from(region.children).forEach((child) => resizeObserver.observe(child));
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      resizeObserver.disconnect();
+    };
+  }, [children, updateScrollState]);
+
+  const progressStyle: ModalProgressStyle = {
+    "--modal-scroll-progress": scrollState.progress,
+  };
 
   return (
     <div
@@ -111,7 +182,26 @@ export function ModalShell({
             ×
           </button>
         </div>
-        {children}
+        <div
+          className="modal-scroll-status"
+          data-scrollable={scrollState.canScroll ? "true" : "false"}
+          style={progressStyle}
+          aria-hidden="true"
+        >
+          <span className="modal-scroll-status__track">
+            <span className="modal-scroll-status__bar" />
+          </span>
+          <span className="modal-scroll-status__copy">
+            {scrollState.progress > 0.96 ? "Final del contenido" : "Desliza para explorar"}
+          </span>
+        </div>
+        <div
+          ref={scrollRegionRef}
+          className="modal-scroll-region"
+          onScroll={updateScrollState}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

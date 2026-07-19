@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 
 import {
   CONTACT_LINKS,
@@ -32,6 +32,21 @@ const SECTIONS: readonly { id: QuickSection; label: string }[] = [
 ];
 
 const WORK_PRINCIPLE_LABELS = ["Descubrir", "Diseñar", "Entregar"] as const;
+const HORIZONTAL_NAV_QUERY = "(max-width: 720px)";
+
+function subscribeToNavigationOrientation(onChange: () => void) {
+  const mediaQuery = window.matchMedia(HORIZONTAL_NAV_QUERY);
+  mediaQuery.addEventListener("change", onChange);
+  return () => mediaQuery.removeEventListener("change", onChange);
+}
+
+function getNavigationOrientationSnapshot() {
+  return window.matchMedia(HORIZONTAL_NAV_QUERY).matches;
+}
+
+function getServerNavigationOrientationSnapshot() {
+  return false;
+}
 
 interface QuickViewProps {
   onClose: () => void;
@@ -100,6 +115,12 @@ export function QuickView({
   onPlaceholder,
 }: QuickViewProps) {
   const [section, setSection] = useState<QuickSection>("presentacion");
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const hasHorizontalNavigation = useSyncExternalStore(
+    subscribeToNavigationOrientation,
+    getNavigationOrientationSnapshot,
+    getServerNavigationOrientationSnapshot,
+  );
   const availableContactLinks = CONTACT_LINKS.filter(
     (link) => link.availability === "available",
   );
@@ -113,7 +134,14 @@ export function QuickView({
     const nextIndex = (currentIndex + direction + SECTIONS.length) % SECTIONS.length;
     const nextSection = SECTIONS[nextIndex];
     activateSection(nextSection.id);
-    document.getElementById(`quick-tab-${nextSection.id}`)?.focus();
+    tabRefs.current[nextIndex]?.focus();
+  };
+
+  const focusTabAt = (index: number) => {
+    const nextSection = SECTIONS[index];
+    if (!nextSection) return;
+    activateSection(nextSection.id);
+    tabRefs.current[index]?.focus();
   };
 
   return (
@@ -128,10 +156,22 @@ export function QuickView({
             <strong>Lo importante, primero.</strong>
             <span>Trabajo, herramientas, credenciales y contacto directo.</span>
           </div>
-          <ul role="tablist" aria-orientation="vertical">
+          <p className="sr-only" id="quick-tabs-instructions">
+            Navegación {hasHorizontalNavigation ? "horizontal" : "vertical"}.
+            Usa las flechas izquierda y derecha o arriba y abajo para cambiar de
+            sección.
+          </p>
+          <ul
+            role="tablist"
+            aria-orientation={hasHorizontalNavigation ? "horizontal" : "vertical"}
+            aria-describedby="quick-tabs-instructions"
+          >
             {SECTIONS.map((item, index) => (
               <li key={item.id} role="presentation">
                 <button
+                  ref={(element) => {
+                    tabRefs.current[index] = element;
+                  }}
                   id={`quick-tab-${item.id}`}
                   type="button"
                   role="tab"
@@ -140,23 +180,24 @@ export function QuickView({
                   tabIndex={section === item.id ? 0 : -1}
                   onClick={() => activateSection(item.id)}
                   onKeyDown={(event) => {
-                    if (event.key === "ArrowDown") {
+                    if (
+                      event.key === "ArrowDown" ||
+                      event.key === "ArrowRight"
+                    ) {
                       event.preventDefault();
                       moveTabFocus(index, 1);
-                    } else if (event.key === "ArrowUp") {
+                    } else if (
+                      event.key === "ArrowUp" ||
+                      event.key === "ArrowLeft"
+                    ) {
                       event.preventDefault();
                       moveTabFocus(index, -1);
                     } else if (event.key === "Home") {
                       event.preventDefault();
-                      activateSection(SECTIONS[0].id);
-                      document.getElementById(`quick-tab-${SECTIONS[0].id}`)?.focus();
+                      focusTabAt(0);
                     } else if (event.key === "End") {
                       event.preventDefault();
-                      const last = SECTIONS.at(-1);
-                      if (last) {
-                        activateSection(last.id);
-                        document.getElementById(`quick-tab-${last.id}`)?.focus();
-                      }
+                      focusTabAt(SECTIONS.length - 1);
                     }
                   }}
                 >

@@ -9,13 +9,9 @@ export const FLOORS = [
     sceneKey: "LobbyScene",
     sectionAnchor: "presentacion",
     description:
-      "Punto de entrada a JORGE LABS, con controles, bienvenida y acceso a la vista rápida.",
+      "Vestíbulo de entrada a JORGE LABS. El ascensor es el único objeto interactuable de la escena.",
     accentColor: "#65ee78",
-    interactionIds: [
-      "lobby-welcome-terminal",
-      "lobby-robot",
-      "lobby-save-point",
-    ],
+    interactionIds: ["lobby-elevator"],
   },
   {
     id: "projects",
@@ -41,13 +37,12 @@ export const FLOORS = [
     sceneKey: "EducationScene",
     sectionAnchor: "educacion",
     description:
-      "Archivo académico interactivo con formación, idiomas y áreas de estudio.",
+      "Biblioteca académica con expediente UEES, resultado C1, formación AWS Academy y tecnologías de trabajo.",
     accentColor: "#a971ff",
     interactionIds: [
       "education-uees",
       "education-english",
-      "education-academic-projects",
-      "education-timeline",
+      "education-aws",
       "education-technologies",
     ],
   },
@@ -59,15 +54,9 @@ export const FLOORS = [
     sceneKey: "AboutScene",
     sectionAnchor: "sobre-mi",
     description:
-      "Estudio personal con objetos que revelan intereses, origen y experiencia.",
+      "Estudio personal con el método de trabajo de Jorge, su origen en Guayaquil y su afición por el ajedrez.",
     accentColor: "#38d9f1",
-    interactionIds: [
-      "about-laptop",
-      "about-chess",
-      "about-map",
-      "about-suitcase",
-      "about-notebook",
-    ],
+    interactionIds: ["about-method", "about-map", "about-chess"],
   },
   {
     id: "contact",
