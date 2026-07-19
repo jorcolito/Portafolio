@@ -31,13 +31,18 @@ jobs:
         run: npm ci
 
       - name: Validate source
-        run: npm run check
+        run: |
+          npm run lint
+          npm run typecheck
 
       - name: Refresh public Chess.com snapshot
         run: node scripts/update-chess-snapshot.mjs
 
       - name: Build static site
         run: npm run build
+
+      - name: Test production build
+        run: npm run test:unit
 
       - name: Prepare Pages artifact
         run: |
