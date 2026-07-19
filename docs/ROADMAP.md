@@ -7,9 +7,9 @@
 - El repositorio parte de un starter vinext/Vite con React, TypeScript, ESLint y scripts de build/pruebas.
 - La aplicación usa `app/` en la raíz; no se migrará a `src/` durante el MVP.
 - Phaser ya está integrado y se carga solo en cliente.
-- Correo, GitHub, LinkedIn y el Statement of Results de Cambridge están confirmados; CV, credencial AWS y varios enlaces de proyecto siguen pendientes.
-- El elevador global con `Q`, sus puertas animadas, los contornos blancos, la proximidad con `E` y la activación por clic/toque ya forman el contrato jugable.
-- Lobby ofrece bitácora, Quick View y puertas directas; memoria, punto de guardado y sprites flotantes sin función quedaron fuera.
+- Correo, GitHub, LinkedIn, el Statement of Results de Cambridge y la insignia `AWS Academy Data Engineering Trained` están confirmados; CV y varios enlaces de proyecto siguen pendientes.
+- El elevador global con `Q`, sus puertas animadas, los contornos blanco→verde, la proximidad con `E` y la activación por clic/toque ya forman el contrato jugable.
+- Lobby utiliza únicamente el ascensor físico y un cartel de ayuda; bitácora, puertas directas, memoria, punto de guardado y sprites flotantes sin función quedaron fuera.
 - Chess.com se consulta exclusivamente desde el tablero; Quick View prioriza proyectos, tecnologías, credenciales, método y contacto en menos de un minuto.
 
 ## Decisiones de alcance
@@ -21,7 +21,7 @@
 | Proyecto de referencia | CarDrive | Demos integradas de SHIKO y Comernova |
 | Contenido | Datos TypeScript estáticos e inmutables | CMS solo si existe necesidad real |
 | Diálogos y paneles | HTML accesible sobre canvas | Retratos y audio ampliado |
-| Navegación | Elevador global con `Q` + puertas del Lobby + Quick View | Deep links a piso/objeto |
+| Navegación | Elevador físico con `E` + llamada global con `Q` + Quick View | Deep links a piso/objeto |
 | Datos externos | Chess.com server-side con caché y fallback | Historial o visualizaciones adicionales si aportan valor |
 | Guardado | Sin memoria, punto de guardado ni persistencia | Recordar piso solo si mejora retorno |
 | Contacto | Correo, GitHub y LinkedIn directos; sin formulario ficticio | CV descargable cuando exista el archivo |
@@ -71,7 +71,7 @@
 - Construir `LobbyScene` como diorama, con límites cortos, cámara contenida y focos visibles desde el spawn.
 - Crear jugador con caminar y colisiones; el movimiento no es una barrera de acceso.
 - Normalizar teclado y controles táctiles.
-- Añadir bitácora, Quick View clicable, puertas directas, prompt contextual y diálogo reutilizable.
+- Añadir ascensor físico, cartel breve, prompt contextual y llamada global con `Q`.
 - Añadir fallback visible si Phaser no inicia.
 
 **Definition of Done:**
@@ -108,10 +108,10 @@
 **Resultado:** los cinco pisos forman una colección coherente de escenas densas, cada una con una interacción memorable.
 
 - Añadir estaciones SHIKO y Comernova con fichas distintas.
-- Crear `EducationScene` como biblioteca compacta, con UEES, Cambridge C1 verificable y AWS pendiente.
+- Crear `EducationScene` como biblioteca compacta, con UEES, Cambridge C1 verificable y formación completada `AWS Academy Data Engineering Trained`.
 - Añadir apertura animada de libro y panel reutilizable para documentos.
 - Crear `AboutScene` con Guayaquil correctamente situado, método de trabajo y tablero conectado a datos públicos de Chess.com.
-- Crear `ContactScene` con escritorio como ancla provisional y panel de contacto real; el avatar espera una foto de Jorge.
+- Crear `ContactScene` con retrato/sprite pixel-art derivado de una foto real de Jorge, escritorio y panel de contacto directo.
 - Añadir ruta server-side de Chess.com con caché, timeout y fallback sin cifras ficticias.
 - Conectar todos los pisos al mismo elevador global.
 - Reflejar lo esencial en Quick View sin duplicar Chess.com ni añadir contadores decorativos.
@@ -124,7 +124,7 @@
 - Los tres proyectos muestran contenido y estados correctos.
 - Contacto no simula un envío y usa correo/URLs confirmados.
 - Quick View contiene la misma información que las interacciones esenciales.
-- Cambridge se presenta como Statement of Results, AWS permanece pendiente y no hay volúmenes universitarios ficticios.
+- Cambridge se presenta como Statement of Results y `AWS Academy Data Engineering Trained` como formación completada, nunca como certificación profesional; no hay volúmenes universitarios ficticios.
 - Chess.com puede fallar sin romper el modal del tablero ni el resto del portafolio.
 
 ### M5 — Responsive, accesibilidad y rendimiento
@@ -244,11 +244,11 @@ No recortar Quick View, datos canónicos, CarDrive, control del foco, bloqueo/re
 
 ## Siguientes cinco pasos después del MVP
 
-1. Incorporar el CV, la credencial AWS y enlaces de demos/repositorios cuando existan documentos o destinos confirmados.
-2. Crear el avatar 8-bit de Contacto a partir de una fotografía real proporcionada por Jorge.
-3. Producir un set original y coherente de sprites/fondos con inventario de licencias.
-4. Añadir versión completa en inglés usando las mismas claves de contenido.
-5. Medir rutas de uso y rendimiento con analítica respetuosa de privacidad, y ajustar la introducción con evidencia.
+1. Incorporar el CV y enlaces de demos/repositorios cuando existan documentos o destinos confirmados.
+2. Producir un set original y coherente de sprites/fondos con inventario de licencias.
+3. Añadir versión completa en inglés usando las mismas claves de contenido.
+4. Medir rutas de uso y rendimiento con analítica respetuosa de privacidad, y ajustar la introducción con evidencia.
+5. Evaluar futuras formaciones o certificaciones únicamente cuando exista evidencia verificable y nomenclatura oficial.
 
 ## Condición de release
 

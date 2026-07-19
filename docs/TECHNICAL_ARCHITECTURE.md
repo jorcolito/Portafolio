@@ -164,7 +164,7 @@ Reglas de datos:
 
 ### Biblioteca académica
 
-`EducationLibraryItem` distingue grado, resultado de idioma y credencial cloud. La colección canónica contiene UEES, Cambridge C1 y AWS. El Statement of Results de Cambridge usa un `ResourceLink` disponible y conserva su denominación documental exacta; AWS usa `availability: "placeholder"` y `href: null` hasta recibir evidencia. La animación de libro y Quick View no mantienen inventarios separados.
+`EducationLibraryItem` distingue grado, resultado de idioma y formación cloud. La colección canónica contiene UEES, Cambridge C1 y `AWS Academy Data Engineering Trained`. El Statement of Results de Cambridge y la insignia de AWS Academy son recursos disponibles y conservan su denominación exacta; la segunda se modela editorialmente como formación completada, no como certificación profesional. La animación de libro y Quick View no mantienen inventarios separados.
 
 ### Chess.com
 
@@ -302,7 +302,7 @@ React normaliza teclado y táctil con `useInputController`:
 - Cada piso declara geometría, colliders, spawns y `Interactable[]`; no implementa lógica de modal.
 - `Player`: encapsula sprite, cuerpo y animaciones.
 - `InteractionSystem`: calcula objetivo más cercano y emite cambios solo cuando cambia el ID.
-- Las zonas de interacción también son clicables/táctiles y ejecutan la misma intención que `E`; su representación visual se ancla a objetos reales mediante contornos blancos pulsantes.
+- Las zonas de interacción también son clicables/táctiles y ejecutan la misma intención que `E`; su representación visual se ancla a objetos reales mediante contornos blancos pulsantes que se redibujan en verde cuando la zona queda activa.
 - `PlayerLockSystem`: conserva/restaura estado sin pausar o recrear la escena completa.
 - `TextureFactory`: genera assets originales de baja resolución y fija filtrado `NEAREST`.
 

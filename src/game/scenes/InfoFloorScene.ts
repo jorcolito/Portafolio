@@ -10,15 +10,32 @@ interface InfoFloorConfig {
   accent: number;
 }
 
+const CONTACT_SEATED_TEXTURE = "jorge-contact-seated-v1";
+const CONTACT_SEATED_SPRITE_URL = "/portraits/jorge-seated-sprite-v1.png";
+
 export class InfoFloorScene extends BasePortfolioScene {
   constructor(bridge: GameBridge, config: InfoFloorConfig) {
     super(config.key, config.floor, bridge, config.accent);
   }
 
+  preload(): void {
+    super.preload();
+    if (
+      this.floor === -4 &&
+      !this.textures.exists(CONTACT_SEATED_TEXTURE)
+    ) {
+      this.load.image(CONTACT_SEATED_TEXTURE, CONTACT_SEATED_SPRITE_URL);
+    }
+  }
+
   protected getPlayerSpawn(): Phaser.Types.Math.Vector2Like {
     if (this.floor === -2) return { x: 520, y: 420 };
-    if (this.floor === -4) return { x: 610, y: 420 };
+    if (this.floor === -4) return { x: 430, y: 420 };
     return { x: 470, y: 420 };
+  }
+
+  protected shouldShowWalkingPlayer(): boolean {
+    return this.floor !== -4;
   }
 
   protected buildWorld(): void {
@@ -28,55 +45,67 @@ export class InfoFloorScene extends BasePortfolioScene {
   }
 
   private buildEducation(): void {
-    // The books are already part of the authored library plate. They no longer
-    // receive duplicate Phaser books or slow levitation tweens.
+    // Each outline hugs one of the three authored books. The workstations and
+    // shelves remain atmosphere instead of pretending to be credentials.
     this.addInteractiveOutline(
+      "education-uees",
       [
-        { x: 177, y: 277 },
-        { x: 351, y: 277 },
-        { x: 351, y: 364 },
-        { x: 177, y: 364 },
+        { x: 465, y: 257 },
+        { x: 474, y: 244 },
+        { x: 495, y: 248 },
+        { x: 511, y: 243 },
+        { x: 520, y: 253 },
+        { x: 518, y: 287 },
+        { x: 492, y: 281 },
+        { x: 469, y: 291 },
       ],
       0,
     );
-    this.addInteraction("education-uees", 270, 190, "Abrir libro de la UEES", {
+    this.addInteraction("education-uees", 478, 72, "Abrir libro de la UEES", {
       type: "dialogue",
       dialogueId: "uees-record",
       after: { type: "library", itemId: "uees-degree-volume" },
-    }, { x: 264, y: 321, width: 176, height: 90 });
+    }, { x: 492, y: 268, width: 62, height: 54 });
 
     this.addInteractiveOutline(
+      "education-english",
       [
-        { x: 462, y: 245 },
-        { x: 532, y: 263 },
-        { x: 553, y: 320 },
-        { x: 505, y: 335 },
-        { x: 470, y: 310 },
+        { x: 500, y: 309 },
+        { x: 516, y: 288 },
+        { x: 548, y: 299 },
+        { x: 577, y: 289 },
+        { x: 586, y: 314 },
+        { x: 576, y: 347 },
+        { x: 542, y: 340 },
+        { x: 512, y: 351 },
       ],
       260,
     );
-    this.addInteraction("education-english", 515, 170, "Abrir certificado C1", {
+    this.addInteraction("education-english", 558, 78, "Abrir certificado C1", {
       type: "dialogue",
       dialogueId: "english-certificate",
       after: { type: "library", itemId: "english-c1-volume" },
-    }, { x: 508, y: 289, width: 102, height: 94 });
+    }, { x: 544, y: 320, width: 88, height: 68 });
 
     this.addInteractiveOutline(
+      "education-aws",
       [
-        { x: 617, y: 268 },
-        { x: 684, y: 275 },
-        { x: 714, y: 322 },
-        { x: 691, y: 385 },
-        { x: 621, y: 385 },
-        { x: 603, y: 327 },
+        { x: 625, y: 321 },
+        { x: 646, y: 283 },
+        { x: 687, y: 296 },
+        { x: 728, y: 281 },
+        { x: 746, y: 326 },
+        { x: 731, y: 367 },
+        { x: 695, y: 383 },
+        { x: 647, y: 374 },
       ],
       520,
     );
-    this.addInteraction("education-aws", 675, 190, "Abrir certificado AWS", {
+    this.addInteraction("education-aws", 684, 108, "Abrir insignia AWS Academy", {
       type: "dialogue",
       dialogueId: "academic-projects",
       after: { type: "library", itemId: "aws-certificate-volume" },
-    }, { x: 660, y: 326, width: 118, height: 122 });
+    }, { x: 686, y: 333, width: 124, height: 108 });
   }
 
   private buildAbout(): void {
@@ -88,6 +117,7 @@ export class InfoFloorScene extends BasePortfolioScene {
   private drawProfessionalMethod(): void {
     // The central planning board now explains a hiring-relevant working method.
     this.addInteractiveOutline(
+      "about-method",
       [
         { x: 325, y: 49 },
         { x: 620, y: 49 },
@@ -104,6 +134,7 @@ export class InfoFloorScene extends BasePortfolioScene {
 
   private drawGuayaquilMap(): void {
     this.addInteractiveOutline(
+      "about-map",
       [
         { x: 636, y: 47 },
         { x: 755, y: 47 },
@@ -134,7 +165,7 @@ export class InfoFloorScene extends BasePortfolioScene {
       ease: "Sine.InOut",
     });
 
-    this.addInteraction("about-map", 650, 110, "Guayaquil, Ecuador", {
+    this.addInteraction("about-map", 650, 90, "Guayaquil, Ecuador", {
       type: "dialogue",
       dialogueId: "ecuador-map",
     }, { x: 696, y: 114, width: 120, height: 136 });
@@ -143,22 +174,23 @@ export class InfoFloorScene extends BasePortfolioScene {
   private drawChessboard(): void {
     // Chess data belongs to the literal board, not to the generic About copy.
     this.addInteractiveOutline(
+      "about-chess",
       [
-        { x: 641, y: 311 },
-        { x: 780, y: 311 },
-        { x: 780, y: 370 },
-        { x: 641, y: 370 },
+        { x: 638, y: 298 },
+        { x: 786, y: 298 },
+        { x: 786, y: 355 },
+        { x: 638, y: 355 },
       ],
       600,
     );
-    this.addInteraction("about-chess", 780, 120, "Abrir perfil de Chess.com", {
+    this.addInteraction("about-chess", 780, 110, "Ver mi tiempo libre en Chess.com", {
       type: "chess",
-    }, { x: 710, y: 340, width: 210, height: 112 });
+    }, { x: 712, y: 327, width: 150, height: 64 });
   }
 
   private buildContact(): void {
     this.drawAnimatedRain();
-    this.drawFutureAvatarAnchor();
+    this.drawContactWorkspace();
   }
 
   private drawAnimatedRain(): void {
@@ -183,10 +215,10 @@ export class InfoFloorScene extends BasePortfolioScene {
     }
   }
 
-  private drawFutureAvatarAnchor(): void {
-    // This chair/desk is the stable anchor for Jorge's future portrait sprite.
-    // Until that asset arrives, no substitute person or status beacon is drawn.
+  private drawContactWorkspace(): void {
+    this.drawSeatedJorgeAtDesk();
     this.addInteractiveOutline(
+      "contact-terminal",
       [
         { x: 292, y: 260 },
         { x: 477, y: 260 },
@@ -203,5 +235,45 @@ export class InfoFloorScene extends BasePortfolioScene {
       type: "dialogue",
       dialogueId: "contact-invitation",
     }, { x: 384, y: 334, width: 190, height: 152 });
+  }
+
+  private drawSeatedJorgeAtDesk(): void {
+    // If the asset is still being generated, keep the workspace clean instead
+    // of rendering Phaser's missing-texture placeholder or a generic person.
+    if (!this.textures.exists(CONTACT_SEATED_TEXTURE)) return;
+
+    const source = this.textures
+      .get(CONTACT_SEATED_TEXTURE)
+      .getSourceImage() as { width: number; height: number };
+    const baseScale = Math.min(104 / source.height, 88 / source.width);
+    const screenLight = this.add
+      .ellipse(364, 333, 118, 94, 0x65dff2, 0.035)
+      .setDepth(19)
+      .setBlendMode(Phaser.BlendModes.ADD);
+    const seatedJorge = this.add
+      .image(422, 420, CONTACT_SEATED_TEXTURE)
+      .setOrigin(0.5, 1)
+      .setScale(baseScale)
+      .setDepth(21);
+
+    // Breathing changes the silhouette by barely one percent while the laptop
+    // light responds independently. Neither tween moves the avatar in space.
+    this.tweens.add({
+      targets: seatedJorge,
+      scaleX: { from: baseScale * 0.996, to: baseScale * 1.004 },
+      scaleY: { from: baseScale * 1.004, to: baseScale * 0.996 },
+      duration: 1450,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.InOut",
+    });
+    this.tweens.add({
+      targets: screenLight,
+      alpha: { from: 0.02, to: 0.075 },
+      duration: 1850,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.InOut",
+    });
   }
 }

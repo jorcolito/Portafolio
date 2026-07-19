@@ -16,9 +16,16 @@ type InteractionAction =
   | { type: "dialogue"; dialogueId: DialogueId; after?: DialogueFollowUp }
   | { type: "project"; projectId: PortfolioProjectId }
   | { type: "floor"; floor: PortfolioFloor }
+  | { type: "elevator" }
   | { type: "quick-view" }
   | { type: "chess" }
   | { type: "contact" };
+
+interface InteractionOutline {
+  graphics: Phaser.GameObjects.Graphics;
+  points: Phaser.Geom.Point[];
+  pulse?: Phaser.Tweens.Tween;
+}
 
 interface InteractionZone {
   id: string;
@@ -26,6 +33,7 @@ interface InteractionZone {
   keyHint: string;
   area: Phaser.GameObjects.Zone;
   action: InteractionAction;
+  outline?: InteractionOutline;
 }
 
 interface GameKeys {
@@ -90,6 +98,7 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private keys!: GameKeys;
   private zones: InteractionZone[] = [];
+  private outlines = new Map<string, InteractionOutline>();
   private platforms: Phaser.GameObjects.Rectangle[] = [];
   private activeZone: InteractionZone | null = null;
   private unsubscribeCommands?: () => void;
@@ -126,6 +135,7 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
   create(): void {
     const worldWidth = this.getWorldWidth();
     this.zones = [];
+    this.outlines.clear();
     this.platforms = [];
     this.activeZone = null;
     this.uiBlocked = false;
@@ -170,11 +180,14 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
 
     this.updateNearbyZone();
 
+    const walkingPlayer = this.shouldShowWalkingPlayer();
     const left = Boolean(
-      this.cursors.left?.isDown || this.keys.a.isDown || this.touchLeft,
+      walkingPlayer &&
+        (this.cursors.left?.isDown || this.keys.a.isDown || this.touchLeft),
     );
     const right = Boolean(
-      this.cursors.right?.isDown || this.keys.d.isDown || this.touchRight,
+      walkingPlayer &&
+        (this.cursors.right?.isDown || this.keys.d.isDown || this.touchRight),
     );
     const speed = 158;
 
@@ -195,9 +208,10 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     }
 
     const keyboardJump =
-      Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
-      Phaser.Input.Keyboard.JustDown(this.keys.w) ||
-      Phaser.Input.Keyboard.JustDown(this.keys.space);
+      walkingPlayer &&
+      (Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
+        Phaser.Input.Keyboard.JustDown(this.keys.w) ||
+        Phaser.Input.Keyboard.JustDown(this.keys.space));
     if ((keyboardJump || this.jumpQueued) && this.isGrounded()) {
       this.player.setVelocityY(-330);
       if (!this.muted) this.bridge.emit({ type: "sound-requested", sound: "jump" });
@@ -227,6 +241,11 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     return { x: 430, y: 420 };
   }
 
+  /** Contact uses a seated portrait as its only Jorge avatar. */
+  protected shouldShowWalkingPlayer(): boolean {
+    return true;
+  }
+
   protected addInteraction(
     id: string,
     x: number,
@@ -237,7 +256,14 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     keyHint = "E / ENTER",
   ): void {
     const area = this.add.zone(x, 388, width, 166).setOrigin(0.5);
-    const zone = { id, label, keyHint, area, action } satisfies InteractionZone;
+    const zone = {
+      id,
+      label,
+      keyHint,
+      area,
+      action,
+      outline: this.outlines.get(id),
+    } satisfies InteractionZone;
     const pointerArea = clickBounds
       ? this.add.zone(
           clickBounds.x,
@@ -276,23 +302,23 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
    * instead of adding unrelated icons on top of the art.
    */
   protected addInteractiveOutline(
+    interactionId: string,
     points: readonly Phaser.Types.Math.Vector2Like[],
     delay = 0,
   ): Phaser.GameObjects.Graphics {
+    const normalizedPoints = points.map(
+      (point) => new Phaser.Geom.Point(point.x ?? 0, point.y ?? 0),
+    );
     const outline = this.add.graphics().setDepth(22);
     outline.lineStyle(2, 0xffffff, 0.85);
-    outline.strokePoints(
-      points.map(
-        (point) => new Phaser.Geom.Point(point.x ?? 0, point.y ?? 0),
-      ),
-      true,
-    );
+    outline.strokePoints(normalizedPoints, true);
     outline
       .setAlpha(0.14)
       .setBlendMode(Phaser.BlendModes.ADD);
 
+    let pulse: Phaser.Tweens.Tween | undefined;
     if (!this.reducedMotion) {
-      this.tweens.add({
+      pulse = this.tweens.add({
         targets: outline,
         alpha: { from: 0.12, to: 0.82 },
         duration: 760,
@@ -305,7 +331,29 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
       });
     }
 
+    this.outlines.set(interactionId, {
+      graphics: outline,
+      points: normalizedPoints,
+      pulse,
+    });
+
     return outline;
+  }
+
+  private setOutlineActive(
+    interactionOutline: InteractionOutline | undefined,
+    active: boolean,
+  ): void {
+    if (!interactionOutline) return;
+
+    const { graphics, points, pulse } = interactionOutline;
+    if (active) pulse?.pause();
+    else pulse?.resume();
+
+    graphics.clear();
+    graphics.lineStyle(active ? 3 : 2, active ? 0x58f59b : 0xffffff, 0.94);
+    graphics.strokePoints(points, true);
+    graphics.setAlpha(active ? 1 : this.reducedMotion ? 0.48 : 0.14);
   }
 
   private drawDioramaBackdrop(width: number): void {
@@ -450,7 +498,11 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
       spawn.y ?? 420,
       "jorge-idle",
     );
-    this.player.setDepth(40).setScale(2).setCollideWorldBounds(true);
+    this.player
+      .setDepth(40)
+      .setScale(2)
+      .setVisible(this.shouldShowWalkingPlayer())
+      .setCollideWorldBounds(true);
     this.player.setDragX(900).setMaxVelocity(190, 500);
     const body = this.player.body as Phaser.Physics.Arcade.Body;
     body.setSize(13, 31).setOffset(5.5, 6);
@@ -482,7 +534,9 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
       null;
     if (next === this.activeZone) return;
 
+    this.setOutlineActive(this.activeZone?.outline, false);
     this.activeZone = next;
+    this.setOutlineActive(this.activeZone?.outline, true);
     this.bridge.emit({
       type: "prompt-changed",
       prompt: next
@@ -498,6 +552,11 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     if (zone.action.type === "floor") {
       if (!this.muted) this.bridge.emit({ type: "sound-requested", sound: "interact" });
       this.changeFloor(zone.action.floor);
+      return;
+    }
+
+    if (zone.action.type === "elevator") {
+      this.requestElevator();
       return;
     }
 

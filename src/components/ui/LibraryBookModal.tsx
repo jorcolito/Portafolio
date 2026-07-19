@@ -18,7 +18,7 @@ export function LibraryBookModal({
   onPlaceholder,
 }: LibraryBookModalProps) {
   const resource = item.resource;
-  const isCambridgeResult = item.id === "english-c1-volume";
+  const evidenceImage = item.evidenceImage;
 
   return (
     <ModalShell
@@ -45,17 +45,21 @@ export function LibraryBookModal({
           <section className="open-book__page open-book__page--right">
             <div className="open-book__running-head">JORGE LABS · ARCHIVE</div>
             <div
-              className={`certificate-preview${isCambridgeResult ? " certificate-preview--document" : ""}`}
-              aria-label="Vista del documento"
+              className={`certificate-preview${evidenceImage ? ` certificate-preview--${evidenceImage.presentation}` : ""}`}
+              aria-label={
+                evidenceImage?.presentation === "badge"
+                  ? "Vista de la insignia"
+                  : "Vista del documento"
+              }
             >
               <span className="certificate-preview__ornament" aria-hidden="true" />
-              {isCambridgeResult ? (
+              {evidenceImage ? (
                 <Image
-                  className="certificate-preview__document"
-                  src="/credentials/cambridge-c1-statement-of-results.png"
-                  alt="Vista previa del Statement of Results de Cambridge C1 Advanced"
-                  width={595}
-                  height={842}
+                  className={`certificate-preview__evidence certificate-preview__evidence--${evidenceImage.presentation}`}
+                  src={evidenceImage.src}
+                  alt={evidenceImage.alt}
+                  width={evidenceImage.width}
+                  height={evidenceImage.height}
                   sizes="(max-width: 760px) 82vw, 38vw"
                   unoptimized
                   priority

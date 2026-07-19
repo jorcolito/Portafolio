@@ -46,7 +46,7 @@ En los primeros 45 segundos, una persona debe poder:
 
 ### 1. Explorar para descubrir
 
-La información importante vive en objetos con intención narrativa: un vehículo representa CarDrive, una mesa de operación representa SHIKO y una boutique digital representa Comernova. Los objetos útiles pulsan con un contorno blanco y, al acercarse, muestran `E`; también aceptan clic o toque directo. Todos los puntos esenciales se ven al entrar o quedan a pocos pasos. Interactuar con un proyecto abre directamente su expediente, sin recorrido vacío ni texto introductorio redundante.
+La información importante vive en objetos con intención narrativa: un vehículo representa CarDrive, una mesa de operación representa SHIKO y una boutique digital representa Comernova. Los objetos útiles pulsan con un contorno blanco que cambia a verde cuando la proximidad los activa; entonces muestran `E` y también aceptan clic o toque directo. Todos los puntos esenciales se ven al entrar o quedan a pocos pasos. Interactuar con un proyecto abre directamente su expediente, sin recorrido vacío ni texto introductorio redundante.
 
 ### 2. Dos recorridos, una sola verdad
 
@@ -74,18 +74,18 @@ La introducción se puede omitir, el audio requiere acción del usuario, el movi
 
 - Portada negra con `JORGE.EXE`, subtítulo, acción para comenzar y acceso inmediato a Quick View.
 - Transición breve de ascensor, omitible y compatible con movimiento reducido.
-- Lobby jugable como diorama denso, con personaje, movimiento, colisiones, cámara contenida, bitácora, Quick View clicable, puertas directas y objetos ambientales. No contiene memoria ni punto de guardado.
+- Lobby jugable como diorama denso, con personaje, movimiento, cámara contenida y un único destino interactivo: el ascensor físico. Un cartel explica `E` por proximidad y `Q` global. No contiene memoria, bitácora ni puertas falsas.
 - Elevador global invocable con `Q` desde cualquier punto, panel de destinos y transición breve de puertas.
 - Piso de Proyectos con tres sets diferenciados para CarDrive, SHIKO y Comernova; cada interacción abre la ficha correspondiente de forma directa.
 - Sistema de interacción con indicación contextual, diálogo grande reutilizable y fichas HTML de proyecto.
-- Educación como biblioteca compacta: expediente UEES, Cambridge C1 Advanced con su Statement of Results verificable y una credencial AWS pendiente; los libros abren con una animación breve.
+- Educación como biblioteca compacta: expediente UEES, Cambridge C1 Advanced con su Statement of Results verificable y formación completada `AWS Academy Data Engineering Trained`; los libros abren con una animación breve.
 - Sobre mí como estudio personal compacto: Guayaquil se ubica dentro del mapa de Ecuador y el contenido explica cómo Jorge comprende, simplifica y entrega software. Chess.com no se duplica aquí: solo se abre desde el tablero físico.
-- Contacto como escena final centrada en el escritorio de trabajo; abre correo, GitHub y LinkedIn reales. El avatar se incorporará únicamente a partir de una fotografía real de Jorge.
+- Contacto como escena final con retrato y sprite pixel-art derivados de una fotografía real de Jorge; abre correo, GitHub y LinkedIn directos.
 - Quick View en menos de un minuto: presentación, proyectos, tecnologías animadas por área, tres credenciales, método de trabajo y contacto directo; sin numeración decorativa, contadores de productos ni Chess duplicado.
 - Controles de teclado y táctiles; cierre con Escape; botones HTML reales.
 - Preferencias de sonido y reducción de movimiento; inicio sin reproducción automática.
 - Diseño adaptable sin scroll horizontal, deformación del canvas ni modales fuera del viewport.
-- Correo, GitHub, LinkedIn y Statement of Results como recursos disponibles; CV, AWS y enlaces de proyecto ausentes permanecen ocultos o inequívocamente pendientes.
+- Correo, GitHub, LinkedIn, Statement of Results e insignia de AWS Academy como recursos disponibles; CV y enlaces de proyecto ausentes permanecen ocultos o inequívocamente pendientes.
 
 ### Fuera del MVP
 
@@ -105,7 +105,7 @@ La introducción se puede omitir, el audio requiere acción del usuario, el movi
 | Un diorama compacto por piso | Cada entrada ofrece información y detalle visual sin tiempo muerto |
 | Cinco pisos navegables con densidad visual consistente | Comunica la narrativa completa sin recurrir a habitaciones de relleno |
 | Elevador global con `Q` | Evita obligar al visitante a regresar a una esquina y conserva una transición diegética clara |
-| Contorno blanco + proximidad `E` + clic | Hace inequívoco qué parte del fondo contiene información profesional |
+| Contorno blanco → verde + proximidad `E` + clic | Hace inequívoco qué objeto está disponible y cuál está activo |
 | Diálogos y paneles en HTML sobre el canvas | Mejora accesibilidad, foco, selección de texto y responsive |
 | Proyecto → expediente directo | Evita textos introductorios diminutos y acelera la evaluación profesional |
 | API de Chess.com aislada en servidor | Permite mostrar señales personales reales sin exponer secretos ni romper la experiencia cuando el servicio falla |
@@ -155,7 +155,7 @@ Las reglas de escritura y el inventario de contenido viven en [CONTENT_GUIDE.md]
 - **PV-06:** El contenido esencial sigue disponible con teclado, movimiento reducido y sin audio.
 - **PV-07:** El MVP no comunica como terminadas funciones, enlaces o proyectos que siguen en desarrollo.
 - **PV-08:** Al entrar a cualquier piso, sus interacciones esenciales son visibles o alcanzables en pocos segundos.
-- **PV-09:** El Statement of Results se nombra con precisión; AWS, CV y estadísticas externas ausentes muestran un estado honesto, nunca contenido inventado.
+- **PV-09:** El Statement of Results se nombra con precisión y `AWS Academy Data Engineering Trained` se presenta como formación, no como certificación profesional; CV y estadísticas externas ausentes mantienen un estado honesto.
 - **PV-10:** Correo, GitHub y LinkedIn conducen a los destinos confirmados, sin formulario ni falsa acción de envío.
 
 ## Principio de recorte

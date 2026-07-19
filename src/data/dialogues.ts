@@ -185,7 +185,14 @@ export const DIALOGUES = [
     floorId: "about",
     interactionId: "about-chess",
     defaults: DEFAULT_DIALOGUE_SETTINGS,
-    lines: [{ text: "Abrir actividad reciente de jorcolito en Chess.com." }],
+    lines: [
+      {
+        text: "Cuando no estoy programando, normalmente estoy estudiando ajedrez.",
+      },
+      {
+        text: "Este tablero abre mi actividad reciente y mis estadísticas públicas de @jorcolito en Chess.com.",
+      },
+    ],
   },
   {
     id: "ecuador-map",
@@ -213,8 +220,15 @@ export const DIALOGUES = [
     interactionId: "about-notebook",
     defaults: DEFAULT_DIALOGUE_SETTINGS,
     lines: [
-      { text: "Primero aclaro el problema, la operación real y el criterio de éxito." },
-      { text: "Después diseño el flujo más corto, construyo una versión medible y la mejoro con evidencia." },
+      {
+        text: "No empiezo por el framework: primero entiendo a la persona, la operación y qué resultado haría que el trabajo valga la pena.",
+      },
+      {
+        text: "Después convierto esa claridad en un flujo simple, una base técnica mantenible y entregas pequeñas que el equipo puede revisar.",
+      },
+      {
+        text: "Me importa tanto construir bien como explicar por qué: documento decisiones, pido feedback temprano y dejo el producto mejor preparado para crecer.",
+      },
     ],
   },
   {

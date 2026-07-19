@@ -24,6 +24,7 @@ export type {
   ProjectStatusId,
 } from "./projects";
 export type {
+  EducationEvidenceImage,
   EducationLibraryItem,
   EducationLibraryItemKind,
   EducationLibraryItemStatus,

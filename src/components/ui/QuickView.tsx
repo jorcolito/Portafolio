@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 
 import {
@@ -30,7 +31,7 @@ const SECTIONS: readonly { id: QuickSection; label: string }[] = [
   { id: "contacto", label: "Contacto" },
 ];
 
-const WORK_PRINCIPLE_LABELS = ["Comprender", "Simplificar", "Entregar"] as const;
+const WORK_PRINCIPLE_LABELS = ["Descubrir", "Diseñar", "Entregar"] as const;
 
 interface QuickViewProps {
   onClose: () => void;
@@ -102,6 +103,7 @@ export function QuickView({
   const availableContactLinks = CONTACT_LINKS.filter(
     (link) => link.availability === "available",
   );
+  const cvLink = CONTACT_LINKS.find((link) => link.kind === "cv");
 
   const activateSection = (nextSection: QuickSection) => {
     setSection(nextSection);
@@ -196,23 +198,29 @@ export function QuickView({
                     </button>
                   </div>
                 </div>
-                <div
-                  className="avatar-pixel"
-                  role="img"
-                  aria-label="Retrato pixel art abstracto de Jorge"
-                />
+                <figure className="quick-profile-portrait">
+                  <Image
+                    src="/portraits/jorge-professional-v1.png"
+                    alt="Fotografía profesional de Jorge Colamarco"
+                    fill
+                    sizes="(max-width: 720px) 42vw, 11rem"
+                    unoptimized
+                    priority
+                  />
+                  <figcaption>Jorge Colamarco</figcaption>
+                </figure>
               </header>
 
               <div className="quick-signal-grid" aria-label="Propuesta profesional">
                 <article className="quick-signal-card">
                   <span>Aporto</span>
-                  <strong>Visión de producto</strong>
-                  <small>Del problema a una solución que se puede validar.</small>
+                  <strong>Criterio de producto</strong>
+                  <small>Entiendo el problema antes de convertirlo en código.</small>
                 </article>
                 <article className="quick-signal-card">
                   <span>Foco</span>
-                  <strong>Full stack</strong>
-                  <small>Interfaces, lógica, datos y entrega.</small>
+                  <strong>Ejecución full stack</strong>
+                  <small>Interfaz, lógica, datos y entrega conectados.</small>
                 </article>
                 <article className="quick-signal-card">
                   <span>Disponibilidad</span>
@@ -276,8 +284,8 @@ export function QuickView({
             <section className="quick-panel-section">
               <SectionHeading
                 eyebrow="Capacidad de ejecución"
-                title="Un sistema, no una pared de logos."
-                copy="Las tecnologías están agrupadas por la parte del producto que ayudan a construir."
+                title="Tecnologías que uso para construir producto."
+                copy="Cada herramienta está organizada por su función: interfaz, lógica, datos y entrega."
               />
               <div className="quick-tech-pipeline" aria-hidden="true">
                 <span>Interfaz</span>
@@ -321,15 +329,13 @@ export function QuickView({
               <SectionHeading
                 eyebrow="Credenciales"
                 title="Evidencia, no promesas."
-                copy="Formación universitaria y dominio de inglés verificable. La credencial AWS aparecerá aquí cuando podamos enlazar su documento."
+                copy="Formación universitaria, dominio de inglés verificable y AWS Academy Data Engineering Training completado con insignia disponible."
               />
               <div
                 className="quick-library-grid quick-library-grid--compact"
                 aria-label="Credenciales académicas y técnicas"
               >
-                {EDUCATION_LIBRARY.filter(
-                  (book) => book.status !== "document-pending",
-                ).map((book) => (
+                {EDUCATION_LIBRARY.map((book) => (
                   <article
                     className={`quick-library-book quick-library-book--${book.kind}`}
                     key={book.id}
@@ -344,6 +350,20 @@ export function QuickView({
                           {book.statusLabel}
                         </span>
                       </div>
+                      {"evidenceImage" in book &&
+                      book.evidenceImage.presentation === "badge" ? (
+                        <div className="quick-library-book__badge-frame">
+                          <Image
+                            className="quick-library-book__badge"
+                            src={book.evidenceImage.src}
+                            alt={book.evidenceImage.alt}
+                            width={book.evidenceImage.width}
+                            height={book.evidenceImage.height}
+                            sizes="88px"
+                            unoptimized
+                          />
+                        </div>
+                      ) : null}
                       <h3>{book.title}</h3>
                       <p>{book.summary}</p>
                       <ul className="quick-library-book__metadata">
@@ -368,9 +388,18 @@ export function QuickView({
             <section className="quick-panel-section">
               <SectionHeading
                 eyebrow="Forma de trabajar"
-                title="Claridad antes que ruido."
-                copy="Así convierto una necesidad ambigua en trabajo que un equipo puede revisar, usar y mejorar."
+                title="Pienso en producto y ejecuto de extremo a extremo."
+                copy="Puedo entrar en una conversación ambigua, encontrar el problema importante y convertirlo en software claro, comprobable y mantenible."
               />
+              <article className="quick-work-value">
+                <p className="eyebrow">Lo que aporto a un equipo</p>
+                <strong>No me limito a implementar tickets.</strong>
+                <p>
+                  Hago preguntas, detecto riesgos, explico decisiones y conecto la
+                  experiencia del usuario con la realidad técnica. El objetivo no es
+                  producir más código, sino entregar una solución que merezca existir.
+                </p>
+              </article>
               <div className="quick-work-principles">
                 {PROFILE.workPrinciples.map((principle, index) => (
                   <article key={principle}>
@@ -425,6 +454,9 @@ export function QuickView({
                     onPlaceholder={onPlaceholder}
                   />
                 ))}
+                {cvLink ? (
+                  <ResourceAction link={cvLink} onPlaceholder={onPlaceholder} />
+                ) : null}
               </div>
             </section>
           ) : null}

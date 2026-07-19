@@ -26,17 +26,20 @@ export class ProjectsScene extends BasePortfolioScene {
   private drawCarDriveInteraction(): void {
     // Follows the bonnet, roof, cabin and rear of the real car.
     this.addInteractiveOutline(
+      "project-cardrive",
       [
-        { x: 57, y: 354 },
-        { x: 68, y: 319 },
-        { x: 102, y: 286 },
-        { x: 151, y: 270 },
-        { x: 226, y: 270 },
-        { x: 267, y: 292 },
-        { x: 286, y: 334 },
-        { x: 280, y: 365 },
-        { x: 245, y: 377 },
-        { x: 95, y: 378 },
+        { x: 57, y: 367 },
+        { x: 64, y: 326 },
+        { x: 96, y: 294 },
+        { x: 144, y: 272 },
+        { x: 229, y: 271 },
+        { x: 276, y: 292 },
+        { x: 306, y: 331 },
+        { x: 311, y: 367 },
+        { x: 292, y: 388 },
+        { x: 252, y: 397 },
+        { x: 96, y: 397 },
+        { x: 62, y: 383 },
       ],
       0,
     );
@@ -49,6 +52,7 @@ export class ProjectsScene extends BasePortfolioScene {
   private drawShikoInteraction(): void {
     // The analytics wall and its desk are SHIKO's real visual anchor.
     this.addInteractiveOutline(
+      "project-shiko",
       [
         { x: 321, y: 164 },
         { x: 525, y: 164 },
@@ -70,6 +74,7 @@ export class ProjectsScene extends BasePortfolioScene {
   private drawComernovaInteraction(): void {
     // Wraps the stocked home-organisation shelves rather than inventing nodes.
     this.addInteractiveOutline(
+      "project-comernova",
       [
         { x: 676, y: 193 },
         { x: 936, y: 193 },

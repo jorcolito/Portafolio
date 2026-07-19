@@ -11,15 +11,15 @@ Portafolio web interactivo de Jorge Colamarco presentado como una colección de 
 - Mundo 2D construido con Phaser: movimiento, gravedad, colisiones, cámara contenida e interacción contextual.
 - Cinco pisos conectados por un elevador global: `Q` lo llama desde cualquier punto y una transición de puertas acompaña el cambio de piso.
 - Habitaciones tipo diorama con iluminación por capas, pantallas y movimiento ambiental discreto; los elementos flotantes sin función fueron eliminados.
-- Objetos reales del escenario identificables por un pulso de contorno blanco. Se abren por proximidad con `E`/`Enter` o directamente con clic/toque.
-- Lobby compacto con bitácora, Quick View clicable y accesos directos a Proyectos, Educación, Sobre mí y Contacto; no simula memoria ni guardado.
+- Objetos reales del escenario identificables por un pulso blanco que cambia a verde cuando la interacción queda activa. Se abren por proximidad con `E`/`Enter` o directamente con clic/toque.
+- Lobby compacto cuyo único objeto interactivo es el ascensor físico; un cartel explica `E` por proximidad y `Q` desde cualquier punto.
 - Laboratorio de proyectos con sets diferenciados para CarDrive, SHIKO y Comernova; interactuar abre directamente su expediente.
 - Diálogos grandes superpuestos al escenario, con efecto de escritura, progreso visible y protección contra pulsaciones repetidas.
 - Fichas HTML accesibles con descripción, problema resuelto, funciones, tecnologías, estado y acciones de proyecto.
-- Biblioteca académica compacta con UEES, `Cambridge C1 Advanced · Statement of Results` verificable y una credencial AWS marcada honestamente como pendiente.
+- Biblioteca académica compacta con UEES, `Cambridge C1 Advanced · Statement of Results` verificable y la formación completada `AWS Academy Data Engineering Trained`.
 - Sobre mí con ubicación real en Guayaquil y un método de trabajo orientado a comprender, simplificar y entregar. Chess.com vive exclusivamente en el tablero de ajedrez de la escena.
 - Tablero de ajedrez con perfil público de [Chess.com](https://www.chess.com/member/jorcolito), Rapid, Tactics/Puzzle Rush cuando la API los expone y partidas recientes.
-- Escena de contacto sin avatar genérico ni formulario ficticio; abre correo, GitHub y LinkedIn reales. El retrato final queda pendiente de una fotografía de Jorge.
+- Escena de contacto con retrato y sprite pixel-art creados a partir de una fotografía real de Jorge; abre correo, GitHub y LinkedIn sin formulario ficticio.
 - Quick View compacto con presentación, proyectos, tecnologías animadas por área, credenciales, método de trabajo y contacto directo; no duplica Chess ni muestra contadores decorativos.
 - Controles táctiles en pantallas pequeñas o dispositivos con puntero grueso.
 - Navegación por teclado, foco visible, modales con control de foco y cierre con Escape.
@@ -148,7 +148,7 @@ next.config.ts              # ruta nativa de Next.js para Vercel
 | Avanzar/revelar diálogo | `E`, `Enter`, `Espacio` o botón Continuar |
 | Cerrar modal | `Escape` o botón Cerrar |
 
-También se puede abrir el elevador desde la barra superior y Quick View desde la barra o el objeto correspondiente del Lobby.
+También se puede abrir el elevador desde la barra superior y Quick View desde su botón HTML persistente.
 
 ### Móvil y tablet
 
@@ -162,7 +162,7 @@ Los controles táctiles aparecen por debajo de `760 px` o cuando el navegador in
 
 ## Datos tipados y disponibilidad de recursos
 
-La aplicación no publica información ficticia. Correo, GitHub y LinkedIn ya tienen destinos reales; el Statement of Results de Cambridge está disponible. CV, credencial AWS, demos o repositorios no entregados conservan `availability: "placeholder"` y `href: null`, y sus acciones no se muestran como enlaces funcionales.
+La aplicación no publica información ficticia. Correo, GitHub y LinkedIn ya tienen destinos reales; el Statement of Results de Cambridge y la insignia de AWS Academy están disponibles. CV, demos o repositorios no entregados conservan `availability: "placeholder"` y `href: null`, y sus acciones no se muestran como enlaces funcionales.
 
 El modelo en `src/types/links.ts` es una unión discriminada:
 
@@ -256,13 +256,13 @@ links: {
 
 Usa URLs reales en lugar de los dominios del ejemplo. El cambio se refleja en la ficha del proyecto y en cualquier vista que consuma el mismo objeto tipado.
 
-### Cambridge C1 y credencial AWS
+### Cambridge C1 y AWS Academy
 
-La biblioteca se define en `EDUCATION_LIBRARY`, dentro de `src/data/education.ts`, y contiene tres registros: formación UEES, Cambridge C1 y AWS.
+La biblioteca se define en `EDUCATION_LIBRARY`, dentro de `src/data/education.ts`, y contiene tres registros: formación UEES, Cambridge C1 y AWS Academy.
 
 - Cambridge se publica como **`Cambridge C1 Advanced · Statement of Results`**, con CEFR C1, overall score 180, Pass at Grade C y fecha de marzo de 2023.
 - El archivo adjunto dice expresamente que no es el certificado formal; la interfaz y esta documentación conservan esa distinción.
-- La credencial AWS permanece pendiente hasta recibir un documento verificable con nombre, nivel y fecha.
+- `AWS Academy Data Engineering Trained` se presenta como formación completada respaldada por su insignia. No se describe como certificación profesional de AWS ni se le atribuyen fecha o ID de credencial.
 - No se infiere ninguna credencial ausente ni se rellenan volúmenes académicos ficticios.
 
 La animación de apertura del libro y Quick View consumen la misma colección tipada, por lo que una actualización se refleja en ambas rutas.
@@ -338,11 +338,11 @@ No mezcles las salidas: `dist` pertenece al flujo vinext/Cloudflare y la salida 
 
 ## Limitaciones actuales
 
-- El CV, la credencial AWS y algunos enlaces de proyecto continúan pendientes; no se presentan como disponibles.
-- Correo, GitHub, LinkedIn y el Statement of Results de Cambridge sí tienen destinos reales.
+- El CV y algunos enlaces de proyecto continúan pendientes; no se presentan como disponibles.
+- Correo, GitHub, LinkedIn, el Statement of Results de Cambridge y la insignia de AWS Academy sí tienen recursos reales.
 - No existe un formulario de contacto ficticio ni se simula un envío.
 - La actividad de Chess.com depende de su API pública; el portafolio muestra un fallback si no está disponible y nunca inventa estadísticas.
 - El control de audio no reproduce sonidos todavía.
 - No existe memoria, punto de guardado ni persistencia de progreso.
-- El avatar final de la escena de Contacto espera una fotografía real de Jorge; no se usa una persona genérica.
+- El retrato y el sprite de Contacto derivan de una fotografía real de Jorge; no se usa una persona genérica.
 - Los fondos y recursos visuales son originales; las animaciones ambientales se construyen con capas ligeras de Phaser y CSS.

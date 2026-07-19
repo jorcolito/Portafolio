@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { CONTACT_LINKS, PROFILE } from "@/src/data";
 import type { AvailableResourceLink, ResourceLink } from "@/src/types";
 
@@ -48,13 +50,9 @@ function ContactAction({
   );
 }
 
-export function ContactModal({ onClose }: ContactModalProps) {
-  const initials = PROFILE.name
-    .split(" ")
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("");
+export function ContactModal({ onClose, onNotice }: ContactModalProps) {
   const emailLink = CONTACT_LINKS.find((link) => link.kind === "email");
+  const cvLink = CONTACT_LINKS.find((link) => link.kind === "cv");
 
   return (
     <ModalShell
@@ -69,13 +67,17 @@ export function ContactModal({ onClose }: ContactModalProps) {
           <div className="contact-profile__visual">
             <figure
               className="contact-portrait"
-              role="img"
-              aria-label="Monograma de Jorge Colamarco"
             >
               <span className="contact-portrait__glow" aria-hidden="true" />
-              <span className="contact-portrait__initials" aria-hidden="true">
-                {initials}
-              </span>
+              <Image
+                className="contact-portrait__image"
+                src="/portraits/jorge-professional-v1.png"
+                alt="Fotografía profesional de Jorge Colamarco"
+                fill
+                sizes="(max-width: 760px) 42vw, 10rem"
+                unoptimized
+                priority
+              />
               <figcaption>Jorge Colamarco</figcaption>
             </figure>
             <div className="contact-availability">
@@ -117,15 +119,26 @@ export function ContactModal({ onClose }: ContactModalProps) {
             )}
           </nav>
 
-          {emailLink?.availability === "available" ? (
-            <a
-              className="pixel-button pixel-button--primary contact-direct-panel__primary"
-              href={emailLink.href}
-            >
-              Escribir a Jorge
-              <span aria-hidden="true">→</span>
-            </a>
-          ) : null}
+          <div className="contact-direct-panel__actions">
+            {emailLink?.availability === "available" ? (
+              <a
+                className="pixel-button pixel-button--primary contact-direct-panel__primary"
+                href={emailLink.href}
+              >
+                Escribir a Jorge
+                <span aria-hidden="true">→</span>
+              </a>
+            ) : null}
+            {cvLink?.availability === "placeholder" ? (
+              <button
+                className="pixel-button"
+                type="button"
+                onClick={() => onNotice(cvLink.placeholderMessage)}
+              >
+                Descargar CV · próximamente
+              </button>
+            ) : null}
+          </div>
         </section>
       </div>
     </ModalShell>

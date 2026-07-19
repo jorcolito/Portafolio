@@ -110,6 +110,12 @@ function ChessSnapshotView({ snapshot }: { snapshot: ChessSnapshot }) {
         </a>
       </header>
 
+      <p className="quick-chess__intro">
+        Cuando no estoy programando, normalmente estoy estudiando ajedrez. Me
+        gusta porque exige la misma mezcla de paciencia, análisis y revisión de
+        errores que aplico al construir software.
+      </p>
+
       {snapshot.status === "unavailable" ? (
         <p className="quick-chess-status" role="status">
           Chess.com no respondió. El perfil público sigue disponible y los datos se

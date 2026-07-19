@@ -17,7 +17,7 @@ El visitante entra a Jorge Labs, un estudio nocturno donde cada piso conserva un
 ## Bucle principal
 
 1. Leer la escena al entrar: los focos principales ya son reconocibles.
-2. Elegir un objeto real del escenario por su contorno blanco pulsante.
+2. Elegir un objeto real por su contorno blanco; al entrar en rango cambia a verde.
 3. Acercarse hasta ver `E` o abrirlo directamente con clic/toque.
 4. Leer un diálogo grande o un expediente profesional.
 5. Volver al mundo o pulsar `Q` para llamar al elevador desde cualquier punto.
@@ -54,11 +54,11 @@ flowchart TD
 | --- | --- | --- | --- |
 | `BootScene` | Generar/cargar texturas y registrar animaciones una vez | Indicador de carga accesible en React | Inicio o Lobby si se omite introducción |
 | `ElevatorScene` | Mostrar descenso inicial o transición corta entre pisos | Cabina, indicador de piso, puertas | Piso elegido |
-| `LobbyScene` | Enseñar movimiento e interacción sin tutorial largo | Bitácora, Quick View clicable, cuatro puertas directas y props ambientales; sin memoria | Puerta directa o elevador global |
+| `LobbyScene` | Enseñar movimiento e interacción sin tutorial largo | Ascensor físico y cartel `E`/`Q`; el resto es ambientación | Elevador |
 | `ProjectsScene` | Probar capacidad de producto con evidencia | Garaje CarDrive, mesa operativa SHIKO y boutique Comernova | Ficha directa de proyecto o elevador |
 | `EducationScene` | Comunicar formación mediante exploración | Libros UEES, Cambridge C1 y AWS | Libro abierto, diálogo o elevador |
 | `AboutScene` | Dar contexto profesional y humano sin rellenar espacio | Método de trabajo, mapa de Ecuador con Guayaquil y tablero de ajedrez | Diálogo, modal Chess.com o elevador |
-| `ContactScene` | Cerrar el recorrido y facilitar acción | Escritorio activo y ancla para un futuro avatar basado en foto real | Presentación de contacto o elevador |
+| `ContactScene` | Cerrar el recorrido y facilitar acción | Retrato/sprite pixel-art basado en foto real y escritorio activo | Presentación de contacto o elevador |
 
 `ElevatorScene` puede ser una escena visual única y parametrizada; no debe duplicarse por destino. Las superposiciones de diálogo, proyecto, elevador, Chess y Quick View son HTML/React, no escenas Phaser.
 
@@ -67,9 +67,9 @@ flowchart TD
 Cada sala cabe dentro de una composición controlada por cámara. Sus objetos principales forman un triángulo o una lectura izquierda-centro-derecha, sin pasillos de transición. El orden espacial es guía, no escala final.
 
 ```text
-Lobby       [Bitácora]           [Jugador]   [Quick View + puertas directas]
+Lobby       [Ascensor]           [Jugador]   [Cartel E / Q]
 Proyectos   [Garaje CarDrive]    [SHIKO]     [Boutique Comernova]
-Educación   [Libro UEES]         [Cambridge C1] [Credencial AWS]
+Educación   [Libro UEES]         [Cambridge C1] [AWS Academy]
 Sobre mí    [Método de trabajo]  [Jugador]   [Guayaquil + tablero Chess.com]
 Contacto    [Escritorio]         [Jugador]   [Canales directos]
 ```
@@ -140,7 +140,7 @@ type Interactable = {
 Reglas:
 
 - Solo se enfoca un objetivo a la vez: el más cercano dentro del radio; en empate, el de menor `id` para conservar determinismo.
-- Cada objetivo profesional corresponde a un objeto reconocible del fondo y recibe un contorno blanco pulsante; no se usan sprites flotantes como etiquetas.
+- Cada objetivo profesional corresponde a un objeto reconocible del fondo y recibe un contorno blanco pulsante que cambia a verde al activarse; no se usan sprites flotantes como etiquetas.
 - La indicación desaparece al salir del radio, cambiar de escena o abrir una superposición.
 - La interacción se dispara en el flanco de pulsación, nunca cada frame mientras una tecla permanece presionada.
 - `E` y `Enter` son equivalentes en proximidad; clic o toque sobre la zona del objeto invoca la misma acción.
@@ -206,11 +206,11 @@ El elevador es el navegador global entre pisos y no exige volver a un punto fís
 
 ### Biblioteca UEES
 
-- Tres libros concretos: formación UEES, Cambridge C1 Advanced y credencial AWS.
+- Tres libros concretos: formación UEES, Cambridge C1 Advanced y `AWS Academy Data Engineering Trained`.
 - Interactuar abre el libro con una animación breve; la lectura no debe sentirse lenta ni bloquear al empleador.
 - Cambridge muestra el Statement of Results real: CEFR C1, overall score 180, Pass at Grade C y marzo de 2023.
 - El Statement of Results no se presenta como certificado formal; el propio documento indica esa distinción.
-- AWS conserva el estado “Documento pendiente” hasta disponer de nombre, nivel, fecha y archivo verificables.
+- `AWS Academy Data Engineering Trained` consta como formación completada y muestra su insignia real. No se presenta como certificación profesional de AWS y no publica fechas ni IDs no proporcionados.
 
 ### Sobre mí
 
@@ -226,10 +226,10 @@ El elevador es el navegador global entre pisos y no exige volver a un punto fís
 
 ### Contacto
 
-- El escritorio y la silla son el foco provisional de interacción; se eliminan el personaje genérico y el punto verde sin función.
+- Jorge aparece mediante un retrato y sprite pixel-art creados a partir de su fotografía; el escritorio y la silla mantienen el contexto de trabajo.
 - La escena transmite actividad mediante pantalla, lámpara y una animación ambiental discreta.
-- El avatar final se producirá solo a partir de una fotografía proporcionada por Jorge; no se inventa ni se sustituye por una persona genérica.
-- El panel abre los canales confirmados: `jorgecolamarco03@gmail.com`, `github.com/jorcolito` y LinkedIn. El CV permanece pendiente y no se muestra como acción disponible.
+- El avatar conserva rasgos de la fotografía proporcionada por Jorge y no se sustituye por una persona genérica.
+- El panel abre los canales confirmados: `jorgecolamarco03@gmail.com`, `github.com/jorcolito` y LinkedIn. El CV permanece pendiente y se muestra como botón inequívocamente marcado `próximamente`, sin descarga ficticia.
 
 ## Interfaz sobre el juego
 
@@ -273,7 +273,7 @@ Los eventos de teclado se ignoran si el foco está en un campo, enlace o botón,
 
 - Formas, SVG y texturas generadas originales durante el MVP.
 - Fondos oscuros con contraste medido; verde, cian y violeta señalan zonas sin ser la única pista.
-- Los objetos interactivos combinan un contorno blanco pulsante, silueta y etiqueta contextual por proximidad; el color no comunica por sí solo.
+- Los objetos interactivos combinan silueta, contorno blanco pulsante, cambio a verde y etiqueta contextual por proximidad; el color no comunica por sí solo.
 - Fondos, planos medios y primer plano generan profundidad. Las luces, motas, vapor, reflejos y pantallas animadas son sutiles y se reducen con movimiento reducido.
 - Sin música de terceros. El audio comienza desactivado y solo se habilita tras acción explícita.
 - Los efectos deben ser breves, discretos y prescindibles para comprender una acción.
@@ -295,6 +295,6 @@ Los eventos de teclado se ignoran si el foco está en un campo, enlace o botón,
 - **GDD-13:** Con movimiento reducido no hay escritura letra por letra, parpadeo intenso ni transición prolongada.
 - **GDD-14:** No existe información esencial disponible únicamente mediante exploración del canvas.
 - **GDD-15:** Enter repetido no reinicia un diálogo completado ni ejecuta el cierre más de una vez.
-- **GDD-16:** La biblioteca abre UEES, el Statement of Results real de Cambridge y AWS pendiente sin inventar credenciales.
+- **GDD-16:** La biblioteca abre UEES, el Statement of Results real de Cambridge y la formación `AWS Academy Data Engineering Trained`, sin convertirla en una certificación profesional.
 - **GDD-17:** Chess.com se abre únicamente desde el tablero y conserva el perfil público aunque su API no responda.
 - **GDD-18:** Quick View no muestra números decorativos, conteos de productos ni una copia de Chess.com.

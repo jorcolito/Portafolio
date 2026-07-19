@@ -80,9 +80,9 @@ Ejemplos:
 - “El laboratorio no pudo iniciar. Puedes reintentar o abrir Quick View.”
 - “Demo aún no disponible.”
 
-### Bitácora del Lobby
+### Cartel del Lobby
 
-Presenta de inmediato a Jorge y ofrece dos salidas claras: elegir una puerta o abrir Quick View. No contiene bromas sobre memoria, guardado ni un tutorial largo.
+El Lobby no presenta contenido profesional ni destinos falsos. Su único objeto interactivo es el ascensor; el cartel indica “Acércate a las puertas y presiona E” y “Q desde cualquier punto”. Quick View permanece en la interfaz HTML.
 
 ### Voz de objetos
 
@@ -94,12 +94,12 @@ Los IDs son estables y recomendados para `data/dialogues.ts`.
 
 | ID | Hablante | Líneas |
 | --- | --- | --- |
-| `lobby.terminal.welcome` | JORGE.EXE | “Jorge Colamarco — desarrollador de software orientado a producto.” / “Elige una puerta o abre Quick View para ver lo esencial.” |
+| `lobby.elevator.help` | Cartel | “Acércate a las puertas y presiona E.” / “Q abre el ascensor desde cualquier punto.” |
 | `projects.*` | Expediente directo | La interacción abre la ficha; el diorama comunica el contexto. |
 | `education.uees` | Libro académico | “Ingeniería en Ciencias de la Computación.” / “UEES.” / “Graduación estimada: diciembre de 2027.” |
 | `education.english` | Libro de idiomas | “Cambridge C1 Advanced.” / “Statement of Results verificable; no es el certificado formal.” |
-| `education.aws` | Libro cloud | “Credencial AWS.” / “Documento pendiente de verificar.” |
-| `about.chess` | Tablero de ajedrez | “Abrir actividad reciente de jorcolito en Chess.com.” |
+| `education.aws` | Libro cloud | “AWS Academy Data Engineering Trained.” / “Formación completada; insignia disponible.” |
+| `about.chess` | Tablero de ajedrez | “Cuando no estoy programando, normalmente estoy estudiando ajedrez.” / “Ver actividad pública de @jorcolito en Chess.com.” |
 | `about.map` | Mapa | “Guayaquil, Ecuador.” / “Desde aquí estudio, construyo productos y colaboro con equipos remotos.” |
 | `about.notebook` | Método | “Primero aclaro el problema y el criterio de éxito.” / “Después diseño, construyo y mejoro con evidencia.” |
 | `contact.jorge` | JORGE.EXE | “¿Buscas a alguien que convierta un problema real en software útil? Hablemos.” |
@@ -185,9 +185,9 @@ La información se descubre como una biblioteca en el juego y Quick View la pres
 - Ingeniería en Ciencias de la Computación, UEES.
 - Graduación estimada: diciembre de 2027.
 - Cambridge C1 Advanced: Statement of Results, overall score 180, Pass at Grade C, marzo de 2023.
-- Credencial AWS pendiente de documento verificable.
+- `AWS Academy Data Engineering Trained`, formación completada con insignia disponible.
 
-Cada registro se representa como un libro. Al interactuar, el libro abre con una animación breve y muestra su ficha. El archivo de Cambridge es verificable, pero se nombra siempre como **Statement of Results**, no como certificado formal. AWS conserva “Documento pendiente” hasta que Jorge proporcione nombre, nivel, fecha y archivo verificables.
+Cada registro se representa como un libro. Al interactuar, el libro abre con una animación breve y muestra su ficha. El archivo de Cambridge es verificable, pero se nombra siempre como **Statement of Results**, no como certificado formal. `AWS Academy Data Engineering Trained` se describe como formación completada de AWS Academy respaldada por una insignia; nunca como certificación profesional de AWS. No añadir fecha ni ID de credencial.
 
 ## Sobre mí y ajedrez
 
@@ -224,7 +224,7 @@ La interfaz revela los grupos mediante una animación corta y derivada de la col
 
 ## Contacto
 
-La escena usa el escritorio y la silla como ancla provisional. No muestra una persona genérica ni un punto luminoso sin función; el avatar final espera una fotografía real de Jorge. Al interactuar, la invitación es “¿Buscas a alguien que convierta un problema real en software útil? Hablemos.”
+La escena muestra un retrato y sprite pixel-art derivados de una fotografía real de Jorge, junto al escritorio de trabajo. No usa una persona genérica ni un punto luminoso sin función. Al interactuar, la invitación es “¿Buscas a alguien que convierta un problema real en software útil? Hablemos.”
 
 El panel contiene únicamente destinos confirmados:
 
@@ -232,7 +232,7 @@ El panel contiene únicamente destinos confirmados:
 - `https://github.com/jorcolito`;
 - `https://www.linkedin.com/in/jorge-colamarco-a82456266/`.
 
-El CV permanece pendiente y no se presenta como acción disponible. No existe formulario visual ni envío simulado.
+El CV permanece pendiente y se presenta como botón “Descargar CV · próximamente”; nunca inicia una descarga hasta que exista el archivo. No existe formulario visual ni envío simulado.
 
 ## Quick View
 
@@ -245,7 +245,7 @@ Navegación compacta, sin prefijos numéricos:
 - Cómo trabajo.
 - Contacto.
 
-Chess.com no forma parte de Quick View; vive en el tablero. El CV pendiente tampoco se muestra como llamada a la acción.
+Chess.com no forma parte de Quick View; vive en el tablero. El CV pendiente puede mostrarse como acción claramente deshabilitada o `próximamente`.
 
 Requisitos editoriales:
 
@@ -253,7 +253,7 @@ Requisitos editoriales:
 - Los proyectos conservan resumen, problema, estado y funciones; no se reducen a logos.
 - Un bloque inicial permite saltar directamente a proyectos o contacto.
 - Tecnologías se presentan por Frontend, Backend, Datos y servicios, y Herramientas y despliegue mediante una animación corta; los conteos se derivan o se omiten.
-- La biblioteca contiene solo UEES, Cambridge C1 y AWS; no se rellena con volúmenes ficticios.
+- La biblioteca contiene solo UEES, Cambridge C1 y `AWS Academy Data Engineering Trained`; no se rellena con volúmenes ficticios.
 - Los mismos placeholders y estados se usan en juego y Quick View.
 - El cierre o regreso al juego es siempre visible, pero Quick View puede leerse sin cerrarlo.
 
@@ -300,6 +300,6 @@ Requisitos editoriales:
 - **CG-07:** Los botones y enlaces tienen etiquetas específicas, no una colección ambigua de “Ver más”.
 - **CG-08:** Todo texto profesional esencial tiene equivalente HTML fuera del canvas.
 - **CG-09:** El contenido y los assets son originales y no imitan material protegido.
-- **CG-10:** Cambridge se presenta como Statement of Results verificable, nunca como certificado formal; AWS ausente permanece pendiente.
+- **CG-10:** Cambridge se presenta como Statement of Results verificable, nunca como certificado formal; `AWS Academy Data Engineering Trained` se presenta como formación completada, no como certificación profesional.
 - **CG-11:** Las cifras de Chess.com conservan la semántica de la API, solo aparecen desde el tablero y desaparecen de forma segura cuando no están disponibles.
 - **CG-12:** Quick View no usa prefijos numéricos, conteos decorativos, formularios falsos ni contenido de Chess.com duplicado.

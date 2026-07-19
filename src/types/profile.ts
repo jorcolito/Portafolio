@@ -93,8 +93,17 @@ export type EducationLibraryItemKind =
 export type EducationLibraryItemStatus =
   | "in-progress"
   | "verified"
+  | "completed"
   | "document-pending"
   | "details-pending";
+
+export interface EducationEvidenceImage {
+  readonly src: string;
+  readonly alt: string;
+  readonly width: number;
+  readonly height: number;
+  readonly presentation: "document" | "badge";
+}
 
 export interface EducationLibraryItem {
   readonly id: string;
@@ -105,6 +114,7 @@ export interface EducationLibraryItem {
   readonly status: EducationLibraryItemStatus;
   readonly statusLabel: string;
   readonly metadata: readonly string[];
+  readonly evidenceImage?: EducationEvidenceImage;
   readonly resource: ResourceLink | null;
 }
 

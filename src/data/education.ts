@@ -1,24 +1,7 @@
 import type {
   EducationLibraryItem,
   EducationRecord,
-  PlaceholderResourceLink,
 } from "../types";
-
-function pendingCertificate(
-  id: string,
-  label: string,
-  placeholderMessage: string,
-): PlaceholderResourceLink {
-  return {
-    id,
-    kind: "certificate",
-    label,
-    ariaLabel: `${label}, pendiente de incorporar`,
-    availability: "placeholder",
-    href: null,
-    placeholderMessage,
-  };
-}
 
 export const EDUCATION = [
   {
@@ -70,6 +53,13 @@ export const EDUCATION_LIBRARY = [
     status: "verified",
     statusLabel: "Verificado · C1",
     metadata: ["Overall score: 180", "Pass at Grade C", "Marzo 2023"],
+    evidenceImage: {
+      src: "/credentials/cambridge-c1-statement-of-results.png",
+      alt: "Vista previa del Statement of Results de Cambridge C1 Advanced",
+      width: 595,
+      height: 842,
+      presentation: "document",
+    },
     resource: {
       id: "cambridge-c1-statement-of-results",
       kind: "certificate",
@@ -82,18 +72,28 @@ export const EDUCATION_LIBRARY = [
   {
     id: "aws-certificate-volume",
     kind: "cloud-certificate",
-    shelfLabel: "CLOUD / AWS",
-    title: "Credencial AWS",
+    shelfLabel: "AWS ACADEMY / DATA",
+    title: "AWS Academy Data Engineering Training",
     summary:
-      "Espacio listo para incorporar una credencial AWS verificable. El nombre, nivel y fecha se publicarán únicamente cuando esté disponible el documento.",
-    status: "document-pending",
-    statusLabel: "Documento pendiente",
-    metadata: ["Nombre por verificar", "Nivel y fecha por verificar"],
-    resource: pendingCertificate(
-      "aws-certificate-placeholder",
-      "Certificado AWS pendiente",
-      "La credencial AWS todavía no ha sido proporcionada.",
-    ),
+      "Entrenamiento de Data Engineering completado en AWS Academy. La evidencia disponible es una insignia de finalización de formación, no una certificación profesional de AWS.",
+    status: "completed",
+    statusLabel: "Completado · insignia disponible",
+    metadata: ["AWS Academy", "Data Engineering", "Training badge"],
+    evidenceImage: {
+      src: "/credentials/aws-academy-data-engineering-trained.png",
+      alt: "Insignia AWS Academy Data Engineering Trained",
+      width: 601,
+      height: 601,
+      presentation: "badge",
+    },
+    resource: {
+      id: "aws-academy-data-engineering-badge",
+      kind: "certificate",
+      label: "Abrir insignia",
+      ariaLabel: "Abrir la insignia AWS Academy Data Engineering Trained",
+      availability: "available",
+      href: "/credentials/aws-academy-data-engineering-trained.png",
+    },
   },
 ] as const satisfies readonly EducationLibraryItem[];
 
@@ -112,7 +112,7 @@ export const EDUCATION_INTERACTIONS = [
   },
   {
     id: "aws-certificate",
-    label: "Libro: credencial AWS",
+    label: "Libro: insignia AWS Academy",
     interactionId: "education-aws",
     dialogueId: "aws-certificate",
   },

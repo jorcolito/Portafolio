@@ -83,15 +83,15 @@ export const PROFILE = {
   title: "Desarrollador de software orientado a producto",
   location: "Guayaquil, Ecuador",
   introduction:
-    "Convierto problemas operativos en productos web claros, mantenibles y fáciles de usar.",
+    "Convierto problemas operativos en productos web claros, mantenibles y fáciles de usar, desde la primera conversación hasta una entrega que se puede validar.",
   summary:
-    "Aporto una mirada de producto de extremo a extremo: entiendo el problema, diseño un flujo simple, construyo la solución y valido que resulte útil.",
+    "Combino criterio de producto y ejecución full stack: entiendo la operación, tomo decisiones con intención y construyo soluciones que un equipo puede mantener y una persona puede usar sin fricción.",
   availability:
     "Disponible para conversar sobre oportunidades de desarrollo de software y colaboraciones de producto.",
   workPrinciples: [
-    "Entender el problema antes de elegir la tecnología.",
-    "Reducir complejidad en la experiencia y en el código.",
-    "Entregar avances verificables y mejorar con feedback.",
+    "Empiezo por entender la operación, escuchar a quien usará el producto y convertir una necesidad ambigua en un objetivo medible.",
+    "Diseño recorridos simples y una arquitectura mantenible para que la solución sea clara hoy y pueda crecer mañana.",
+    "Construyo en entregas pequeñas, valido con evidencia y comunico las decisiones para que el equipo siempre sepa qué sigue.",
   ],
   languages: [
     { id: "spanish", name: "Español", level: "Nativo" },
