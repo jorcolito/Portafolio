@@ -1,4 +1,4 @@
-import { FLOORS } from "../../data";
+import type { Locale } from "../../i18n/LocaleContext";
 import type {
   DialogueSequence,
   FloorLevel,
@@ -14,12 +14,6 @@ export interface FloorOption {
   label: string;
   shortLabel: string;
 }
-
-export const PORTFOLIO_FLOORS: readonly FloorOption[] = FLOORS.map((floor) => ({
-  floor: floor.level,
-  label: floor.label,
-  shortLabel: floor.elevatorLabel,
-}));
 
 export type GameDialogue = DialogueSequence & {
   /** Milliseconds per character for the React typewriter. Zero reveals instantly. */
@@ -84,6 +78,7 @@ export interface PortfolioGameController {
 export interface CreatePortfolioGameOptions {
   parent: HTMLElement;
   initialFloor?: PortfolioFloor;
+  locale?: Locale;
   reducedMotion?: boolean;
   muted?: boolean;
   onEvent?: (event: GameToReactEvent) => void;

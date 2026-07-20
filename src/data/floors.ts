@@ -9,7 +9,7 @@ export const FLOORS = [
     sceneKey: "LobbyScene",
     sectionAnchor: "presentacion",
     description:
-      "Vestíbulo de entrada a JORGE LABS. El ascensor es el único objeto interactuable de la escena.",
+      "Entrada al portafolio interactivo de Jorge Colamarco. El ascensor es el único objeto interactuable de la escena.",
     accentColor: "#65ee78",
     interactionIds: ["lobby-elevator"],
   },

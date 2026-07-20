@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import type { ChessGameResult, ChessSnapshot } from "@/src/types";
+import { useLocale, type Locale } from "@/src/i18n/LocaleContext";
 
 import { ModalShell } from "./ModalShell";
 
@@ -15,19 +16,39 @@ const CHESS_ENDPOINTS = [
 
 const GAME_RESULT_LABELS: Record<
   ChessGameResult,
-  { short: string; long: string }
+  { es: { short: string; long: string }; en: { short: string; long: string } }
 > = {
-  win: { short: "V", long: "Victoria" },
-  loss: { short: "D", long: "Derrota" },
-  draw: { short: "T", long: "Tablas" },
-  unknown: { short: "—", long: "Resultado no disponible" },
+  win: {
+    es: { short: "V", long: "Victoria" },
+    en: { short: "W", long: "Win" },
+  },
+  loss: {
+    es: { short: "D", long: "Derrota" },
+    en: { short: "L", long: "Loss" },
+  },
+  draw: {
+    es: { short: "T", long: "Tablas" },
+    en: { short: "D", long: "Draw" },
+  },
+  unknown: {
+    es: { short: "—", long: "Resultado no disponible" },
+    en: { short: "—", long: "Result unavailable" },
+  },
 };
+
+function gameResult(
+  labels: (typeof GAME_RESULT_LABELS)[ChessGameResult],
+  locale: Locale,
+) {
+  return labels[locale];
+}
 
 interface ChessModalProps {
   onClose: () => void;
 }
 
 export function ChessModal({ onClose }: ChessModalProps) {
+  const { text } = useLocale();
   const [state, setState] = useState<ChessLoadState>("loading");
   const [snapshot, setSnapshot] = useState<ChessSnapshot | null>(null);
 
@@ -79,7 +100,7 @@ export function ChessModal({ onClose }: ChessModalProps) {
   return (
     <ModalShell
       title="Chess.com · @jorcolito"
-      eyebrow="Tablero de ajedrez"
+      eyebrow={text("Tablero de ajedrez", "Chessboard")}
       onClose={onClose}
       wide
     >
@@ -87,20 +108,31 @@ export function ChessModal({ onClose }: ChessModalProps) {
         {state === "loading" ? (
           <div className="quick-chess-status" role="status" aria-live="polite">
             <span className="quick-chess-status__pulse" aria-hidden="true" />
-            Sincronizando la actividad pública de Chess.com…
+            {text(
+              "Sincronizando la actividad pública de Chess.com…",
+              "Syncing public Chess.com activity…",
+            )}
           </div>
         ) : null}
 
         {state === "error" || (state === "ready" && !snapshot) ? (
           <div className="quick-chess-status" role="status">
-            <p>Chess.com no está disponible en este momento.</p>
+            <p>
+              {text(
+                "Chess.com no está disponible en este momento.",
+                "Chess.com is unavailable right now.",
+              )}
+            </p>
             <a
               className="quick-inline-link"
               href="https://www.chess.com/member/jorcolito"
               target="_blank"
               rel="noreferrer"
             >
-              Ver perfil público de @jorcolito ↗
+              {text(
+                "Ver perfil público de @jorcolito ↗",
+                "View @jorcolito's public profile ↗",
+              )}
             </a>
           </div>
         ) : null}
@@ -184,8 +216,10 @@ function isChessSnapshot(value: unknown): value is ChessSnapshot {
 }
 
 function ChessSnapshotView({ snapshot }: { snapshot: ChessSnapshot }) {
+  const { locale, text } = useLocale();
   const hasMetrics = snapshot.rapid || snapshot.tactics || snapshot.puzzleRush;
-  const updatedAt = new Intl.DateTimeFormat("es-EC", {
+  const dateLocale = locale === "en" ? "en-US" : "es-EC";
+  const updatedAt = new Intl.DateTimeFormat(dateLocale, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(snapshot.fetchedAt));
@@ -194,7 +228,9 @@ function ChessSnapshotView({ snapshot }: { snapshot: ChessSnapshot }) {
     <section className="quick-chess" aria-labelledby="chess-profile-title">
       <header className="quick-chess__header">
         <div>
-          <p className="eyebrow">Actividad pública sincronizada</p>
+          <p className="eyebrow">
+            {text("Actividad pública sincronizada", "Synced public activity")}
+          </p>
           <h3 id="chess-profile-title">Chess.com · @{snapshot.username}</h3>
         </div>
         <a
@@ -203,47 +239,65 @@ function ChessSnapshotView({ snapshot }: { snapshot: ChessSnapshot }) {
           target="_blank"
           rel="noreferrer"
         >
-          Ver perfil ↗
+          {text("Ver perfil ↗", "View profile ↗")}
         </a>
       </header>
 
       <p className="quick-chess__intro">
-        Cuando no estoy programando, normalmente estoy estudiando ajedrez. Me
-        gusta porque exige la misma mezcla de paciencia, análisis y revisión de
-        errores que aplico al construir software.
+        {text(
+          "Cuando no estoy programando, normalmente estoy estudiando ajedrez. Me gusta porque exige la misma mezcla de paciencia, análisis y revisión de errores que aplico al construir software.",
+          "When I am not programming, I am usually studying chess. I enjoy the same mix of patience, analysis and error review that I apply when building software.",
+        )}
       </p>
 
       {snapshot.status === "unavailable" ? (
         <p className="quick-chess-status" role="status">
-          Chess.com no respondió. El perfil público sigue disponible y los datos se
-          reintentarán la próxima vez que se abra el tablero.
+          {text(
+            "Chess.com no respondió. El perfil público sigue disponible y los datos se reintentarán la próxima vez que se abra el tablero.",
+            "Chess.com did not respond. The public profile remains available and the data will be retried next time the board opens.",
+          )}
         </p>
       ) : (
         <>
           {hasMetrics ? (
-            <div className="quick-metric-grid" aria-label="Estadísticas de ajedrez">
+            <div
+              className="quick-metric-grid"
+              aria-label={text("Estadísticas de ajedrez", "Chess statistics")}
+            >
               {snapshot.rapid ? (
                 <article className="quick-metric-card quick-metric-card--rapid">
-                  <span className="quick-metric-card__label">Rapid actual</span>
+                  <span className="quick-metric-card__label">
+                    {text("Rapid actual", "Current rapid")}
+                  </span>
                   <strong>{snapshot.rapid.rating}</strong>
                   <small>
-                    {snapshot.rapid.record.wins} V · {snapshot.rapid.record.losses} D ·{" "}
-                    {snapshot.rapid.record.draws} T
+                    {snapshot.rapid.record.wins} {locale === "en" ? "W" : "V"} ·{" "}
+                    {snapshot.rapid.record.losses} {locale === "en" ? "L" : "D"} ·{" "}
+                    {snapshot.rapid.record.draws} {locale === "en" ? "D" : "T"}
                   </small>
                 </article>
               ) : null}
               {snapshot.tactics ? (
                 <article className="quick-metric-card">
-                  <span className="quick-metric-card__label">Mejor Tactics</span>
+                  <span className="quick-metric-card__label">
+                    {text("Mejor puntuación en táctica", "Peak tactics rating")}
+                  </span>
                   <strong>{snapshot.tactics.highestRating}</strong>
-                  <small>Máximo histórico publicado por Chess.com</small>
+                  <small>
+                    {text(
+                      "Máximo histórico publicado por Chess.com",
+                      "All-time peak published by Chess.com",
+                    )}
+                  </small>
                 </article>
               ) : null}
               {snapshot.puzzleRush ? (
                 <article className="quick-metric-card">
-                  <span className="quick-metric-card__label">Mejor Puzzle Rush</span>
+                  <span className="quick-metric-card__label">
+                    {text("Mejor Puzzle Rush", "Best Puzzle Rush")}
+                  </span>
                   <strong>{snapshot.puzzleRush.bestScore}</strong>
-                  <small>Puntuación, no rating</small>
+                  <small>{text("Puntuación, no rating", "Score, not rating")}</small>
                 </article>
               ) : null}
             </div>
@@ -251,13 +305,13 @@ function ChessSnapshotView({ snapshot }: { snapshot: ChessSnapshot }) {
 
           <div className="quick-chess__games">
             <div className="quick-subheading">
-              <h4>Partidas recientes</h4>
-              <span>Actualizado {updatedAt}</span>
+              <h4>{text("Partidas recientes", "Recent games")}</h4>
+              <span>{text(`Actualizado ${updatedAt}`, `Updated ${updatedAt}`)}</span>
             </div>
             {snapshot.recentGames.length > 0 ? (
               <ol className="quick-game-list">
                 {snapshot.recentGames.map((game) => {
-                  const result = GAME_RESULT_LABELS[game.result];
+                  const result = gameResult(GAME_RESULT_LABELS[game.result], locale);
                   return (
                     <li
                       className="quick-game-item"
@@ -274,13 +328,15 @@ function ChessSnapshotView({ snapshot }: { snapshot: ChessSnapshot }) {
                         <strong>vs. {game.opponent}</strong>
                         <span>
                           {game.timeClass} ·{" "}
-                          {game.color === "white" ? "blancas" : "negras"}
+                          {game.color === "white"
+                            ? text("blancas", "white")
+                            : text("negras", "black")}
                         </span>
                       </div>
                       <div className="quick-game-item__rating">
                         <span>{game.playerRating ?? "—"}</span>
                         <time dateTime={game.endedAt}>
-                          {new Intl.DateTimeFormat("es-EC", {
+                          {new Intl.DateTimeFormat(dateLocale, {
                             day: "2-digit",
                             month: "short",
                           }).format(new Date(game.endedAt))}
@@ -290,9 +346,12 @@ function ChessSnapshotView({ snapshot }: { snapshot: ChessSnapshot }) {
                         href={game.url}
                         target="_blank"
                         rel="noreferrer"
-                        aria-label={`Abrir partida contra ${game.opponent} en Chess.com`}
+                        aria-label={text(
+                          `Abrir partida contra ${game.opponent} en Chess.com`,
+                          `Open game against ${game.opponent} on Chess.com`,
+                        )}
                       >
-                        Abrir ↗
+                        {text("Abrir ↗", "Open ↗")}
                       </a>
                     </li>
                   );
@@ -300,7 +359,10 @@ function ChessSnapshotView({ snapshot }: { snapshot: ChessSnapshot }) {
               </ol>
             ) : (
               <p className="quick-chess-status">
-                No hay partidas recientes disponibles desde la API.
+                {text(
+                  "No hay partidas recientes disponibles desde la API.",
+                  "No recent games are available from the API.",
+                )}
               </p>
             )}
           </div>

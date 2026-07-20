@@ -9,16 +9,21 @@ import type {
   PortfolioFloor,
   PortfolioGameController,
 } from "../types/contracts";
+import type { Locale } from "../../i18n/LocaleContext";
 
 type PlayableFloor = Exclude<PortfolioFloor, -4>;
 
-function createScenes(bridge: GameBridge, initialFloor: PlayableFloor): Phaser.Scene[] {
+function createScenes(
+  bridge: GameBridge,
+  initialFloor: PlayableFloor,
+  locale: Locale,
+): Phaser.Scene[] {
   const scenes: Array<{ floor: PlayableFloor; scene: Phaser.Scene }> = [
-    { floor: 0, scene: new LobbyScene(bridge) },
-    { floor: -1, scene: new ProjectsScene(bridge) },
+    { floor: 0, scene: new LobbyScene(bridge, locale) },
+    { floor: -1, scene: new ProjectsScene(bridge, locale) },
     {
       floor: -2,
-      scene: new InfoFloorScene(bridge, {
+      scene: new InfoFloorScene(bridge, locale, {
         key: "EducationScene",
         floor: -2,
         accent: 0x8b9aff,
@@ -26,7 +31,7 @@ function createScenes(bridge: GameBridge, initialFloor: PlayableFloor): Phaser.S
     },
     {
       floor: -3,
-      scene: new InfoFloorScene(bridge, {
+      scene: new InfoFloorScene(bridge, locale, {
         key: "AboutScene",
         floor: -3,
         accent: 0xb96cff,
@@ -46,6 +51,7 @@ export function createPortfolioGame(
 ): PortfolioGameController {
   const requestedFloor = options.initialFloor ?? 0;
   const initialFloor: PlayableFloor = requestedFloor === -4 ? 0 : requestedFloor;
+  const locale = options.locale ?? "es";
   const bridge = new GameBridge((event) => options.onEvent?.(event));
 
   const game = new Phaser.Game({
@@ -77,7 +83,7 @@ export function createPortfolioGame(
       width: 960,
       height: 540,
     },
-    scene: createScenes(bridge, initialFloor),
+    scene: createScenes(bridge, initialFloor, locale),
     callbacks: {
       postBoot: (bootedGame) => {
         bootedGame.canvas.style.imageRendering = "pixelated";
@@ -89,7 +95,6 @@ export function createPortfolioGame(
           reduced: Boolean(options.reducedMotion),
         });
         bridge.send({ type: "set-muted", muted: options.muted ?? true });
-        bridge.emit({ type: "ready", floor: initialFloor });
       },
     },
   });

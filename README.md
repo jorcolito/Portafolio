@@ -1,12 +1,12 @@
-# JORGE.EXE — A Developer's Tale
+# Jorge Colamarco — Portafolio interactivo
 
-Portafolio web interactivo de Jorge Colamarco presentado como una colección de dioramas narrativos 2D. Cada piso de JORGE LABS es una habitación compacta, viva y cinematográfica: la información importante aparece cerca, se reconoce por su composición y se abre sin recorridos de relleno. **Quick View** conserva una ruta HTML directa y accesible para consultar el mismo portafolio sin jugar.
+Portafolio web bilingüe de Jorge Colamarco presentado como una colección de dioramas narrativos 2D. Cada piso es una habitación compacta, viva y cinematográfica: la información importante aparece cerca, se reconoce por su composición y se abre sin recorridos de relleno. **Vista rápida / Quick view** conserva una ruta HTML directa y accesible para consultar el mismo portafolio sin jugar.
 
-![Vista previa de JORGE.EXE](public/og.png)
+![Vista previa del portafolio interactivo de Jorge Colamarco](public/og.png)
 
 ## Qué incluye esta versión
 
-- Portada `JORGE.EXE` iniciable con Enter, clic o toque.
+- Portada `Jorge Colamarco — Portafolio interactivo` iniciable con Enter, clic o toque.
 - Introducción de ascensor con opción para omitirla.
 - Mundo 2D construido con Phaser: movimiento, gravedad, colisiones, cámara contenida e interacción contextual.
 - Cinco pisos conectados por un elevador global: `Q` lo llama desde cualquier punto y una transición de puertas acompaña el cambio de piso.

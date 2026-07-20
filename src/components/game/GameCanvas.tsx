@@ -14,6 +14,7 @@ import type {
   PortfolioGameController,
   ReactToGameCommand,
 } from "../../game/types/contracts";
+import type { Locale } from "../../i18n/LocaleContext";
 
 export interface GameCanvasHandle {
   /** Generic typed escape hatch for future controls. */
@@ -32,6 +33,7 @@ export interface GameCanvasProps {
   style?: CSSProperties;
   ariaLabel?: string;
   initialFloor?: PortfolioFloor;
+  locale?: Locale;
   /** False suspends movement/physics while keeping the already-created canvas. */
   active?: boolean;
   /** True whenever React is showing a dialogue, project, elevator or other modal. */
@@ -39,6 +41,7 @@ export interface GameCanvasProps {
   reducedMotion?: boolean;
   muted?: boolean;
   onEvent?: (event: GameToReactEvent) => void;
+  onLoadError?: () => void;
 }
 
 /**
@@ -50,24 +53,34 @@ export const GameCanvas = forwardRef<GameCanvasHandle, GameCanvasProps>(
     {
       className,
       style,
-      ariaLabel = "Mundo interactivo de JORGE LABS",
+      ariaLabel = "Portafolio interactivo de Jorge Colamarco",
       initialFloor = 0,
+      locale = "es",
       active = true,
       modalOpen = false,
       reducedMotion = false,
       muted = true,
       onEvent,
+      onLoadError,
     },
     forwardedRef,
   ) {
     const hostRef = useRef<HTMLDivElement>(null);
     const controllerRef = useRef<PortfolioGameController | null>(null);
     const eventHandlerRef = useRef(onEvent);
-    const initialOptionsRef = useRef({ initialFloor, reducedMotion, muted });
+    const loadErrorHandlerRef = useRef(onLoadError);
+    const initialOptionsRef = useRef({
+      initialFloor,
+      locale,
+      reducedMotion,
+      muted,
+    });
     const runtimePropsRef = useRef({ active, modalOpen, reducedMotion, muted });
 
     eventHandlerRef.current = onEvent;
+    loadErrorHandlerRef.current = onLoadError;
     runtimePropsRef.current = { active, modalOpen, reducedMotion, muted };
+    initialOptionsRef.current = { initialFloor, locale, reducedMotion, muted };
 
     useImperativeHandle(
       forwardedRef,
@@ -107,9 +120,10 @@ export const GameCanvas = forwardRef<GameCanvasHandle, GameCanvasProps>(
       let focusFrame: number | undefined;
       const initial = initialOptionsRef.current;
 
-      void import("../../game").then(({ createPortfolioGame }) => {
-        if (cancelled) return;
-        instance = createPortfolioGame({
+      void import("../../game")
+        .then(({ createPortfolioGame }) => {
+          if (cancelled) return;
+          instance = createPortfolioGame({
           parent,
           ...initial,
           onEvent: (event) => {
@@ -129,16 +143,16 @@ export const GameCanvas = forwardRef<GameCanvasHandle, GameCanvasProps>(
               });
             }
           },
-        });
-        controllerRef.current = instance;
-        const current = runtimePropsRef.current;
-        instance.send({ type: "set-active", active: current.active });
-        instance.send({ type: "set-ui-blocked", blocked: current.modalOpen });
-        instance.send({
-          type: "set-reduced-motion",
-          reduced: current.reducedMotion,
-        });
-        instance.send({ type: "set-muted", muted: current.muted });
+          });
+          controllerRef.current = instance;
+          const current = runtimePropsRef.current;
+          instance.send({ type: "set-active", active: current.active });
+          instance.send({ type: "set-ui-blocked", blocked: current.modalOpen });
+          instance.send({
+            type: "set-reduced-motion",
+            reduced: current.reducedMotion,
+          });
+          instance.send({ type: "set-muted", muted: current.muted });
 
         // Phaser owns the key handling. This late listener is only a scroll guard:
         // it runs after Phaser's window listener and only while focus is in the game.
@@ -176,15 +190,18 @@ export const GameCanvas = forwardRef<GameCanvasHandle, GameCanvasProps>(
           if (!parent.contains(document.activeElement)) return;
           event.preventDefault();
         };
-        window.addEventListener("keydown", preventGameplayScroll);
-        removeKeyboardGuard = () =>
-          window.removeEventListener("keydown", preventGameplayScroll);
+          window.addEventListener("keydown", preventGameplayScroll);
+          removeKeyboardGuard = () =>
+            window.removeEventListener("keydown", preventGameplayScroll);
 
-        focusFrame = window.requestAnimationFrame(() => {
-          const runtime = runtimePropsRef.current;
-          if (!cancelled && runtime.active && !runtime.modalOpen) instance?.focus();
+          focusFrame = window.requestAnimationFrame(() => {
+            const runtime = runtimePropsRef.current;
+            if (!cancelled && runtime.active && !runtime.modalOpen) instance?.focus();
+          });
+        })
+        .catch(() => {
+          if (!cancelled) loadErrorHandlerRef.current?.();
         });
-      });
 
       return () => {
         cancelled = true;
@@ -193,7 +210,7 @@ export const GameCanvas = forwardRef<GameCanvasHandle, GameCanvasProps>(
         if (controllerRef.current === instance) controllerRef.current = null;
         instance?.destroy();
       };
-    }, []);
+    }, [locale]);
 
     useEffect(() => {
       controllerRef.current?.send({ type: "set-active", active });

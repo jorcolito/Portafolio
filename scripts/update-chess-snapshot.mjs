@@ -6,7 +6,7 @@ const USERNAME = "jorcolito";
 const API_ROOT = `https://api.chess.com/pub/player/${USERNAME}`;
 const PROFILE_URL = `https://www.chess.com/member/${USERNAME}`;
 const USER_AGENT =
-  "JORGE.EXE portfolio snapshot updater/1.0 (Chess.com member: jorcolito)";
+  "Jorge Colamarco portfolio snapshot updater/1.0 (Chess.com member: jorcolito)";
 const DEFAULT_OUTPUT = "public/data/chess-snapshot.json";
 
 const DRAW_RESULTS = new Set([

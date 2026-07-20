@@ -3,6 +3,7 @@
 import Image from "next/image";
 
 import type { EducationLibraryItem } from "@/src/types";
+import { useLocale } from "@/src/i18n/LocaleContext";
 
 import { ModalShell } from "./ModalShell";
 
@@ -17,13 +18,14 @@ export function LibraryBookModal({
   onClose,
   onPlaceholder,
 }: LibraryBookModalProps) {
+  const { text } = useLocale();
   const resource = item.resource;
   const evidenceImage = item.evidenceImage;
 
   return (
     <ModalShell
       title={item.title}
-      eyebrow="Biblioteca académica · Volumen abierto"
+      eyebrow={text("Archivo académico · Documento abierto", "Academic archive · Open document")}
       variant="library"
       wide
       onClose={onClose}
@@ -36,20 +38,24 @@ export function LibraryBookModal({
             <div className="open-book__seal" aria-hidden="true">
               <span>JC</span>
             </div>
-            <p className="eyebrow">Archivo académico</p>
+            <p className="eyebrow">
+              {text("Archivo académico", "Academic record")}
+            </p>
             <h3>{item.title}</h3>
             <p className="open-book__summary">{item.summary}</p>
             <span className="open-book__status">{item.statusLabel}</span>
           </section>
 
           <section className="open-book__page open-book__page--right">
-            <div className="open-book__running-head">JORGE LABS · ARCHIVE</div>
+            <div className="open-book__running-head">
+              {text("JORGE COLAMARCO · ARCHIVO", "JORGE COLAMARCO · ARCHIVE")}
+            </div>
             <div
               className={`certificate-preview${evidenceImage ? ` certificate-preview--${evidenceImage.presentation}` : ""}`}
               aria-label={
                 evidenceImage?.presentation === "badge"
-                  ? "Vista de la insignia"
-                  : "Vista del documento"
+                  ? text("Vista de la insignia", "Badge preview")
+                  : text("Vista del documento", "Document preview")
               }
             >
               <span className="certificate-preview__ornament" aria-hidden="true" />
@@ -68,12 +74,12 @@ export function LibraryBookModal({
                 <>
                   <span className="certificate-preview__label">
                     {item.kind === "language-certificate"
-                      ? "Resultado de inglés"
+                      ? text("Resultado de inglés", "English result")
                       : item.kind === "cloud-certificate"
-                        ? "Credencial AWS"
+                        ? text("Credencial AWS", "AWS credential")
                         : item.kind === "university-project"
-                          ? "Proyecto universitario"
-                          : "Expediente UEES"}
+                          ? text("Proyecto universitario", "University project")
+                          : text("Expediente UEES", "UEES record")}
                   </span>
                   <strong>{item.title}</strong>
                   <ul>
@@ -83,7 +89,12 @@ export function LibraryBookModal({
                   </ul>
                   {item.status === "document-pending" ||
                   item.status === "details-pending" ? (
-                    <small>Se publicará únicamente cuando exista evidencia verificable.</small>
+                    <small>
+                      {text(
+                        "Se publicará únicamente cuando exista evidencia verificable.",
+                        "This will only be published when verifiable evidence is available.",
+                      )}
+                    </small>
                   ) : null}
                 </>
               )}
@@ -109,7 +120,7 @@ export function LibraryBookModal({
                 </button>
               ) : null}
               <button className="pixel-button" type="button" onClick={onClose}>
-                Cerrar libro
+                {text("Cerrar documento", "Close document")}
               </button>
             </div>
           </section>

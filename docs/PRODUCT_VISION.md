@@ -1,20 +1,20 @@
-# Visión de producto — JORGE.EXE
+# Visión de producto — Portafolio interactivo de Jorge Colamarco
 
 **Estado:** dirección vigente del rediseño
 
-**Producto:** `JORGE.EXE — A Developer's Tale`
+**Producto:** `Jorge Colamarco — Portafolio interactivo`
 
 **Propietario del contenido:** Jorge Colamarco
 
 ## Visión
 
-JORGE.EXE es un portafolio web jugable: una breve exploración narrativa por un estudio retrofuturista compuesto por dioramas compactos. Cada sala funciona como una escena curada, con profundidad, luz, movimiento ambiental y objetos que revelan evidencia profesional de Jorge. No es un portafolio convencional con una capa visual de videojuego; la composición y la interacción forman parte de la presentación.
+El portafolio interactivo de Jorge Colamarco es una breve exploración narrativa por un estudio retrofuturista compuesto por dioramas compactos. Cada sala funciona como una escena curada, con profundidad, luz, movimiento ambiental y objetos que revelan evidencia profesional de Jorge. No es un portafolio convencional con una capa visual de videojuego; la composición y la interacción forman parte de la presentación.
 
 La experiencia siempre ofrece una segunda ruta equivalente: **Quick View**, una interfaz HTML directa y accesible para quien necesite evaluar el perfil sin jugar.
 
 ## Problema y oportunidad
 
-Los portafolios técnicos suelen presentar listas similares de tecnologías y proyectos. Esto dificulta demostrar criterio de producto, creatividad y capacidad de ejecución. JORGE.EXE debe convertir la presentación profesional en una muestra del propio trabajo de Jorge sin ocultar la información que necesita un reclutador.
+Los portafolios técnicos suelen presentar listas similares de tecnologías y proyectos. Esto dificulta demostrar criterio de producto, creatividad y capacidad de ejecución. Este portafolio debe convertir la presentación profesional en una muestra del propio trabajo de Jorge sin ocultar la información que necesita un reclutador.
 
 La oportunidad es comunicar simultáneamente:
 
@@ -72,7 +72,7 @@ La introducción se puede omitir, el audio requiere acción del usuario, el movi
 
 ### Incluido
 
-- Portada negra con `JORGE.EXE`, subtítulo, acción para comenzar y acceso inmediato a Quick View.
+- Portada negra con `Jorge Colamarco`, subtítulo, selector de idioma, acción para comenzar y acceso inmediato a Quick View.
 - Transición breve de ascensor, omitible y compatible con movimiento reducido.
 - Lobby jugable como diorama denso, con personaje, movimiento, cámara contenida y un único destino interactivo: el ascensor físico. Un cartel explica `E` por proximidad y `Q` global. No contiene memoria, bitácora ni puertas falsas.
 - Elevador global invocable con `Q` desde cualquier punto, panel de destinos y transición breve de puertas.
@@ -119,7 +119,7 @@ La introducción se puede omitir, el audio requiere acción del usuario, el movi
 
 ## Identidad y tono
 
-- **Nombre del mundo:** Jorge Labs.
+- **Nombre del mundo:** Portafolio interactivo de Jorge Colamarco.
 - **Fantasía:** recorrer el espacio de trabajo subterráneo donde las ideas se convierten en productos.
 - **Voz:** curiosa, precisa, amable y autoconsciente.
 - **Humor:** una línea ocasional; nunca desacredita el trabajo ni interrumpe una acción importante.

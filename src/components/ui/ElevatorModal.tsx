@@ -1,6 +1,7 @@
 "use client";
 
 import type { FloorOption, PortfolioFloor } from "@/src/game/types/contracts";
+import { useLocale } from "@/src/i18n/LocaleContext";
 
 import { ModalShell } from "./ModalShell";
 
@@ -17,10 +18,12 @@ export function ElevatorModal({
   onSelect,
   onClose,
 }: ElevatorModalProps) {
+  const { text } = useLocale();
+
   return (
     <ModalShell
-      title="Elevador"
-      eyebrow="Acceso instantáneo · Q"
+      title={text("Elevador", "Elevator")}
+      eyebrow={text("Acceso directo · Q", "Direct access · Q")}
       variant="elevator"
       onClose={onClose}
     >
@@ -35,9 +38,14 @@ export function ElevatorModal({
         </div>
 
         <div className="elevator-console__destinations">
-          <p className="eyebrow">¿A dónde quieres ir?</p>
+          <p className="eyebrow">
+            {text("¿A dónde quieres ir?", "Where would you like to go?")}
+          </p>
           <p className="elevator-console__copy">
-            Elige un piso o abre Contacto directamente.
+            {text(
+              "Elige un piso o abre Contacto directamente.",
+              "Choose a floor or open Contact directly.",
+            )}
           </p>
           <ul className="floor-list elevator-floor-list">
           {floors.map((floor) => (
@@ -52,15 +60,17 @@ export function ElevatorModal({
                 <span className="floor-name">
                   {floor.label}
                   <span className="sr-only">
-                    {floor.floor === currentFloor ? " (piso actual)" : ""}
+                    {floor.floor === currentFloor
+                      ? text(" (piso actual)", " (current floor)")
+                      : ""}
                   </span>
                 </span>
                 <span className="elevator-floor-state" aria-hidden="true">
                   {floor.floor === currentFloor
-                    ? "AHORA"
+                    ? text("AHORA", "NOW")
                     : floor.floor === -4
-                      ? "ABRIR →"
-                      : "IR →"}
+                      ? text("ABRIR →", "OPEN →")
+                      : text("IR →", "GO →")}
                 </span>
               </button>
             </li>

@@ -1,4 +1,4 @@
-# Arquitectura técnica — JORGE.EXE
+# Arquitectura técnica — Portafolio interactivo de Jorge Colamarco
 
 **Estado:** arquitectura vigente del rediseño
 

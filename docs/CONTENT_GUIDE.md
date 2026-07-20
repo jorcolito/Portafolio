@@ -1,4 +1,4 @@
-# Guía de contenido — JORGE.EXE
+# Guía de contenido — Portafolio interactivo de Jorge Colamarco
 
 **Propósito:** mantener una voz coherente, datos verificables y el mismo contenido en juego y Quick View.
 
@@ -8,7 +8,7 @@
 
 ## Voz
 
-JORGE.EXE habla como un producto creado por una persona curiosa y técnica:
+El portafolio de Jorge Colamarco habla como un producto creado por una persona curiosa y técnica:
 
 - **claro:** una idea por frase y términos técnicos correctos;
 - **cercano:** segunda persona para instrucciones y primera/tercera persona para la historia según el hablante;
@@ -55,8 +55,8 @@ No se añade empresa cliente, cargo, duración exacta, métrica, repositorio, UR
 ### Portada
 
 ```text
-JORGE.EXE
-A Developer's Tale
+Jorge Colamarco
+Portafolio interactivo
 PRESIONA ENTER
 ```
 
@@ -102,7 +102,7 @@ Los IDs son estables y recomendados para `data/dialogues.ts`.
 | `about.chess` | Tablero de ajedrez | “Cuando no estoy programando, normalmente estoy estudiando ajedrez.” / “Ver actividad pública de @jorcolito en Chess.com.” |
 | `about.map` | Mapa | “Guayaquil, Ecuador.” / “Desde aquí estudio, construyo productos y colaboro con equipos remotos.” |
 | `about.notebook` | Método | “Primero aclaro el problema y el criterio de éxito.” / “Después diseño, construyo y mejoro con evidencia.” |
-| `contact.jorge` | JORGE.EXE | “¿Buscas a alguien que convierta un problema real en software útil? Hablemos.” |
+| `contact.jorge` | Jorge Colamarco | “¿Buscas a alguien que convierta un problema real en software útil? Hablemos.” |
 
 ## Proyectos
 

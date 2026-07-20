@@ -42,7 +42,7 @@ export interface TechnologyGroup extends TechnologyCategory {
 export interface SpokenLanguage {
   readonly id: "spanish" | "english";
   readonly name: string;
-  readonly level: "Nativo" | "C1";
+  readonly level: string;
 }
 
 export type ProfessionalInterestId =
@@ -77,7 +77,7 @@ export interface EducationRecord {
   readonly id: string;
   readonly institution: string;
   readonly program: string;
-  readonly status: "En curso";
+  readonly status: string;
   readonly expectedGraduation: string;
   readonly location: string;
   readonly summary: string;

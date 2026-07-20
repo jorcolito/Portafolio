@@ -23,23 +23,25 @@ async function render() {
   );
 }
 
-test("renderiza la entrada accesible de JORGE.EXE", async () => {
+test("renderiza la entrada bilingüe de Jorge Colamarco", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>JORGE\.EXE[^<]*Developer/);
-  assert.match(html, /JORGE\.EXE/);
-  assert.match(html, /A Developer/);
-  assert.match(html, /Press Enter/i);
-  assert.match(html, /Quick View/);
-  assert.match(html, /Accesibilidad/);
+  assert.match(html, /<title>Jorge Colamarco[^<]*Portafolio interactivo/);
+  assert.match(html, /Jorge Colamarco/);
+  assert.match(html, /Portafolio interactivo/);
+  assert.match(html, /Entrar al portafolio/);
+  assert.match(html, /Español/);
+  assert.match(html, /English/);
+  assert.match(html, /viewport-fit=cover/);
+  assert.doesNotMatch(html, /JORGE\.EXE|Developer(?:&apos;|')s Tale|JORGE LABS|Press Enter|Build 0\.1/i);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
 });
 
 test("conserva datos tipados y Phaser desacoplado de React", async () => {
-  const [packageJson, projects, gameCanvas, contracts] = await Promise.all([
+  const [packageJson, projects, gameCanvas, contracts, localized] = await Promise.all([
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     readFile(new URL("../src/data/projects.ts", import.meta.url), "utf8"),
     readFile(
@@ -47,6 +49,7 @@ test("conserva datos tipados y Phaser desacoplado de React", async () => {
       "utf8",
     ),
     readFile(new URL("../src/game/types/contracts.ts", import.meta.url), "utf8"),
+    readFile(new URL("../src/data/localized.ts", import.meta.url), "utf8"),
   ]);
 
   assert.match(packageJson, /"phaser": "\^3\.90\.0"/);
@@ -57,5 +60,7 @@ test("conserva datos tipados y Phaser desacoplado de React", async () => {
   assert.match(gameCanvas, /import\("\.\.\/\.\.\/game"\)/);
   assert.match(contracts, /GameToReactEvent/);
   assert.match(contracts, /ReactToGameCommand/);
+  assert.match(localized, /Product-minded software developer/);
+  assert.match(localized, /getLocalizedDialogue/);
   assert.doesNotMatch(gameCanvas, /new Phaser\.Game/);
 });

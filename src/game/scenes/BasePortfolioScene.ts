@@ -1,6 +1,10 @@
 import * as Phaser from "phaser";
 
-import { DIALOGUES_BY_ID } from "../../data";
+import {
+  getLocalizedContent,
+  getLocalizedDialogue,
+} from "../../data/localized";
+import type { Locale } from "../../i18n/LocaleContext";
 import type {
   DialogueId,
   DialogueSequence,
@@ -9,7 +13,6 @@ import type {
 import { ensureGeneratedTextures } from "../entities/createTextures";
 import type { GameBridge } from "../events/GameBridge";
 import {
-  PORTFOLIO_FLOORS,
   type DialogueFollowUp,
   type PortfolioFloor,
   type PortfolioProjectId,
@@ -62,11 +65,11 @@ const FLOOR_BACKGROUNDS: Record<
   PortfolioFloor,
   { key: string; url: string }
 > = {
-  0: { key: "room-lobby-v2", url: "/scenes/lobby-v2.png" },
-  [-1]: { key: "room-projects-v2", url: "/scenes/projects-v2.png" },
-  [-2]: { key: "room-education-v2", url: "/scenes/education-v2.png" },
-  [-3]: { key: "room-about-v2", url: "/scenes/about-v2.png" },
-  [-4]: { key: "room-contact-v2", url: "/scenes/contact-v2.png" },
+  0: { key: "room-lobby-v2", url: "/scenes/lobby-v2-960.webp" },
+  [-1]: { key: "room-projects-v2", url: "/scenes/projects-v2-960.webp" },
+  [-2]: { key: "room-education-v2", url: "/scenes/education-v2-960.webp" },
+  [-3]: { key: "room-about-v2", url: "/scenes/about-v2-960.webp" },
+  [-4]: { key: "room-contact-v2", url: "/scenes/contact-v2-960.webp" },
 };
 
 const FONT = 'ui-monospace, "Cascadia Mono", "Courier New", monospace';
@@ -96,6 +99,7 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
   protected readonly bridge: GameBridge;
   protected readonly floor: PortfolioFloor;
   protected readonly accent: number;
+  protected readonly locale: Locale;
   protected player!: Phaser.Physics.Arcade.Sprite;
 
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -121,11 +125,13 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     floor: PortfolioFloor,
     bridge: GameBridge,
     accent: number,
+    locale: Locale,
   ) {
     super(key);
     this.floor = floor;
     this.bridge = bridge;
     this.accent = accent;
+    this.locale = locale;
   }
 
   preload(): void {
@@ -173,9 +179,11 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanUp, this);
 
     const floorLabel =
-      PORTFOLIO_FLOORS.find((option) => option.floor === this.floor)?.label ??
-      "Lobby";
+      getLocalizedContent(this.locale).floors.find(
+        (option) => option.level === this.floor,
+      )?.label ?? "Lobby";
     this.bridge.emit({ type: "floor-changed", floor: this.floor, label: floorLabel });
+    this.bridge.emit({ type: "ready", floor: this.floor });
   }
 
   update(time: number): void {
@@ -183,14 +191,18 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
 
     this.updateNearbyZone();
 
+    const keyboardFocused = document.activeElement === this.game.canvas;
+
     const walkingPlayer = this.shouldShowWalkingPlayer();
     const left = Boolean(
       walkingPlayer &&
-        (this.cursors.left?.isDown || this.keys.a.isDown || this.touchLeft),
+        ((keyboardFocused && (this.cursors.left?.isDown || this.keys.a.isDown)) ||
+          this.touchLeft),
     );
     const right = Boolean(
       walkingPlayer &&
-        (this.cursors.right?.isDown || this.keys.d.isDown || this.touchRight),
+        ((keyboardFocused && (this.cursors.right?.isDown || this.keys.d.isDown)) ||
+          this.touchRight),
     );
     const speed = 158;
 
@@ -211,7 +223,7 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     }
 
     const keyboardJump =
-      walkingPlayer &&
+      walkingPlayer && keyboardFocused &&
       (Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
         Phaser.Input.Keyboard.JustDown(this.keys.w) ||
         Phaser.Input.Keyboard.JustDown(this.keys.space));
@@ -221,14 +233,15 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     }
     this.jumpQueued = false;
 
-    if (Phaser.Input.Keyboard.JustDown(this.keys.q)) {
+    if (keyboardFocused && Phaser.Input.Keyboard.JustDown(this.keys.q)) {
       this.requestElevator();
       return;
     }
 
     const keyboardInteract =
-      Phaser.Input.Keyboard.JustDown(this.keys.e) ||
-      Phaser.Input.Keyboard.JustDown(this.keys.enter);
+      keyboardFocused &&
+      (Phaser.Input.Keyboard.JustDown(this.keys.e) ||
+        Phaser.Input.Keyboard.JustDown(this.keys.enter));
     if (keyboardInteract) this.interact();
 
     if (this.player.y > 535) this.resetPlayer();
@@ -392,12 +405,17 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(94);
     this.add
-      .text(798, 82, "LLAMAR ASCENSOR", {
+      .text(
+        798,
+        82,
+        this.locale === "en" ? "CALL ELEVATOR" : "LLAMAR ELEVADOR",
+        {
         fontFamily: FONT,
         fontSize: "9px",
         color: "#dce7ec",
         letterSpacing: 1,
-      })
+        },
+      )
       .setOrigin(0, 0.5)
       .setScrollFactor(0)
       .setDepth(94);
@@ -415,7 +433,11 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
     this.bridge.emit({
       type: "elevator-requested",
       currentFloor: this.floor,
-      floors: PORTFOLIO_FLOORS,
+      floors: getLocalizedContent(this.locale).floors.map((floor) => ({
+        floor: floor.level,
+        label: floor.label,
+        shortLabel: floor.elevatorLabel,
+      })),
     });
   }
 
@@ -568,7 +590,10 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
 
     switch (zone.action.type) {
       case "dialogue": {
-        const dialogue: DialogueSequence = DIALOGUES_BY_ID[zone.action.dialogueId];
+        const dialogue: DialogueSequence = getLocalizedDialogue(
+          this.locale,
+          zone.action.dialogueId,
+        );
         const after =
           zone.action.after ??
           (dialogue.completion
@@ -614,6 +639,7 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
         break;
       case "set-reduced-motion":
         this.reducedMotion = command.reduced;
+        this.applyPauseState();
         break;
       case "set-muted":
         this.muted = command.muted;
@@ -683,18 +709,19 @@ export abstract class BasePortfolioScene extends Phaser.Scene {
 
     if (paused) {
       this.physics.world.pause();
-      this.tweens.pauseAll();
       this.player?.setTexture("jorge-idle");
       this.input.enabled = false;
       this.input.keyboard?.resetKeys();
       this.input.keyboard?.removeCapture(CAPTURED_KEYS);
     } else {
       this.physics.world.resume();
-      this.tweens.resumeAll();
       this.input.enabled = true;
       this.input.keyboard?.addCapture(CAPTURED_KEYS);
       this.input.keyboard?.enableGlobalCapture();
     }
+
+    if (paused) this.tweens.pauseAll();
+    else this.tweens.resumeAll();
   }
 
   private isGrounded(): boolean {

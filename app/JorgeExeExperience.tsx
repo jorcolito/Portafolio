@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   GameCanvas,
@@ -13,22 +13,26 @@ import { DialogueBox } from "@/src/components/ui/DialogueBox";
 import { ElevatorModal } from "@/src/components/ui/ElevatorModal";
 import { IntroSequence } from "@/src/components/ui/IntroSequence";
 import { LibraryBookModal } from "@/src/components/ui/LibraryBookModal";
+import { LanguageSwitcher } from "@/src/components/ui/LanguageSwitcher";
 import { ProjectModal } from "@/src/components/ui/ProjectModal";
 import { QuickView } from "@/src/components/ui/QuickView";
 import { SettingsModal } from "@/src/components/ui/SettingsModal";
 import { StartScreen } from "@/src/components/ui/StartScreen";
-import { EDUCATION_LIBRARY, FLOORS, PROJECTS_BY_ID } from "@/src/data";
+import {
+  getLocalizedContent,
+  getLocalizedDialogue,
+  getLocalizedProject,
+} from "@/src/data/localized";
+import { useLocale, type Locale } from "@/src/i18n/LocaleContext";
 import type {
   DialogueFollowUp,
   FloorOption,
-  GameDialogue,
   GameToReactEvent,
   InteractionPrompt,
   PortfolioFloor,
   ReactToGameCommand,
 } from "@/src/game/types/contracts";
-import { PORTFOLIO_FLOORS } from "@/src/game/types/contracts";
-import type { PortfolioProject, ProjectId } from "@/src/types";
+import type { DialogueId, PortfolioProject, ProjectId } from "@/src/types";
 
 type ExperiencePhase = "boot" | "intro" | "game";
 
@@ -36,7 +40,7 @@ type OverlayState =
   | { type: "none" }
   | {
       type: "dialogue";
-      dialogue: GameDialogue;
+      dialogueId: DialogueId;
       followUp?: DialogueFollowUp;
     }
   | { type: "project"; projectId: ProjectId }
@@ -46,7 +50,6 @@ type OverlayState =
   | {
       type: "elevator";
       currentFloor: PortfolioFloor;
-      floors: readonly FloorOption[];
     }
   | { type: "contact" }
   | { type: "settings" };
@@ -54,22 +57,43 @@ type OverlayState =
 const NO_OVERLAY: OverlayState = { type: "none" };
 
 const MOBILE_FLOOR_SIGNALS: Readonly<
-  Record<PortfolioFloor, readonly [string, string, string]>
+  Record<Locale, Record<PortfolioFloor, readonly [string, string, string]>>
 > = {
-  0: ["3 productos", "Credenciales verificables", "Contacto directo"],
-  [-1]: ["CarDrive", "SHIKO", "Comernova"],
-  [-2]: ["UEES", "Cambridge C1", "AWS Academy"],
-  [-3]: ["Visión de producto", "Guayaquil", "Chess.com"],
-  [-4]: ["GitHub", "LinkedIn", "Correo"],
+  es: {
+    0: ["3 casos de producto", "Credenciales verificables", "Contacto directo"],
+    [-1]: ["CarDrive", "SHIKO", "Comernova"],
+    [-2]: ["UEES", "Cambridge C1", "AWS Academy"],
+    [-3]: ["Criterio de producto", "Guayaquil", "Chess.com"],
+    [-4]: ["GitHub", "LinkedIn", "Correo"],
+  },
+  en: {
+    0: ["3 products", "Verified credentials", "Direct contact"],
+    [-1]: ["CarDrive", "SHIKO", "Comernova"],
+    [-2]: ["UEES", "Cambridge C1", "AWS Academy"],
+    [-3]: ["Product judgment", "Guayaquil", "Chess.com"],
+    [-4]: ["GitHub", "LinkedIn", "Email"],
+  },
 };
 
 export function JorgeExeExperience() {
+  const { locale, text } = useLocale();
+  const content = getLocalizedContent(locale);
+  const portfolioFloors = useMemo<readonly FloorOption[]>(
+    () =>
+      content.floors.map((floor) => ({
+        floor: floor.level,
+        label: floor.label,
+        shortLabel: floor.elevatorLabel,
+      })),
+    [content],
+  );
   const [phase, setPhase] = useState<ExperiencePhase>("boot");
   const [overlay, setOverlay] = useState<OverlayState>(NO_OVERLAY);
   const [currentFloor, setCurrentFloor] = useState<PortfolioFloor>(0);
   const [prompt, setPrompt] = useState<InteractionPrompt | null>(null);
   const [gameReady, setGameReady] = useState(false);
-  const [muted, setMuted] = useState(true);
+  const [gameLoadError, setGameLoadError] = useState(false);
+  const muted = true;
   const [reducedMotion, setReducedMotion] = useState(false);
   const [inputCooldown, setInputCooldown] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -78,7 +102,12 @@ export function JorgeExeExperience() {
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const stored = window.localStorage.getItem("jorge-exe-reduced-motion");
+    let stored: string | null = null;
+    try {
+      stored = window.localStorage.getItem("jorge-colamarco.motion.v1");
+    } catch {
+      // Fall back to the system preference when storage is unavailable.
+    }
     const frame = window.requestAnimationFrame(() => {
       setReducedMotion(stored === null ? media.matches : stored === "true");
     });
@@ -86,10 +115,14 @@ export function JorgeExeExperience() {
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(
-      "jorge-exe-reduced-motion",
-      String(reducedMotion),
-    );
+    try {
+      window.localStorage.setItem(
+        "jorge-colamarco.motion.v1",
+        String(reducedMotion),
+      );
+    } catch {
+      // The preference remains active for this visit.
+    }
   }, [reducedMotion]);
 
   useEffect(() => {
@@ -128,12 +161,18 @@ export function JorgeExeExperience() {
     setToast(message);
   }, []);
 
+  const startExperience = useCallback(() => {
+    // Use the intro animation to warm the deferred game chunk instead of
+    // making visitors wait for it after the transition.
+    void import("@/src/game");
+    setPhase("intro");
+  }, []);
+
   const openElevator = useCallback(() => {
     setPhase("game");
     setOverlay({
       type: "elevator",
       currentFloor,
-      floors: PORTFOLIO_FLOORS,
     });
   }, [currentFloor]);
 
@@ -165,7 +204,7 @@ export function JorgeExeExperience() {
         }
         setOverlay({
           type: "dialogue",
-          dialogue: event.dialogue,
+          dialogueId: event.dialogue.id,
           followUp: event.after,
         });
         break;
@@ -173,7 +212,6 @@ export function JorgeExeExperience() {
         setOverlay({
           type: "elevator",
           currentFloor: event.currentFloor,
-          floors: event.floors,
         });
         break;
       case "project-requested":
@@ -229,19 +267,20 @@ export function JorgeExeExperience() {
   }, []);
 
   const currentFloorData =
-    FLOORS.find((floor) => floor.level === currentFloor) ?? FLOORS[0];
+    content.floors.find((floor) => floor.level === currentFloor) ??
+    content.floors[0];
   const anyOverlayOpen = overlay.type !== "none";
   const gameInputBlocked = anyOverlayOpen || inputCooldown;
 
   return (
     <div data-reduced-motion={reducedMotion ? "true" : "false"}>
       <a className="skip-link" href="#portfolio-main">
-        Saltar al contenido
+        {text("Saltar al contenido", "Skip to content")}
       </a>
 
       {phase === "boot" ? (
         <StartScreen
-          onStart={() => setPhase("intro")}
+          onStart={startExperience}
           onSkipIntro={() => setPhase("game")}
           onQuickView={() => setOverlay({ type: "quick-view" })}
           onSettings={() => setOverlay({ type: "settings" })}
@@ -259,75 +298,83 @@ export function JorgeExeExperience() {
         <main className="experience-shell" id="portfolio-main">
           <header className="topbar">
             <div className="topbar-brand">
-              <strong>JORGE.EXE</strong>
-              <span>A Developer&apos;s Tale</span>
+              <strong>Jorge Colamarco</strong>
+              <span>{text("Portafolio interactivo", "Interactive portfolio")}</span>
             </div>
             <div className="topbar-location" aria-live="polite">
-              Piso {currentFloor} · {currentFloorData.label}
+              {text("Piso", "Floor")} {currentFloor} · {currentFloorData.label}
             </div>
             <div className="topbar-actions">
               <button
                 className="pixel-button pixel-button--ghost topbar-action topbar-action--elevator"
                 type="button"
                 onClick={openElevator}
-                aria-label="Abrir elevador"
+                aria-label={text("Abrir elevador", "Open elevator")}
               >
                 <span className="topbar-action__icon keycap" aria-hidden="true">Q</span>
-                <span className="topbar-action__label">Elevador</span>
+                <span className="topbar-action__label">
+                  {text("Elevador", "Elevator")}
+                </span>
               </button>
               <button
                 className="pixel-button pixel-button--ghost topbar-action topbar-action--quick"
                 type="button"
                 onClick={() => setOverlay({ type: "quick-view" })}
-                aria-label="Abrir Quick View"
+                aria-label={text("Abrir vista rápida", "Open quick view")}
               >
                 <span className="topbar-action__icon" aria-hidden="true">QV</span>
-                <span className="topbar-action__label">Vista rápida</span>
-              </button>
-              <button
-                className="pixel-button pixel-button--ghost topbar-action topbar-action--sound"
-                type="button"
-                onClick={() => setMuted((value) => !value)}
-                aria-label={muted ? "Activar sonido" : "Silenciar sonido"}
-                aria-pressed={!muted}
-              >
-                <span className="topbar-action__icon" aria-hidden="true">
-                  {muted ? "OFF" : "ON"}
+                <span className="topbar-action__label">
+                  {text("Vista rápida", "Quick view")}
                 </span>
-                <span className="topbar-action__label">Sonido</span>
               </button>
               <button
                 className="pixel-button pixel-button--ghost topbar-action topbar-action--settings"
                 type="button"
                 onClick={() => setOverlay({ type: "settings" })}
-                aria-label="Abrir ajustes"
+                aria-label={text("Abrir ajustes", "Open settings")}
               >
                 <span className="topbar-action__icon" aria-hidden="true">⚙</span>
-                <span className="topbar-action__label">Ajustes</span>
+                <span className="topbar-action__label">
+                  {text("Ajustes", "Settings")}
+                </span>
               </button>
+              <LanguageSwitcher variant="topbar" />
             </div>
           </header>
 
           <div className="game-layout">
             <section className="game-column" aria-labelledby="game-region-title">
               <h1 id="game-region-title" className="sr-only">
-                Mundo interactivo de JORGE LABS
+                {text(
+                  "Portafolio interactivo de Jorge Colamarco",
+                  "Jorge Colamarco's interactive portfolio",
+                )}
               </h1>
               <div className="game-stage" data-game-ready={gameReady ? "true" : "false"}>
                 <div className="stage-label">
-                  Piso {currentFloor} / {currentFloorData.label}
+                  {text("Piso", "Floor")} {currentFloor} / {currentFloorData.label}
                 </div>
                 <div
                   className="stage-live-status"
-                  data-state={!gameReady ? "loading" : prompt ? "action" : "ready"}
+                  data-state={
+                    gameLoadError
+                      ? "error"
+                      : !gameReady
+                        ? "loading"
+                        : prompt
+                          ? "action"
+                          : "ready"
+                  }
                   aria-live="polite"
                 >
                   <span aria-hidden="true" />
-                  {!gameReady
-                    ? "Preparando escena"
+                  {gameLoadError
+                    ? text("Error de carga", "Loading error")
+                    : !gameReady
+                    ? text("Preparando escena", "Preparing scene")
                     : prompt
-                      ? "Objeto disponible"
-                      : "Escena activa"}
+                      ? text("Objeto disponible", "Object available")
+                      : text("Escena activa", "Scene active")}
                 </div>
                 {prompt && overlay.type === "none" && !inputCooldown ? (
                   <div className="interaction-prompt" aria-live="polite">
@@ -339,37 +386,41 @@ export function JorgeExeExperience() {
                 <GameCanvas
                   ref={gameRef}
                   className="game-canvas-host"
+                  initialFloor={currentFloor}
                   active={phase === "game"}
                   modalOpen={gameInputBlocked}
                   reducedMotion={reducedMotion}
                   muted={muted}
+                  locale={locale}
                   onEvent={handleGameEvent}
-                  ariaLabel={`Escenario jugable: ${currentFloorData.label}. Usa A y D o flechas para moverte, E para interactuar y Q para abrir el elevador.`}
+                  onLoadError={() => {
+                    setGameLoadError(true);
+                    setToast(
+                      text(
+                        "No se pudo cargar la escena. Recarga la página para intentarlo de nuevo.",
+                        "The scene could not load. Reload the page to try again.",
+                      ),
+                    );
+                  }}
+                  ariaLabel={text(
+                    `Escenario jugable: ${currentFloorData.label}. Usa A y D o flechas para moverte, E para interactuar y Q para abrir el elevador.`,
+                    `Playable scene: ${currentFloorData.label}. Use A and D or the arrow keys to move, E to interact and Q to open the elevator.`,
+                  )}
                 />
 
-                {anyOverlayOpen ? (
+                {anyOverlayOpen && overlay.type !== "dialogue" ? (
                   <div className="game-paused-overlay" aria-hidden="true" />
                 ) : null}
 
-                {overlay.type === "dialogue" ? (
-                  <DialogueBox
-                    key={overlay.dialogue.id}
-                    dialogue={overlay.dialogue}
-                    followUp={overlay.followUp}
-                    reducedMotion={reducedMotion}
-                    onFinish={finishDialogue}
-                  />
-                ) : null}
-
                 <div className="stage-controls-hint" aria-hidden="true">
-                  <span>A/D mover</span>
-                  <span>E interactuar</span>
-                  <span>Q elevador</span>
+                  <span>{text("A/D mover", "A/D move")}</span>
+                  <span>{text("E interactuar", "E interact")}</span>
+                  <span>{text("Q elevador", "Q elevator")}</span>
                 </div>
               </div>
 
               <TouchControls
-                disabled={gameInputBlocked}
+                disabled={gameInputBlocked || gameLoadError}
                 canInteract={Boolean(prompt) && !gameInputBlocked}
                 floorLabel={currentFloorData.label}
                 promptLabel={prompt?.label}
@@ -378,18 +429,30 @@ export function JorgeExeExperience() {
                 onMenu={openElevator}
               />
 
-              <aside className="mobile-briefing" aria-label="Guía del piso actual">
+              <aside
+                className="mobile-briefing"
+                aria-label={text("Guía del piso actual", "Current floor guide")}
+              >
                 <div className="mobile-briefing__heading">
-                  <span>Ruta activa</span>
+                  <span>{text("Ruta activa", "Active route")}</span>
                   <strong>{currentFloorData.label}</strong>
                 </div>
                 <p>
                   {prompt
-                    ? `Estás cerca de una interacción: ${prompt.label}.`
+                    ? text(
+                        `Estás cerca de una interacción: ${prompt.label}.`,
+                        `You are near an interaction: ${prompt.label}.`,
+                      )
                     : currentFloorData.description}
                 </p>
-                <div className="mobile-briefing__signals" aria-label="Contenido destacado del piso">
-                  {MOBILE_FLOOR_SIGNALS[currentFloor].map((signal, index) => (
+                <div
+                  className="mobile-briefing__signals"
+                  aria-label={text(
+                    "Contenido destacado del piso",
+                    "Featured floor content",
+                  )}
+                >
+                  {MOBILE_FLOOR_SIGNALS[locale][currentFloor].map((signal, index) => (
                     <span key={signal}>
                       <small>{String(index + 1).padStart(2, "0")}</small>
                       <strong>{signal}</strong>
@@ -397,7 +460,10 @@ export function JorgeExeExperience() {
                   ))}
                 </div>
                 <span className="mobile-briefing__tip">
-                  Los objetos interactivos se iluminan al acercarte.
+                  {text(
+                    "Los objetos interactivos se iluminan al acercarte.",
+                    "Interactive objects light up as you approach.",
+                  )}
                 </span>
               </aside>
             </section>
@@ -405,9 +471,19 @@ export function JorgeExeExperience() {
         </main>
       ) : null}
 
+      {overlay.type === "dialogue" ? (
+        <DialogueBox
+          key={`${locale}-${overlay.dialogueId}`}
+          dialogue={getLocalizedDialogue(locale, overlay.dialogueId)}
+          followUp={overlay.followUp}
+          reducedMotion={reducedMotion}
+          onFinish={finishDialogue}
+        />
+      ) : null}
+
       {overlay.type === "project" ? (
         <ProjectModal
-          project={PROJECTS_BY_ID[overlay.projectId]}
+          project={getLocalizedProject(locale, overlay.projectId)}
           onClose={closeOverlay}
           onPlaceholder={showNotice}
         />
@@ -416,8 +492,8 @@ export function JorgeExeExperience() {
       {overlay.type === "library" ? (
         <LibraryBookModal
           item={
-            EDUCATION_LIBRARY.find((item) => item.id === overlay.itemId) ??
-            EDUCATION_LIBRARY[0]
+            content.educationLibrary.find((item) => item.id === overlay.itemId) ??
+            content.educationLibrary[0]
           }
           onClose={closeOverlay}
           onPlaceholder={showNotice}
@@ -440,7 +516,7 @@ export function JorgeExeExperience() {
       {overlay.type === "elevator" ? (
         <ElevatorModal
           currentFloor={overlay.currentFloor}
-          floors={overlay.floors}
+          floors={portfolioFloors}
           onSelect={selectFloor}
           onClose={closeOverlay}
         />
@@ -456,9 +532,7 @@ export function JorgeExeExperience() {
 
       {overlay.type === "settings" ? (
         <SettingsModal
-          muted={muted}
           reducedMotion={reducedMotion}
-          onMutedChange={setMuted}
           onReducedMotionChange={setReducedMotion}
           onClose={closeOverlay}
         />

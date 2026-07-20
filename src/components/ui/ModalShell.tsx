@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  type CSSProperties,
   type PropsWithChildren,
   type RefObject,
   useCallback,
@@ -10,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useLocale } from "@/src/i18n/LocaleContext";
 
 interface ModalShellProps extends PropsWithChildren {
   title: string;
@@ -23,10 +23,6 @@ interface ModalShellProps extends PropsWithChildren {
 const FOCUSABLE =
   'button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-type ModalProgressStyle = CSSProperties & {
-  "--modal-scroll-progress": number;
-};
-
 export function ModalShell({
   title,
   eyebrow,
@@ -36,14 +32,16 @@ export function ModalShell({
   initialFocusRef,
   children,
 }: ModalShellProps) {
+  const { text } = useLocale();
   const titleId = useId();
   const windowRef = useRef<HTMLDivElement>(null);
   const scrollRegionRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const scrollStatusRef = useRef<HTMLDivElement>(null);
   const closeRequestedRef = useRef(false);
   const [scrollState, setScrollState] = useState({
     canScroll: false,
-    progress: 0,
+    atEnd: false,
   });
 
   const requestClose = useCallback(() => {
@@ -62,11 +60,16 @@ export function ModalShell({
       ? Math.min(1, Math.max(0, region.scrollTop / scrollRange))
       : 0;
 
+    scrollStatusRef.current?.style.setProperty(
+      "--modal-scroll-progress",
+      String(progress),
+    );
+
+    const atEnd = canScroll && progress > 0.96;
     setScrollState((current) =>
-      current.canScroll === canScroll &&
-      Math.abs(current.progress - progress) < 0.005
+      current.canScroll === canScroll && current.atEnd === atEnd
         ? current
-        : { canScroll, progress },
+        : { canScroll, atEnd },
     );
   }, []);
 
@@ -147,10 +150,6 @@ export function ModalShell({
     };
   }, [children, updateScrollState]);
 
-  const progressStyle: ModalProgressStyle = {
-    "--modal-scroll-progress": scrollState.progress,
-  };
-
   return (
     <div
       className="modal-backdrop"
@@ -177,22 +176,24 @@ export function ModalShell({
             className="modal-close"
             type="button"
             onClick={requestClose}
-            aria-label={`Cerrar ${title}`}
+            aria-label={text(`Cerrar ${title}`, `Close ${title}`)}
           >
             ×
           </button>
         </div>
         <div
+          ref={scrollStatusRef}
           className="modal-scroll-status"
           data-scrollable={scrollState.canScroll ? "true" : "false"}
-          style={progressStyle}
           aria-hidden="true"
         >
           <span className="modal-scroll-status__track">
             <span className="modal-scroll-status__bar" />
           </span>
           <span className="modal-scroll-status__copy">
-            {scrollState.progress > 0.96 ? "Final del contenido" : "Desliza para explorar"}
+            {scrollState.atEnd
+              ? text("Final del contenido", "End of content")
+              : text("Desliza para explorar", "Scroll to explore")}
           </span>
         </div>
         <div

@@ -1,6 +1,7 @@
 import * as Phaser from "phaser";
 
 import type { GameBridge } from "../events/GameBridge";
+import type { Locale } from "../../i18n/LocaleContext";
 import type { PortfolioFloor } from "../types/contracts";
 import { BasePortfolioScene } from "./BasePortfolioScene";
 
@@ -11,8 +12,8 @@ interface InfoFloorConfig {
 }
 
 export class InfoFloorScene extends BasePortfolioScene {
-  constructor(bridge: GameBridge, config: InfoFloorConfig) {
-    super(config.key, config.floor, bridge, config.accent);
+  constructor(bridge: GameBridge, locale: Locale, config: InfoFloorConfig) {
+    super(config.key, config.floor, bridge, config.accent, locale);
   }
 
   protected getPlayerSpawn(): Phaser.Types.Math.Vector2Like {
@@ -42,7 +43,7 @@ export class InfoFloorScene extends BasePortfolioScene {
       ],
       0,
     );
-    this.addInteraction("education-uees", 478, 72, "Abrir libro de la UEES", {
+    this.addInteraction("education-uees", 478, 72, this.locale === "en" ? "Open the UEES record" : "Abrir expediente UEES", {
       type: "dialogue",
       dialogueId: "uees-record",
       after: { type: "library", itemId: "uees-degree-volume" },
@@ -62,7 +63,7 @@ export class InfoFloorScene extends BasePortfolioScene {
       ],
       260,
     );
-    this.addInteraction("education-english", 558, 78, "Abrir certificado C1", {
+    this.addInteraction("education-english", 558, 78, this.locale === "en" ? "Open C1 result" : "Abrir resultado C1", {
       type: "dialogue",
       dialogueId: "english-certificate",
       after: { type: "library", itemId: "english-c1-volume" },
@@ -82,7 +83,7 @@ export class InfoFloorScene extends BasePortfolioScene {
       ],
       520,
     );
-    this.addInteraction("education-aws", 684, 108, "Abrir insignia AWS Academy", {
+    this.addInteraction("education-aws", 684, 108, this.locale === "en" ? "Open AWS Academy badge" : "Abrir insignia AWS Academy", {
       type: "dialogue",
       dialogueId: "aws-certificate",
       after: { type: "library", itemId: "aws-certificate-volume" },
@@ -105,7 +106,9 @@ export class InfoFloorScene extends BasePortfolioScene {
       "education-technologies",
       258,
       188,
-      "Explorar tecnologías de trabajo",
+      this.locale === "en"
+        ? "Explore working technologies"
+        : "Explorar tecnologías de trabajo",
       { type: "dialogue", dialogueId: "studied-technologies" },
       { x: 258, y: 323, width: 196, height: 132 },
     );
@@ -129,7 +132,7 @@ export class InfoFloorScene extends BasePortfolioScene {
       ],
       0,
     );
-    this.addInteraction("about-method", 460, 230, "Ver método de trabajo", {
+    this.addInteraction("about-method", 460, 230, this.locale === "en" ? "See how I work" : "Ver cómo trabajo", {
       type: "dialogue",
       dialogueId: "work-method",
     }, { x: 472, y: 148, width: 296, height: 200 });
@@ -186,7 +189,7 @@ export class InfoFloorScene extends BasePortfolioScene {
       ],
       600,
     );
-    this.addInteraction("about-chess", 780, 110, "Ver mi tiempo libre en Chess.com", {
+    this.addInteraction("about-chess", 780, 110, this.locale === "en" ? "See my Chess.com activity" : "Ver mi actividad en Chess.com", {
       type: "chess",
     }, { x: 712, y: 327, width: 150, height: 64 });
   }

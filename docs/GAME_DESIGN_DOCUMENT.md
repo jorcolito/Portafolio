@@ -1,4 +1,4 @@
-# Game Design Document — JORGE.EXE
+# Game Design Document — Portafolio interactivo de Jorge Colamarco
 
 **Versión:** Rediseño 3.0
 
@@ -12,7 +12,7 @@
 
 ## Fantasía del jugador
 
-El visitante entra a Jorge Labs, un estudio nocturno donde cada piso conserva una parte del trabajo y la historia de Jorge. No supera pruebas ni combate: observa una composición viva, se acerca a uno de sus focos y abre expedientes. El elevador global convierte la navegación del portafolio en parte del mundo sin obligarlo a regresar a una esquina.
+El visitante entra al portafolio interactivo de Jorge Colamarco, un estudio nocturno donde cada piso conserva una parte de su trabajo y su historia. No supera pruebas ni combate: observa una composición viva, se acerca a uno de sus focos y abre expedientes. El elevador global convierte la navegación del portafolio en parte del mundo sin obligarlo a regresar a una esquina.
 
 ## Bucle principal
 
@@ -28,7 +28,7 @@ No hay contenido obligatorio oculto detrás de habilidad motriz. El movimiento a
 
 ```mermaid
 flowchart TD
-  A["Portada React: JORGE.EXE"] -->|Comenzar| B["BootScene: prepara texturas"]
+  A["Portada React: Jorge Colamarco"] -->|Comenzar| B["BootScene: prepara texturas"]
   A -->|Quick View| Q["Quick View HTML"]
   B --> C["ElevatorScene: introducción"]
   C --> L["LobbyScene · Piso 0"]

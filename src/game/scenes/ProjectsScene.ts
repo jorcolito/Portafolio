@@ -1,6 +1,7 @@
 import * as Phaser from "phaser";
 
 import type { GameBridge } from "../events/GameBridge";
+import type { Locale } from "../../i18n/LocaleContext";
 import { BasePortfolioScene } from "./BasePortfolioScene";
 
 /**
@@ -9,8 +10,8 @@ import { BasePortfolioScene } from "./BasePortfolioScene";
  * affordance until the visitor is close enough to receive the React E prompt.
  */
 export class ProjectsScene extends BasePortfolioScene {
-  constructor(bridge: GameBridge) {
-    super("ProjectsScene", -1, bridge, 0xa76bff);
+  constructor(bridge: GameBridge, locale: Locale) {
+    super("ProjectsScene", -1, bridge, 0xa76bff, locale);
   }
 
   protected getPlayerSpawn(): Phaser.Types.Math.Vector2Like {
@@ -43,7 +44,7 @@ export class ProjectsScene extends BasePortfolioScene {
       ],
       0,
     );
-    this.addInteraction("project-cardrive", 190, 240, "Abrir expediente CarDrive", {
+    this.addInteraction("project-cardrive", 190, 240, this.locale === "en" ? "Open CarDrive dossier" : "Abrir expediente CarDrive", {
       type: "project",
       projectId: "cardrive",
     }, { x: 176, y: 326, width: 250, height: 118 });
@@ -65,7 +66,7 @@ export class ProjectsScene extends BasePortfolioScene {
       ],
       260,
     );
-    this.addInteraction("project-shiko", 485, 210, "Abrir expediente SHIKO", {
+    this.addInteraction("project-shiko", 485, 210, this.locale === "en" ? "Open SHIKO dossier" : "Abrir expediente SHIKO", {
       type: "project",
       projectId: "shiko",
     }, { x: 423, y: 247, width: 216, height: 174 });
@@ -87,7 +88,7 @@ export class ProjectsScene extends BasePortfolioScene {
       ],
       520,
     );
-    this.addInteraction("project-comernova", 800, 230, "Abrir expediente Comernova", {
+    this.addInteraction("project-comernova", 800, 230, this.locale === "en" ? "Open Comernova dossier" : "Abrir expediente Comernova", {
       type: "project",
       projectId: "comernova",
     }, { x: 805, y: 298, width: 270, height: 214 });

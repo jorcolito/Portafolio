@@ -79,7 +79,7 @@ export const CONTACT_LINKS = [
 
 export const PROFILE = {
   name: "Jorge Colamarco",
-  brandName: "JORGE.EXE",
+  brandName: "Jorge Colamarco",
   title: "Desarrollador de software orientado a producto",
   location: "Guayaquil, Ecuador",
   introduction:

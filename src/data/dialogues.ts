@@ -124,7 +124,7 @@ export const DIALOGUES = [
     defaults: DEFAULT_DIALOGUE_SETTINGS,
     lines: [
       {
-        text: "No empiezo por el framework: primero entiendo a la persona, la operación y qué resultado haría que el trabajo valga la pena.",
+        text: "Antes de elegir tecnología, entiendo a la persona, la operación y el resultado que necesitamos lograr.",
       },
       {
         text: "Después convierto esa claridad en un flujo simple, una base técnica mantenible y entregas pequeñas que el equipo puede revisar.",

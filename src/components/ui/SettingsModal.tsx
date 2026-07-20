@@ -1,50 +1,49 @@
 "use client";
 
 import { ModalShell } from "./ModalShell";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useLocale } from "@/src/i18n/LocaleContext";
 
 interface SettingsModalProps {
-  muted: boolean;
   reducedMotion: boolean;
-  onMutedChange: (muted: boolean) => void;
   onReducedMotionChange: (reduced: boolean) => void;
   onClose: () => void;
 }
 
 export function SettingsModal({
-  muted,
   reducedMotion,
-  onMutedChange,
   onReducedMotionChange,
   onClose,
 }: SettingsModalProps) {
+  const { text } = useLocale();
+
   return (
-    <ModalShell title="Ajustes" eyebrow="Sistema" onClose={onClose}>
+    <ModalShell
+      title={text("Ajustes", "Settings")}
+      eyebrow={text("Preferencias", "Preferences")}
+      onClose={onClose}
+    >
       <div className="settings-panel">
         <div className="settings-row">
           <div className="settings-copy">
-            <strong>Sonido</strong>
+            <strong>{text("Idioma", "Language")}</strong>
             <span>
-              El MVP inicia silenciado. La infraestructura queda preparada para
-              efectos originales sin reproducción automática.
+              {text(
+                "Cambia todo el portafolio entre español e inglés.",
+                "Switch the entire portfolio between English and Spanish.",
+              )}
             </span>
           </div>
-          <button
-            className="toggle"
-            type="button"
-            role="switch"
-            aria-checked={!muted}
-            aria-label={muted ? "Activar sonido" : "Silenciar sonido"}
-            onClick={() => onMutedChange(!muted)}
-          >
-            <span className="sr-only">{muted ? "Desactivado" : "Activado"}</span>
-          </button>
+          <LanguageSwitcher variant="settings" />
         </div>
         <div className="settings-row">
           <div className="settings-copy">
-            <strong>Reducir animaciones</strong>
+            <strong>{text("Reducir animaciones", "Reduce motion")}</strong>
             <span>
-              Simplifica transiciones, desactiva el efecto de escritura y
-              respeta la preferencia del sistema.
+              {text(
+                "Simplifica transiciones, desactiva el efecto de escritura y respeta la preferencia del sistema.",
+                "Simplifies transitions, disables the typing effect and respects your system preference.",
+              )}
             </span>
           </div>
           <button
@@ -52,11 +51,13 @@ export function SettingsModal({
             type="button"
             role="switch"
             aria-checked={reducedMotion}
-            aria-label="Reducir animaciones"
+            aria-label={text("Reducir animaciones", "Reduce motion")}
             onClick={() => onReducedMotionChange(!reducedMotion)}
           >
             <span className="sr-only">
-              {reducedMotion ? "Activado" : "Desactivado"}
+              {reducedMotion
+                ? text("Activado", "On")
+                : text("Desactivado", "Off")}
             </span>
           </button>
         </div>

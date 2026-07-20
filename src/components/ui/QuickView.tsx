@@ -3,13 +3,8 @@
 import Image from "next/image";
 import { useRef, useState, useSyncExternalStore } from "react";
 
-import {
-  CONTACT_LINKS,
-  EDUCATION_LIBRARY,
-  PROFILE,
-  PROJECTS,
-  TECHNOLOGY_GROUPS,
-} from "@/src/data";
+import { getLocalizedContent } from "@/src/data/localized";
+import { useLocale } from "@/src/i18n/LocaleContext";
 import type { PortfolioProject, ResourceLink } from "@/src/types";
 
 import { ModalShell } from "./ModalShell";
@@ -22,16 +17,6 @@ type QuickSection =
   | "sobre-mi"
   | "contacto";
 
-const SECTIONS: readonly { id: QuickSection; label: string }[] = [
-  { id: "presentacion", label: "Presentación" },
-  { id: "proyectos", label: "Proyectos" },
-  { id: "tecnologias", label: "Tecnologías" },
-  { id: "educacion", label: "Credenciales" },
-  { id: "sobre-mi", label: "Cómo trabajo" },
-  { id: "contacto", label: "Contacto" },
-];
-
-const WORK_PRINCIPLE_LABELS = ["Descubrir", "Diseñar", "Entregar"] as const;
 const HORIZONTAL_NAV_QUERY = "(max-width: 720px)";
 
 function subscribeToNavigationOrientation(onChange: () => void) {
@@ -114,59 +99,108 @@ export function QuickView({
   onContact,
   onPlaceholder,
 }: QuickViewProps) {
+  const { locale, text } = useLocale();
+  const {
+    contactLinks,
+    educationLibrary,
+    profile,
+    projects,
+    technologyGroups,
+  } = getLocalizedContent(locale);
+  const sections: readonly { id: QuickSection; label: string }[] = [
+    { id: "presentacion", label: text("Presentación", "Overview") },
+    { id: "proyectos", label: text("Proyectos", "Projects") },
+    { id: "tecnologias", label: text("Tecnologías", "Technologies") },
+    { id: "educacion", label: text("Credenciales", "Credentials") },
+    { id: "sobre-mi", label: text("Cómo trabajo", "How I work") },
+    { id: "contacto", label: text("Contacto", "Contact") },
+  ];
+  const workPrincipleLabels = [
+    text("Descubrir", "Discover"),
+    text("Diseñar", "Design"),
+    text("Entregar", "Deliver"),
+  ] as const;
   const [section, setSection] = useState<QuickSection>("presentacion");
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const panelRef = useRef<HTMLDivElement>(null);
   const hasHorizontalNavigation = useSyncExternalStore(
     subscribeToNavigationOrientation,
     getNavigationOrientationSnapshot,
     getServerNavigationOrientationSnapshot,
   );
-  const availableContactLinks = CONTACT_LINKS.filter(
+  const availableContactLinks = contactLinks.filter(
     (link) => link.availability === "available",
   );
-  const cvLink = CONTACT_LINKS.find((link) => link.kind === "cv");
 
   const activateSection = (nextSection: QuickSection) => {
     setSection(nextSection);
+    window.requestAnimationFrame(() => {
+      const scrollRegion = panelRef.current?.closest<HTMLElement>(
+        ".modal-scroll-region",
+      );
+      scrollRegion?.scrollTo({ top: 0, behavior: "auto" });
+      const activeTabIndex = sections.findIndex(
+        (item) => item.id === nextSection,
+      );
+      tabRefs.current[activeTabIndex]?.scrollIntoView({
+        block: "nearest",
+        inline: "center",
+        behavior: "auto",
+      });
+    });
   };
 
   const moveTabFocus = (currentIndex: number, direction: -1 | 1) => {
-    const nextIndex = (currentIndex + direction + SECTIONS.length) % SECTIONS.length;
-    const nextSection = SECTIONS[nextIndex];
+    const nextIndex =
+      (currentIndex + direction + sections.length) % sections.length;
+    const nextSection = sections[nextIndex];
     activateSection(nextSection.id);
     tabRefs.current[nextIndex]?.focus();
   };
 
   const focusTabAt = (index: number) => {
-    const nextSection = SECTIONS[index];
+    const nextSection = sections[index];
     if (!nextSection) return;
     activateSection(nextSection.id);
     tabRefs.current[index]?.focus();
   };
 
   return (
-    <ModalShell title="Quick View" eyebrow="Lectura rápida" onClose={onClose} wide>
+    <ModalShell
+      title={text("Vista rápida", "Quick view")}
+      eyebrow={text("Lectura para empleadores", "Employer overview")}
+      onClose={onClose}
+      wide
+    >
       <div className="quick-view quick-view--refined quick-view--employer">
         <nav
           className="quick-nav quick-view__nav"
-          aria-label="Secciones de Quick View"
+          aria-label={text("Secciones de la vista rápida", "Quick view sections")}
         >
           <div className="quick-nav-intro">
-            <span className="eyebrow">En menos de un minuto</span>
-            <strong>Lo importante, primero.</strong>
-            <span>Trabajo, herramientas, credenciales y contacto directo.</span>
+            <span className="eyebrow">
+              {text("En menos de un minuto", "In under a minute")}
+            </span>
+            <strong>{text("Lo importante, primero.", "The essentials, first.")}</strong>
+            <span>
+              {text(
+                "Trabajo, herramientas, credenciales y contacto directo.",
+                "Work, tools, credentials and direct contact.",
+              )}
+            </span>
           </div>
           <p className="sr-only" id="quick-tabs-instructions">
-            Navegación {hasHorizontalNavigation ? "horizontal" : "vertical"}.
-            Usa las flechas izquierda y derecha o arriba y abajo para cambiar de
-            sección.
+            {text(
+              `Navegación ${hasHorizontalNavigation ? "horizontal" : "vertical"}. Usa las flechas para cambiar de sección.`,
+              `${hasHorizontalNavigation ? "Horizontal" : "Vertical"} navigation. Use the arrow keys to change sections.`,
+            )}
           </p>
           <ul
             role="tablist"
             aria-orientation={hasHorizontalNavigation ? "horizontal" : "vertical"}
             aria-describedby="quick-tabs-instructions"
           >
-            {SECTIONS.map((item, index) => (
+            {sections.map((item, index) => (
               <li key={item.id} role="presentation">
                 <button
                   ref={(element) => {
@@ -197,7 +231,7 @@ export function QuickView({
                       focusTabAt(0);
                     } else if (event.key === "End") {
                       event.preventDefault();
-                      focusTabAt(SECTIONS.length - 1);
+                      focusTabAt(sections.length - 1);
                     }
                   }}
                 >
@@ -212,6 +246,7 @@ export function QuickView({
         </nav>
 
         <div
+          ref={panelRef}
           id="quick-panel"
           className="quick-main quick-view__panel"
           role="tabpanel"
@@ -222,27 +257,35 @@ export function QuickView({
             <section className="quick-panel-section">
               <header className="quick-hero quick-profile-hero">
                 <div className="quick-hero__copy">
-                  <p className="eyebrow">{PROFILE.title}</p>
-                  <h2>Software útil, pensado como producto.</h2>
-                  <p className="quick-hero__lead">{PROFILE.introduction}</p>
-                  <p>{PROFILE.summary}</p>
+                  <p className="eyebrow">{profile.title}</p>
+                  <h2>
+                    {text(
+                      "Software útil, pensado como producto.",
+                      "Useful software, shaped as a product.",
+                    )}
+                  </h2>
+                  <p className="quick-hero__lead">{profile.introduction}</p>
+                  <p>{profile.summary}</p>
                   <div className="quick-hero__actions">
                     <button
                       className="pixel-button pixel-button--primary"
                       type="button"
                       onClick={() => activateSection("proyectos")}
                     >
-                      Ver proyectos
+                      {text("Ver proyectos", "View projects")}
                     </button>
                     <button className="pixel-button" type="button" onClick={onContact}>
-                      Contactar
+                      {text("Contactar", "Contact")}
                     </button>
                   </div>
                 </div>
                 <figure className="quick-profile-portrait">
                   <Image
-                    src="/portraits/jorge-professional-v1.png"
-                    alt="Fotografía profesional de Jorge Colamarco"
+                    src="/portraits/jorge-professional-v1.webp"
+                    alt={text(
+                      "Fotografía profesional de Jorge Colamarco",
+                      "Professional portrait of Jorge Colamarco",
+                    )}
                     fill
                     sizes="(max-width: 720px) 42vw, 11rem"
                     unoptimized
@@ -254,37 +297,49 @@ export function QuickView({
 
               <div className="quick-signal-grid" aria-label="Propuesta profesional">
                 <article className="quick-signal-card">
-                  <span>Aporto</span>
-                  <strong>Criterio de producto</strong>
-                  <small>Entiendo el problema antes de convertirlo en código.</small>
+                  <span>{text("Aporto", "I bring")}</span>
+                  <strong>{text("Criterio de producto", "Product judgment")}</strong>
+                  <small>
+                    {text(
+                      "Entiendo el problema antes de convertirlo en código.",
+                      "I understand the problem before turning it into code.",
+                    )}
+                  </small>
                 </article>
                 <article className="quick-signal-card">
-                  <span>Foco</span>
-                  <strong>Ejecución full stack</strong>
-                  <small>Interfaz, lógica, datos y entrega conectados.</small>
+                  <span>{text("Foco", "Focus")}</span>
+                  <strong>{text("Ejecución full stack", "Full-stack execution")}</strong>
+                  <small>
+                    {text(
+                      "Interfaz, lógica, datos y entrega conectados.",
+                      "Interface, logic, data and delivery working together.",
+                    )}
+                  </small>
                 </article>
                 <article className="quick-signal-card">
-                  <span>Disponibilidad</span>
-                  <strong>Hablemos</strong>
-                  <small>{PROFILE.availability}</small>
+                  <span>{text("Disponibilidad", "Availability")}</span>
+                  <strong>{text("Hablemos", "Let's talk")}</strong>
+                  <small>{profile.availability}</small>
                 </article>
               </div>
 
               <section className="quick-section" aria-labelledby="featured-projects-title">
                 <div className="quick-subheading">
-                  <h3 id="featured-projects-title">Trabajo destacado</h3>
+                  <h3 id="featured-projects-title">
+                    {text("Trabajo destacado", "Selected work")}
+                  </h3>
                   <button type="button" onClick={() => activateSection("proyectos")}>
-                    Ver el contexto →
+                    {text("Ver el contexto →", "See the context →")}
                   </button>
                 </div>
                 <div className="quick-projects">
-                  {PROJECTS.map((project) => (
+                  {projects.map((project) => (
                     <article className="quick-project-card" key={project.id}>
                       <p className="eyebrow">{project.category}</p>
                       <h4>{project.name}</h4>
                       <p>{project.shortDescription}</p>
                       <button type="button" onClick={() => onProject(project)}>
-                        Ver ficha →
+                        {text("Ver ficha →", "View case →")}
                       </button>
                     </article>
                   ))}
@@ -296,12 +351,18 @@ export function QuickView({
           {section === "proyectos" ? (
             <section className="quick-panel-section">
               <SectionHeading
-                eyebrow="Evidencia de trabajo"
-                title="Problemas, decisiones y producto."
-                copy="Cada ficha explica la necesidad, el enfoque y el estado real del proyecto."
+                eyebrow={text("Casos de producto", "Product case studies")}
+                title={text(
+                  "Problemas, decisiones y resultados.",
+                  "Problems, decisions and outcomes.",
+                )}
+                copy={text(
+                  "Cada caso explica la necesidad, el enfoque y el estado actual del proyecto.",
+                  "Each case explains the need, the approach and the project's current status.",
+                )}
               />
               <div className="quick-projects quick-projects--detailed">
-                {PROJECTS.map((project) => (
+                {projects.map((project) => (
                   <article className="quick-project-card" key={project.id}>
                     <div className="quick-project-card__meta">
                       <span className="project-status">{project.status.label}</span>
@@ -313,7 +374,7 @@ export function QuickView({
                       {project.problemSolved}
                     </p>
                     <button type="button" onClick={() => onProject(project)}>
-                      Abrir expediente →
+                      {text("Abrir caso →", "Open case →")}
                     </button>
                   </article>
                 ))}
@@ -324,21 +385,30 @@ export function QuickView({
           {section === "tecnologias" ? (
             <section className="quick-panel-section">
               <SectionHeading
-                eyebrow="Capacidad de ejecución"
-                title="Tecnologías que uso para construir producto."
-                copy="Cada herramienta está organizada por su función: interfaz, lógica, datos y entrega."
+                eyebrow={text("Capacidad de ejecución", "Delivery capability")}
+                title={text(
+                  "Tecnologías que uso para construir producto.",
+                  "Technologies I use to build products.",
+                )}
+                copy={text(
+                  "Cada herramienta está organizada por su función: interfaz, lógica, datos y entrega.",
+                  "Each tool is organized by its role: interface, logic, data and delivery.",
+                )}
               />
               <div className="quick-tech-pipeline" aria-hidden="true">
-                <span>Interfaz</span>
+                <span>{text("Interfaz", "Interface")}</span>
                 <i />
-                <span>Lógica</span>
+                <span>{text("Lógica", "Logic")}</span>
                 <i />
-                <span>Datos</span>
+                <span>{text("Datos", "Data")}</span>
                 <i />
-                <span>Entrega</span>
+                <span>{text("Entrega", "Delivery")}</span>
               </div>
-              <div className="quick-tech-map" aria-label="Tecnologías por función">
-                {TECHNOLOGY_GROUPS.map((group, groupIndex) => (
+              <div
+                className="quick-tech-map"
+                aria-label={text("Tecnologías por función", "Technologies by role")}
+              >
+                {technologyGroups.map((group, groupIndex) => (
                   <article
                     className={`quick-tech-cluster quick-tech-cluster--${group.id}`}
                     key={group.id}
@@ -368,15 +438,24 @@ export function QuickView({
           {section === "educacion" ? (
             <section className="quick-panel-section">
               <SectionHeading
-                eyebrow="Credenciales"
-                title="Evidencia, no promesas."
-                copy="Formación universitaria, dominio de inglés verificable y AWS Academy Data Engineering Training completado con insignia disponible."
+                eyebrow={text("Credenciales", "Credentials")}
+                title={text(
+                  "Formación y credenciales verificables.",
+                  "Education and verifiable credentials.",
+                )}
+                copy={text(
+                  "Formación universitaria, dominio de inglés verificable y AWS Academy Data Engineering Training completado con insignia disponible.",
+                  "University studies, verified English proficiency and completed AWS Academy Data Engineering Training with an available badge.",
+                )}
               />
               <div
                 className="quick-library-grid quick-library-grid--compact"
-                aria-label="Credenciales académicas y técnicas"
+                aria-label={text(
+                  "Credenciales académicas y técnicas",
+                  "Academic and technical credentials",
+                )}
               >
-                {EDUCATION_LIBRARY.map((book) => (
+                {educationLibrary.map((book) => (
                   <article
                     className={`quick-library-book quick-library-book--${book.kind}`}
                     key={book.id}
@@ -391,15 +470,14 @@ export function QuickView({
                           {book.statusLabel}
                         </span>
                       </div>
-                      {"evidenceImage" in book &&
-                      book.evidenceImage.presentation === "badge" ? (
+                      {book.evidenceImage?.presentation === "badge" ? (
                         <div className="quick-library-book__badge-frame">
                           <Image
                             className="quick-library-book__badge"
-                            src={book.evidenceImage.src}
-                            alt={book.evidenceImage.alt}
-                            width={book.evidenceImage.width}
-                            height={book.evidenceImage.height}
+                            src={book.evidenceImage!.src}
+                            alt={book.evidenceImage!.alt}
+                            width={book.evidenceImage!.width}
+                            height={book.evidenceImage!.height}
                             sizes="88px"
                             unoptimized
                           />
@@ -428,40 +506,58 @@ export function QuickView({
           {section === "sobre-mi" ? (
             <section className="quick-panel-section">
               <SectionHeading
-                eyebrow="Forma de trabajar"
-                title="Pienso en producto y ejecuto de extremo a extremo."
-                copy="Puedo entrar en una conversación ambigua, encontrar el problema importante y convertirlo en software claro, comprobable y mantenible."
+                eyebrow={text("Forma de trabajar", "How I work")}
+                title={text(
+                  "Pienso en producto y ejecuto de extremo a extremo.",
+                  "I think in products and execute end to end.",
+                )}
+                copy={text(
+                  "Puedo entrar en una conversación ambigua, encontrar el problema importante y convertirlo en software claro, comprobable y mantenible.",
+                  "I can enter an ambiguous conversation, find the important problem and turn it into clear, testable and maintainable software.",
+                )}
               />
               <article className="quick-work-value">
-                <p className="eyebrow">Lo que aporto a un equipo</p>
-                <strong>No me limito a implementar tickets.</strong>
+                <p className="eyebrow">
+                  {text("Lo que aporto a un equipo", "What I bring to a team")}
+                </p>
+                <strong>
+                  {text(
+                    "Conecto contexto de negocio, experiencia de usuario y ejecución técnica.",
+                    "I connect business context, user experience and technical execution.",
+                  )}
+                </strong>
                 <p>
-                  Hago preguntas, detecto riesgos, explico decisiones y conecto la
-                  experiencia del usuario con la realidad técnica. El objetivo no es
-                  producir más código, sino entregar una solución que merezca existir.
+                  {text(
+                    "Hago preguntas, detecto riesgos y explico decisiones. El objetivo no es producir más código, sino entregar un resultado útil, medible y mantenible.",
+                    "I ask questions, identify risks and explain decisions. The goal is not to produce more code, but to deliver a useful, measurable and maintainable outcome.",
+                  )}
                 </p>
               </article>
               <div className="quick-work-principles">
-                {PROFILE.workPrinciples.map((principle, index) => (
+                {profile.workPrinciples.map((principle, index) => (
                   <article key={principle}>
-                    <span>{WORK_PRINCIPLE_LABELS[index] ?? "Mejorar"}</span>
+                    <span>
+                      {workPrincipleLabels[index] ?? text("Mejorar", "Improve")}
+                    </span>
                     <p>{principle}</p>
                   </article>
                 ))}
               </div>
               <div className="quick-profile-grid">
                 <article className="quick-info-block">
-                  <h3>Áreas donde puedo aportar</h3>
+                  <h3>
+                    {text("Áreas donde puedo aportar", "Where I can contribute")}
+                  </h3>
                   <ul className="tag-list">
-                    {PROFILE.interests.map((interest) => (
+                    {profile.interests.map((interest) => (
                       <li key={interest.id}>{interest.label}</li>
                     ))}
                   </ul>
                 </article>
                 <article className="quick-info-block">
-                  <h3>Comunicación</h3>
+                  <h3>{text("Comunicación", "Communication")}</h3>
                   <dl className="quick-language-list">
-                    {PROFILE.languages.map((language) => (
+                    {profile.languages.map((language) => (
                       <div key={language.id}>
                         <dt>{language.name}</dt>
                         <dd>{language.level}</dd>
@@ -476,9 +572,15 @@ export function QuickView({
           {section === "contacto" ? (
             <section className="quick-panel-section quick-contact-panel">
               <SectionHeading
-                eyebrow="Siguiente conversación"
-                title="¿Hay un problema que valga la pena resolver?"
-                copy="Correo, GitHub y LinkedIn están conectados para continuar la conversación sin pasos innecesarios."
+                eyebrow={text("Siguiente conversación", "Next conversation")}
+                title={text(
+                  "¿Hay un problema que valga la pena resolver?",
+                  "Is there a problem worth solving?",
+                )}
+                copy={text(
+                  "Correo, GitHub y LinkedIn están conectados para continuar la conversación sin pasos innecesarios.",
+                  "Email, GitHub and LinkedIn are ready to continue the conversation without unnecessary steps.",
+                )}
               />
               <div className="quick-actions">
                 <button
@@ -486,7 +588,7 @@ export function QuickView({
                   type="button"
                   onClick={onContact}
                 >
-                  Abrir contacto
+                  {text("Abrir contacto", "Open contact")}
                 </button>
                 {availableContactLinks.map((link) => (
                   <ResourceAction
@@ -495,9 +597,6 @@ export function QuickView({
                     onPlaceholder={onPlaceholder}
                   />
                 ))}
-                {cvLink ? (
-                  <ResourceAction link={cvLink} onPlaceholder={onPlaceholder} />
-                ) : null}
               </div>
             </section>
           ) : null}

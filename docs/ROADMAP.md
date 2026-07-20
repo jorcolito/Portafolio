@@ -1,4 +1,4 @@
-# Roadmap del MVP — JORGE.EXE
+# Roadmap — Portafolio interactivo de Jorge Colamarco
 
 **Objetivo de entrega:** una experiencia jugable y accesible formada por cuatro dioramas compactos y un contacto directo, con proyectos, biblioteca académica, señales personales reales y Quick View como ruta equivalente.
 
@@ -179,7 +179,7 @@ Cada fila debe tener evidencia: prueba automatizada, revisión manual reproducib
 | MVP-01 | Instalación limpia completa sin error | `npm install`/`npm ci` registrado |
 | MVP-02 | Servidor de desarrollo inicia y sirve la portada | Revisión manual en navegador |
 | MVP-03 | Build de producción termina sin error | Salida de `npm run build` |
-| MVP-04 | Se muestra `JORGE.EXE — A Developer's Tale` | Prueba de render o captura |
+| MVP-04 | Se muestra `Jorge Colamarco — Portafolio interactivo` | Prueba de render o captura |
 | MVP-05 | Enter, clic o toque inicia la experiencia | Prueba de interacción |
 | MVP-06 | La introducción se puede omitir | Prueba con preferencia normal y reducida |
 | MVP-07 | Jugador se mueve a izquierda/derecha | Prueba manual teclado/táctil |

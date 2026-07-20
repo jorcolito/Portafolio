@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 
 import { TECHNOLOGIES } from "@/src/data";
+import { useLocale } from "@/src/i18n/LocaleContext";
 import type { PortfolioProject } from "@/src/types";
 
 import { ModalShell } from "./ModalShell";
@@ -21,6 +22,7 @@ export function ProjectModal({
   project,
   onClose,
 }: ProjectModalProps) {
+  const { locale, text } = useLocale();
   const technologies = TECHNOLOGIES.filter((technology) =>
     project.technologyIds.includes(technology.id),
   );
@@ -34,7 +36,7 @@ export function ProjectModal({
   return (
     <ModalShell
       title={project.name}
-      eyebrow="Expediente de proyecto"
+      eyebrow={text("Caso de producto", "Product case study")}
       variant="project"
       wide
       onClose={onClose}
@@ -53,7 +55,7 @@ export function ProjectModal({
             <div className="project-dossier__visual-glow" aria-hidden="true" />
             <div className="project-dossier__visual-grid" aria-hidden="true" />
             <div className="project-visual__label project-dossier__visual-label">
-              <span>Entorno interactivo</span>
+              <span>{text("Entorno interactivo", "Interactive environment")}</span>
               <strong>{project.scene.objectLabel}</strong>
             </div>
             <span className="project-dossier__scanline" aria-hidden="true" />
@@ -62,7 +64,7 @@ export function ProjectModal({
           <div className="project-dossier__intro">
             <div className="project-dossier__meta">
               <span className="project-dossier__index">
-                CASE / {project.id.toUpperCase()}
+                {locale === "en" ? "CASE" : "CASO"} / {project.id.toUpperCase()}
               </span>
               <span
                 className={`project-status project-status--${project.status.tone}`}
@@ -79,7 +81,7 @@ export function ProjectModal({
               {project.description}
             </p>
             <p className="project-dossier__concept">
-              <span>Escena</span>
+              <span>{text("Escena", "Scene")}</span>
               {project.scene.concept}
             </p>
           </div>
@@ -88,16 +90,22 @@ export function ProjectModal({
         <div className="project-dossier__body">
           <section className="project-dossier__story" aria-labelledby={`${project.id}-challenge`}>
             <div>
-              <p className="project-section-kicker">El reto</p>
-              <h4 id={`${project.id}-challenge`}>Problema resuelto</h4>
+              <p className="project-section-kicker">{text("El reto", "The challenge")}</p>
+              <h4 id={`${project.id}-challenge`}>
+                {text("Problema resuelto", "Problem addressed")}
+              </h4>
               <p className="project-problem">{project.problemSolved}</p>
             </div>
           </section>
 
           <section className="project-dossier__capabilities" aria-labelledby={`${project.id}-capabilities`}>
             <div>
-              <p className="project-section-kicker">La solución</p>
-              <h4 id={`${project.id}-capabilities`}>Capacidades principales</h4>
+              <p className="project-section-kicker">
+                {text("La solución", "The solution")}
+              </p>
+              <h4 id={`${project.id}-capabilities`}>
+                {text("Capacidades principales", "Core capabilities")}
+              </h4>
               <ul className="project-list project-feature-grid">
                 {project.features.map((feature) => (
                   <li key={feature}>{feature}</li>
@@ -108,8 +116,12 @@ export function ProjectModal({
 
           <section className="project-dossier__stack" aria-labelledby={`${project.id}-stack`}>
             <div>
-              <p className="project-section-kicker">Construcción</p>
-              <h4 id={`${project.id}-stack`}>Tecnologías</h4>
+              <p className="project-section-kicker">
+                {text("Construcción", "Build")}
+              </p>
+              <h4 id={`${project.id}-stack`}>
+                {text("Tecnologías", "Technologies")}
+              </h4>
               {technologies.length > 0 ? (
                 <ul className="tag-list project-stack-list">
                   {technologies.map((technology) => (
@@ -126,7 +138,10 @@ export function ProjectModal({
         <footer className="project-dossier__footer">
           <p className="project-dossier__footer-note">
             <span aria-hidden="true">✦</span>
-            Producto real, documentación en evolución.
+            {text(
+              "Alcance, decisiones y estado actual documentados.",
+              "Scope, decisions and current status documented.",
+            )}
           </p>
           <div className="project-actions project-dossier__actions">
             {availableLinks.map((link, index) =>
@@ -143,7 +158,7 @@ export function ProjectModal({
                 </a>
             )}
             <button className="pixel-button" type="button" onClick={onClose}>
-              Volver al laboratorio
+              {text("Volver al portafolio", "Back to portfolio")}
             </button>
           </div>
         </footer>

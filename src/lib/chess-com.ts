@@ -10,7 +10,7 @@ export const CHESS_CACHE_SECONDS = 60 * 60;
 const CHESS_API_ROOT = `https://api.chess.com/pub/player/${CHESS_USERNAME}`;
 const CHESS_PROFILE_URL = `https://www.chess.com/member/${CHESS_USERNAME}`;
 const CHESS_USER_AGENT =
-  "JORGE.EXE portfolio chess widget/1.0 (Chess.com member: jorcolito)";
+  "Jorge Colamarco interactive portfolio/1.0 (Chess.com member: jorcolito)";
 
 interface ApiRatingBlock {
   last?: { rating?: number };

@@ -2,6 +2,10 @@
 
 import { useEffect } from "react";
 
+import { useLocale } from "@/src/i18n/LocaleContext";
+
+import { LanguageSwitcher } from "./LanguageSwitcher";
+
 const INTERACTIVE_TARGETS = [
   "button",
   "a[href]",
@@ -41,6 +45,8 @@ export function StartScreen({
   onQuickView,
   onSettings,
 }: StartScreenProps) {
+  const { text } = useLocale();
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (
@@ -68,26 +74,39 @@ export function StartScreen({
   return (
     <main className="boot-screen" aria-labelledby="boot-title">
       <div className="boot-card">
-        <p className="eyebrow">Sistema de portafolio interactivo</p>
+        <p className="eyebrow">
+          {text("Portafolio interactivo", "Interactive portfolio")}
+        </p>
         <h1 className="boot-brand" id="boot-title">
-          JORGE.EXE
+          Jorge Colamarco
         </h1>
-        <p className="boot-subtitle">A Developer&apos;s Tale</p>
+        <p className="boot-subtitle">
+          {text(
+            "Software, producto y criterio en movimiento",
+            "Software, product thinking and craft in motion",
+          )}
+        </p>
+        <LanguageSwitcher />
         <button className="boot-prompt" type="button" onClick={onStart}>
-          Press Enter
+          {text("Entrar al portafolio", "Enter portfolio")}
         </button>
         <div className="boot-actions">
           <button className="pixel-button pixel-button--ghost" type="button" onClick={onSkipIntro}>
-            Omitir introducción
+            {text("Omitir introducción", "Skip introduction")}
           </button>
           <button className="pixel-button pixel-button--ghost" type="button" onClick={onQuickView}>
-            Quick View
+            {text("Vista rápida", "Quick view")}
           </button>
           <button className="pixel-button pixel-button--ghost" type="button" onClick={onSettings}>
-            Accesibilidad
+            {text("Preferencias", "Preferences")}
           </button>
         </div>
-        <p className="boot-status">Build 0.1 · Guayaquil, Ecuador · Audio desactivado</p>
+        <p className="boot-status">
+          {text(
+            "Guayaquil, Ecuador · Audio desactivado",
+            "Guayaquil, Ecuador · Audio off",
+          )}
+        </p>
       </div>
     </main>
   );

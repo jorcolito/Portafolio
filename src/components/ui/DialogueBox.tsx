@@ -14,6 +14,7 @@ import type {
   DialogueFollowUp,
   GameDialogue,
 } from "@/src/game/types/contracts";
+import { useLocale } from "@/src/i18n/LocaleContext";
 
 interface DialogueBoxProps {
   dialogue: GameDialogue;
@@ -43,6 +44,7 @@ export function DialogueBox({
   reducedMotion,
   onFinish,
 }: DialogueBoxProps) {
+  const { text } = useLocale();
   const titleId = useId();
   const descriptionId = useId();
   const nextButtonRef = useRef<HTMLButtonElement>(null);
@@ -83,7 +85,23 @@ export function DialogueBox({
   const isLastLine = state.lineIndex === dialogue.lines.length - 1;
 
   useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     nextButtonRef.current?.focus();
+
+    const keepFocusInside = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      event.preventDefault();
+      nextButtonRef.current?.focus();
+    };
+    document.addEventListener("keydown", keepFocusInside);
+
+    return () => {
+      document.removeEventListener("keydown", keepFocusInside);
+      document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus();
+    };
   }, []);
 
   useEffect(() => {
@@ -244,8 +262,12 @@ export function DialogueBox({
   ]);
 
   const progress = useMemo(
-    () => `${state.lineIndex + 1} de ${dialogue.lines.length}`,
-    [dialogue.lines.length, state.lineIndex],
+    () =>
+      text(
+        `${state.lineIndex + 1} de ${dialogue.lines.length}`,
+        `${state.lineIndex + 1} of ${dialogue.lines.length}`,
+      ),
+    [dialogue.lines.length, state.lineIndex, text],
   );
 
   const handlePanelClick = (event: ReactMouseEvent<HTMLElement>) => {
@@ -257,12 +279,12 @@ export function DialogueBox({
 
   const actionLabel =
     state.phase === "closing"
-      ? "Cerrando…"
+      ? text("Cerrando…", "Closing…")
       : state.phase === "typing"
-        ? "Mostrar texto"
+        ? text("Mostrar texto", "Show text")
         : isLastLine
-          ? "Cerrar"
-          : "Continuar";
+          ? text("Cerrar", "Close")
+          : text("Continuar", "Continue");
 
   return (
     <div className="dialogue-overlay" data-dialogue-phase={state.phase}>
@@ -285,16 +307,21 @@ export function DialogueBox({
             aria-hidden={line.portrait ? undefined : true}
           >
             <span aria-hidden="true">
-              {line.portrait?.id === "robot" ? "BOT" : "EXE"}
+              {line.portrait?.id === "robot" ? "BOT" : "JC"}
             </span>
           </div>
           <div className="dialogue-identity">
-            <span className="dialogue-kicker">Transmisión activa</span>
+            <span className="dialogue-kicker">
+              {text("Conversación activa", "Active conversation")}
+            </span>
             <h2 id={titleId} className="dialogue-speaker">
-              {line.speaker ?? "JORGE.EXE"}
+              {line.speaker ?? "Jorge Colamarco"}
             </h2>
           </div>
-          <span className="dialogue-progress" aria-label={`Mensaje ${progress}`}>
+          <span
+            className="dialogue-progress"
+            aria-label={text(`Mensaje ${progress}`, `Message ${progress}`)}
+          >
             {progress}
           </span>
         </header>
@@ -324,7 +351,11 @@ export function DialogueBox({
           </div>
           <p className="dialogue-hint">
             <span className="keycap">ENTER</span>
-            <span>{state.phase === "typing" ? "revelar" : "avanzar"}</span>
+            <span>
+              {state.phase === "typing"
+                ? text("revelar", "reveal")
+                : text("avanzar", "advance")}
+            </span>
           </p>
           <button
             ref={nextButtonRef}

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ReactToGameCommand } from "@/src/game/types/contracts";
+import { useLocale } from "@/src/i18n/LocaleContext";
 
 interface TouchControlsProps {
   disabled: boolean;
@@ -30,8 +31,10 @@ export function TouchControls({
   send,
   onMenu,
 }: TouchControlsProps) {
+  const { text } = useLocale();
   const [interactionPending, setInteractionPending] = useState(false);
   const feedbackTimerRef = useRef<number | null>(null);
+  const controlsDisabled = disabled || !ready;
 
   const release = useCallback(
     (direction: "left" | "right") => send(holdCommand(direction, false)),
@@ -39,10 +42,10 @@ export function TouchControls({
   );
 
   useEffect(() => {
-    if (!disabled) return;
+    if (!controlsDisabled) return;
     release("left");
     release("right");
-  }, [disabled, release]);
+  }, [controlsDisabled, release]);
 
   useEffect(
     () => () => {
@@ -93,23 +96,27 @@ export function TouchControls({
         ? "action"
         : "explore";
   const statusKicker = !ready
-    ? "Preparando escenario"
+    ? text("Preparando escenario", "Preparing scene")
     : interactionPending
-      ? "Procesando acción"
+      ? text("Procesando acción", "Processing action")
       : canInteract
-        ? "Interactuable detectado"
-        : `Piso activo · ${floorLabel}`;
+        ? text("Interacción disponible", "Interaction available")
+        : text(`Piso activo · ${floorLabel}`, `Active floor · ${floorLabel}`);
   const statusLabel = !ready
-    ? "Cargando el laboratorio…"
+    ? text("Cargando el portafolio…", "Loading portfolio…")
     : interactionPending
-      ? "Abriendo contenido…"
-      : promptLabel ?? "Explora y acércate a un objeto resaltado";
+      ? text("Abriendo contenido…", "Opening content…")
+      : promptLabel ??
+        text(
+          "Explora y acércate a un objeto resaltado",
+          "Explore and approach a highlighted object",
+        );
 
   return (
     <div
       className="touch-controls"
       data-status={statusMode}
-      aria-label="Controles táctiles"
+      aria-label={text("Controles táctiles", "Touch controls")}
     >
       <div
         className="touch-status"
@@ -124,20 +131,28 @@ export function TouchControls({
         </span>
         {canInteract && !interactionPending ? (
           <span className="touch-status__hint" aria-hidden="true">
-            Usa E
+            {text("Usa E", "Press E")}
           </span>
         ) : null}
       </div>
 
       <div className="touch-controls__pad">
-        <div className="touch-cluster touch-cluster--move" role="group" aria-label="Movimiento">
+        <div
+          className="touch-cluster touch-cluster--move"
+          role="group"
+          aria-label={text("Movimiento", "Movement")}
+        >
         {(["left", "right"] as const).map((direction) => (
           <button
             className="touch-button touch-button--direction"
             type="button"
             key={direction}
-            aria-label={direction === "left" ? "Mover a la izquierda" : "Mover a la derecha"}
-            disabled={disabled}
+            aria-label={
+              direction === "left"
+                ? text("Mover a la izquierda", "Move left")
+                : text("Mover a la derecha", "Move right")
+            }
+            disabled={controlsDisabled}
             onPointerDown={(event) => {
               event.currentTarget.setPointerCapture(event.pointerId);
               send(holdCommand(direction, true));
@@ -151,44 +166,62 @@ export function TouchControls({
               {direction === "left" ? "←" : "→"}
             </span>
             <span className="touch-button__label">
-              {direction === "left" ? "Izquierda" : "Derecha"}
+              {direction === "left"
+                ? text("Izquierda", "Left")
+                : text("Derecha", "Right")}
             </span>
           </button>
         ))}
         </div>
 
-        <div className="touch-cluster touch-cluster--actions" role="group" aria-label="Acciones">
+        <div
+          className="touch-cluster touch-cluster--actions"
+          role="group"
+          aria-label={text("Acciones", "Actions")}
+        >
         <button
           className="touch-button touch-button--elevator"
           type="button"
-          aria-label="Abrir elevador"
+          aria-label={text("Abrir elevador", "Open elevator")}
+          disabled={controlsDisabled}
           onClick={onMenu}
         >
           <span className="touch-button__glyph" aria-hidden="true">Q</span>
-          <span className="touch-button__label">Elevador</span>
+          <span className="touch-button__label">
+            {text("Elevador", "Elevator")}
+          </span>
         </button>
         <button
           className="touch-button touch-button--interact"
           type="button"
-          aria-label={promptLabel ? `Interactuar: ${promptLabel}` : "Interactuar"}
-          disabled={disabled || !canInteract}
+          aria-label={
+            promptLabel
+              ? text(
+                  `Interactuar: ${promptLabel}`,
+                  `Interact: ${promptLabel}`,
+                )
+              : text("Interactuar", "Interact")
+          }
+          disabled={controlsDisabled || !canInteract}
           data-ready={canInteract ? "true" : "false"}
           onClick={interact}
         >
           <span className="touch-button__glyph" aria-hidden="true">E</span>
           <span className="touch-button__label">
-            {interactionPending ? "Abriendo" : "Usar"}
+            {interactionPending
+              ? text("Abriendo", "Opening")
+              : text("Usar", "Use")}
           </span>
         </button>
         <button
           className="touch-button touch-button--jump"
           type="button"
-          aria-label="Saltar"
-          disabled={disabled}
+          aria-label={text("Saltar", "Jump")}
+          disabled={controlsDisabled}
           onClick={() => send({ type: "jump" })}
         >
           <span className="touch-button__glyph" aria-hidden="true">↑</span>
-          <span className="touch-button__label">Saltar</span>
+          <span className="touch-button__label">{text("Saltar", "Jump")}</span>
         </button>
         </div>
       </div>
