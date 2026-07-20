@@ -7,11 +7,11 @@ import { useLocale } from "@/src/i18n/LocaleContext";
 import type { PortfolioProject } from "@/src/types";
 
 import { ModalShell } from "./ModalShell";
+import { ProjectCarousel } from "./ProjectCarousel";
 
 interface ProjectModalProps {
   project: PortfolioProject;
   onClose: () => void;
-  onPlaceholder: (message: string) => void;
 }
 
 type ProjectAccentStyle = CSSProperties & {
@@ -47,19 +47,27 @@ export function ProjectModal({
         data-project-id={project.id}
       >
         <header className="project-dossier__hero">
-          <div
-            className={`project-visual project-visual--${project.id} project-dossier__visual`}
-            role="img"
-            aria-label={project.media.alt}
-          >
-            <div className="project-dossier__visual-glow" aria-hidden="true" />
-            <div className="project-dossier__visual-grid" aria-hidden="true" />
-            <div className="project-visual__label project-dossier__visual-label">
-              <span>{text("Entorno interactivo", "Interactive environment")}</span>
-              <strong>{project.scene.objectLabel}</strong>
+          {project.media.kind === "gallery" ? (
+            <ProjectCarousel
+              key={project.id}
+              projectName={project.name}
+              media={project.media}
+            />
+          ) : (
+            <div
+              className={`project-visual project-visual--${project.id} project-dossier__visual`}
+              role="img"
+              aria-label={project.media.alt}
+            >
+              <div className="project-dossier__visual-glow" aria-hidden="true" />
+              <div className="project-dossier__visual-grid" aria-hidden="true" />
+              <div className="project-visual__label project-dossier__visual-label">
+                <span>{text("Entorno interactivo", "Interactive environment")}</span>
+                <strong>{project.scene.objectLabel}</strong>
+              </div>
+              <span className="project-dossier__scanline" aria-hidden="true" />
             </div>
-            <span className="project-dossier__scanline" aria-hidden="true" />
-          </div>
+          )}
 
           <div className="project-dossier__intro">
             <div className="project-dossier__meta">

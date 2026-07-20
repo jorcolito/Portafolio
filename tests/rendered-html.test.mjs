@@ -41,7 +41,16 @@ test("renderiza la entrada bilingüe de Jorge Colamarco", async () => {
 });
 
 test("conserva datos tipados y Phaser desacoplado de React", async () => {
-  const [packageJson, projects, gameCanvas, contracts, localized] = await Promise.all([
+  const [
+    packageJson,
+    projects,
+    gameCanvas,
+    contracts,
+    localized,
+    carousel,
+    projectsScene,
+    educationScene,
+  ] = await Promise.all([
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     readFile(new URL("../src/data/projects.ts", import.meta.url), "utf8"),
     readFile(
@@ -50,6 +59,18 @@ test("conserva datos tipados y Phaser desacoplado de React", async () => {
     ),
     readFile(new URL("../src/game/types/contracts.ts", import.meta.url), "utf8"),
     readFile(new URL("../src/data/localized.ts", import.meta.url), "utf8"),
+    readFile(
+      new URL("../src/components/ui/ProjectCarousel.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../src/game/scenes/ProjectsScene.ts", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../src/game/scenes/InfoFloorScene.ts", import.meta.url),
+      "utf8",
+    ),
   ]);
 
   assert.match(packageJson, /"phaser": "\^3\.90\.0"/);
@@ -57,10 +78,26 @@ test("conserva datos tipados y Phaser desacoplado de React", async () => {
   assert.match(projects, /id: "shiko"/);
   assert.match(projects, /id: "comernova"/);
   assert.match(projects, /availability: "placeholder"/);
+  assert.match(projects, /kind: "gallery"/);
+  assert.match(projects, /https:\/\/comernova\.vercel\.app/);
+  assert.match(projects, /\/projects\/comernova-home\.webp/);
+  assert.match(projects, /\/projects\/comernova-catalog\.webp/);
+  assert.match(projects, /\/projects\/comernova-cart\.webp/);
   assert.match(gameCanvas, /import\("\.\.\/\.\.\/game"\)/);
   assert.match(contracts, /GameToReactEvent/);
   assert.match(contracts, /ReactToGameCommand/);
   assert.match(localized, /Product-minded software developer/);
   assert.match(localized, /getLocalizedDialogue/);
+  assert.match(carousel, /ArrowLeft/);
+  assert.match(carousel, /ArrowRight/);
+  assert.match(carousel, /onPointerDown/);
+  assert.match(carousel, /aria-live="polite"/);
+  assert.match(carousel, /event\.target !== event\.currentTarget/);
+  assert.match(carousel, /activeImage\.caption/);
+  assert.doesNotMatch(carousel, /setInterval|autoplay/i);
+  assert.match(projectsScene, /\{ x: 175, y: 307, width: 250, height: 126 \}/);
+  assert.match(educationScene, /\{ x: 486, y: 264, width: 50, height: 44 \}/);
+  assert.match(educationScene, /\{ x: 539, y: 300, width: 88, height: 62 \}/);
+  assert.match(educationScene, /\{ x: 662, y: 299, width: 120, height: 76 \}/);
   assert.doesNotMatch(gameCanvas, /new Phaser\.Game/);
 });

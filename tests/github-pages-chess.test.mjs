@@ -68,9 +68,15 @@ test("prepara y verifica la ruta /Portafolio del artefacto", async (t) => {
 
   await mkdir(path.join(temporaryDirectory, "assets"), { recursive: true });
   await mkdir(path.join(temporaryDirectory, "data"), { recursive: true });
+  await mkdir(path.join(temporaryDirectory, "projects"), { recursive: true });
   await writeFile(
     path.join(temporaryDirectory, "assets", "app.js"),
-    'fetch("/data/chess-snapshot.json");fetch("/api/chess");',
+    'fetch("/data/chess-snapshot.json");fetch("/api/chess");const screenshot="/projects/comernova-home.webp";',
+    "utf8",
+  );
+  await writeFile(
+    path.join(temporaryDirectory, "projects", "comernova-home.webp"),
+    "fixture",
     "utf8",
   );
   await copyFile(
@@ -87,4 +93,6 @@ test("prepara y verifica la ruta /Portafolio del artefacto", async (t) => {
   );
   assert.match(bundle, /\/Portafolio\/data\/chess-snapshot\.json/);
   assert.match(bundle, /\/Portafolio\/api\/chess/);
+  assert.match(bundle, /\/Portafolio\/projects\/comernova-home\.webp/);
+  assert.doesNotMatch(bundle, /["']\/projects\/comernova-home\.webp["']/);
 });

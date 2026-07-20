@@ -7,6 +7,7 @@ const publicRoots = [
   "/scenes/",
   "/portraits/",
   "/credentials/",
+  "/projects/",
   "/data/",
   "/favicon.svg",
   "/og.png",

@@ -7,6 +7,8 @@ import type {
   PortfolioProfile,
   PortfolioProject,
   ProjectId,
+  ProjectMediaGallery,
+  ProjectMediaImage,
   ResourceLink,
   TechnologyGroup,
 } from "../types";
@@ -119,6 +121,30 @@ interface ProjectTranslation {
   objectLabel: string;
   mediaLabel: string;
   mediaAlt: string;
+  mediaImageAlts?: readonly string[];
+  mediaImageCaptions?: readonly string[];
+}
+
+function translateGalleryImages(
+  images: ProjectMediaGallery["images"],
+  copy: ProjectTranslation,
+): ProjectMediaGallery["images"] {
+  const translateImage = (
+    image: ProjectMediaImage,
+    index: number,
+  ): ProjectMediaImage => ({
+    ...image,
+    alt: copy.mediaImageAlts?.[index] ?? image.alt,
+    caption: copy.mediaImageCaptions?.[index] ?? image.caption,
+  });
+  const [firstImage, ...remainingImages] = images;
+
+  return [
+    translateImage(firstImage, 0),
+    ...remainingImages.map((image, index) =>
+      translateImage(image, index + 1),
+    ),
+  ];
 }
 
 const PROJECT_COPY_EN: Record<ProjectId, ProjectTranslation> = {
@@ -178,25 +204,35 @@ const PROJECT_COPY_EN: Record<ProjectId, ProjectTranslation> = {
   comernova: {
     category: "E-commerce",
     shortDescription:
-      "Online store for a home-organization retailer.",
+      "Live online store for a home-organization retailer.",
     description:
-      "An e-commerce project for a home-organization retailer, conceived as a mobile-first experience.",
+      "A live, mobile-first e-commerce experience for a home-organization retailer.",
     problemSolved:
-      "Organizes catalog, inventory and product administration in a coherent shopping experience for customers and store operators.",
+      "Turns a broad product catalog into a clear shopping flow, from discovery and filtering to delivery, payment preference and WhatsApp confirmation.",
     features: [
-      "Catalog",
-      "Categories",
-      "Administration dashboard",
-      "Product management",
-      "Inventory",
+      "Search and category filters",
+      "Responsive product catalog",
+      "Cart and quantity controls",
+      "Delivery-zone selection",
+      "Payment preference",
+      "WhatsApp order confirmation",
       "Supabase integration",
-      "Mobile-first design",
     ],
-    statusLabel: "In development",
+    statusLabel: "Live",
     sceneConcept: "A perfectly organized technology-enabled room.",
     objectLabel: "Comernova catalog station",
-    mediaLabel: "Interactive environment",
-    mediaAlt: "Visual representation of the Comernova environment",
+    mediaLabel: "Live product",
+    mediaAlt: "Gallery of the live Comernova web experience",
+    mediaImageAlts: [
+      "Comernova home page presenting its home-organization value proposition",
+      "Comernova catalog with search, categories and product cards",
+      "Comernova cart with delivery, payment and WhatsApp confirmation",
+    ],
+    mediaImageCaptions: [
+      "Home page and value proposition",
+      "Search, categories and catalog",
+      "Cart and order confirmation",
+    ],
   },
 };
 
@@ -205,7 +241,11 @@ function translateProjectLink(link: ResourceLink, projectName: string): Resource
   if (link.availability === "available") {
     return {
       ...link,
-      ariaLabel: `Open the ${projectName} ${resource}`,
+      label:
+        link.kind === "demo"
+          ? `Visit ${projectName}`
+          : `View ${projectName} on GitHub`,
+      ariaLabel: `Open the ${projectName} ${resource} in a new tab`,
     };
   }
   return {
@@ -232,11 +272,19 @@ const PROJECTS_EN: readonly PortfolioProject[] = PROJECTS.map((project) => {
       concept: copy.sceneConcept,
       objectLabel: copy.objectLabel,
     },
-    media: {
-      ...project.media,
-      label: copy.mediaLabel,
-      alt: copy.mediaAlt,
-    },
+    media:
+      project.media.kind === "gallery"
+        ? {
+            ...project.media,
+            label: copy.mediaLabel,
+            alt: copy.mediaAlt,
+            images: translateGalleryImages(project.media.images, copy),
+          }
+        : {
+            ...project.media,
+            label: copy.mediaLabel,
+            alt: copy.mediaAlt,
+          },
     links: {
       demo: translateProjectLink(project.links.demo, project.name),
       repository: translateProjectLink(project.links.repository, project.name),

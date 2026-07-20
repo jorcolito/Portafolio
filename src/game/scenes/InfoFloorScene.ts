@@ -32,14 +32,16 @@ export class InfoFloorScene extends BasePortfolioScene {
     this.addInteractiveOutline(
       "education-uees",
       [
-        { x: 465, y: 257 },
-        { x: 474, y: 244 },
-        { x: 495, y: 248 },
-        { x: 511, y: 243 },
-        { x: 520, y: 253 },
-        { x: 518, y: 287 },
-        { x: 492, y: 281 },
-        { x: 469, y: 291 },
+        { x: 466, y: 254 },
+        { x: 474, y: 248 },
+        { x: 485, y: 252 },
+        { x: 498, y: 247 },
+        { x: 506, y: 252 },
+        { x: 505, y: 273 },
+        { x: 496, y: 278 },
+        { x: 486, y: 273 },
+        { x: 475, y: 280 },
+        { x: 468, y: 274 },
       ],
       0,
     );
@@ -47,19 +49,21 @@ export class InfoFloorScene extends BasePortfolioScene {
       type: "dialogue",
       dialogueId: "uees-record",
       after: { type: "library", itemId: "uees-degree-volume" },
-    }, { x: 492, y: 268, width: 62, height: 54 });
+    }, { x: 486, y: 264, width: 50, height: 44 });
 
     this.addInteractiveOutline(
       "education-english",
       [
-        { x: 500, y: 309 },
-        { x: 516, y: 288 },
-        { x: 548, y: 299 },
-        { x: 577, y: 289 },
-        { x: 586, y: 314 },
-        { x: 576, y: 347 },
-        { x: 542, y: 340 },
-        { x: 512, y: 351 },
+        { x: 499, y: 305 },
+        { x: 509, y: 274 },
+        { x: 540, y: 286 },
+        { x: 554, y: 277 },
+        { x: 578, y: 285 },
+        { x: 576, y: 318 },
+        { x: 550, y: 326 },
+        { x: 540, y: 321 },
+        { x: 512, y: 319 },
+        { x: 503, y: 315 },
       ],
       260,
     );
@@ -67,19 +71,23 @@ export class InfoFloorScene extends BasePortfolioScene {
       type: "dialogue",
       dialogueId: "english-certificate",
       after: { type: "library", itemId: "english-c1-volume" },
-    }, { x: 544, y: 320, width: 88, height: 68 });
+    }, { x: 539, y: 300, width: 88, height: 62 });
 
     this.addInteractiveOutline(
       "education-aws",
       [
-        { x: 625, y: 321 },
-        { x: 646, y: 283 },
-        { x: 687, y: 296 },
-        { x: 728, y: 281 },
-        { x: 746, y: 326 },
-        { x: 731, y: 367 },
-        { x: 695, y: 383 },
-        { x: 647, y: 374 },
+        { x: 607, y: 319 },
+        { x: 625, y: 283 },
+        { x: 637, y: 267 },
+        { x: 658, y: 282 },
+        { x: 670, y: 285 },
+        { x: 686, y: 267 },
+        { x: 712, y: 276 },
+        { x: 716, y: 317 },
+        { x: 703, y: 331 },
+        { x: 667, y: 326 },
+        { x: 657, y: 331 },
+        { x: 620, y: 326 },
       ],
       520,
     );
@@ -87,7 +95,7 @@ export class InfoFloorScene extends BasePortfolioScene {
       type: "dialogue",
       dialogueId: "aws-certificate",
       after: { type: "library", itemId: "aws-certificate-volume" },
-    }, { x: 686, y: 333, width: 124, height: 108 });
+    }, { x: 662, y: 299, width: 120, height: 76 });
 
     this.addInteractiveOutline(
       "education-technologies",

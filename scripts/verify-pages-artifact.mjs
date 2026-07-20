@@ -29,8 +29,15 @@ export async function verifyPagesArtifact(
     ? ""
     : `/${repositoryName}`;
   const publicSnapshotUrl = `${basePath}/data/chess-snapshot.json`;
+  const comernovaImageUrl = `${basePath}/projects/comernova-home.webp`;
   const snapshotPath = path.join(siteDirectory, "data", "chess-snapshot.json");
+  const comernovaImagePath = path.join(
+    siteDirectory,
+    "projects",
+    "comernova-home.webp",
+  );
   await access(snapshotPath);
+  await access(comernovaImagePath);
   const snapshot = JSON.parse(await readFile(snapshotPath, "utf8"));
 
   assert(snapshot.username === "jorcolito", "Chess snapshot username is invalid");
@@ -50,8 +57,10 @@ export async function verifyPagesArtifact(
 
   const javascriptFiles = await collectJavascript(siteDirectory);
   let clientBundle = "";
+  let javascriptBundle = "";
   for (const file of javascriptFiles) {
     const source = await readFile(file, "utf8");
+    javascriptBundle += source;
     if (source.includes("chess-snapshot.json")) clientBundle += source;
   }
 
@@ -60,17 +69,25 @@ export async function verifyPagesArtifact(
     clientBundle.includes(publicSnapshotUrl),
     `Client artifact does not use Pages-safe URL ${publicSnapshotUrl}`,
   );
+  assert(
+    javascriptBundle.includes(comernovaImageUrl),
+    `Client artifact does not use Pages-safe URL ${comernovaImageUrl}`,
+  );
   if (basePath) {
     assert(
       !clientBundle.includes('"/data/chess-snapshot.json"'),
       "Client artifact still contains a root-relative Chess snapshot URL",
     );
+    assert(
+      !javascriptBundle.includes('"/projects/comernova-home.webp"'),
+      "Client artifact still contains a root-relative Comernova image URL",
+    );
   }
 
   console.log(
-    `Pages artifact verified: ${publicSnapshotUrl} · ${snapshot.recentGames.length} recent games`,
+    `Pages artifact verified: ${publicSnapshotUrl} · ${comernovaImageUrl} · ${snapshot.recentGames.length} recent games`,
   );
-  return { basePath, publicSnapshotUrl, snapshot };
+  return { basePath, publicSnapshotUrl, comernovaImageUrl, snapshot };
 }
 
 const isDirectExecution =

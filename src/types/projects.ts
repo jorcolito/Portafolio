@@ -7,7 +7,8 @@ export type ProjectId = "cardrive" | "shiko" | "comernova";
 export type ProjectStatusId =
   | "mvp-in-development"
   | "mvp-design-and-architecture"
-  | "in-development";
+  | "in-development"
+  | "live";
 
 export interface ProjectStatus {
   readonly id: ProjectStatusId;
@@ -29,6 +30,24 @@ export interface ProjectMediaPlaceholder {
   readonly alt: string;
 }
 
+export interface ProjectMediaImage {
+  readonly id: string;
+  readonly src: string;
+  readonly alt: string;
+  readonly caption: string;
+  readonly width: number;
+  readonly height: number;
+}
+
+export interface ProjectMediaGallery {
+  readonly kind: "gallery";
+  readonly label: string;
+  readonly alt: string;
+  readonly images: readonly [ProjectMediaImage, ...ProjectMediaImage[]];
+}
+
+export type ProjectMedia = ProjectMediaPlaceholder | ProjectMediaGallery;
+
 export interface ProjectLinks {
   readonly demo: ResourceLink;
   readonly repository: ResourceLink;
@@ -46,6 +65,6 @@ export interface PortfolioProject {
   readonly technologyNote?: string;
   readonly status: ProjectStatus;
   readonly scene: ProjectScene;
-  readonly media: ProjectMediaPlaceholder;
+  readonly media: ProjectMedia;
   readonly links: ProjectLinks;
 }

@@ -485,7 +485,6 @@ export function JorgeExeExperience() {
         <ProjectModal
           project={getLocalizedProject(locale, overlay.projectId)}
           onClose={closeOverlay}
-          onPlaceholder={showNotice}
         />
       ) : null}
 
